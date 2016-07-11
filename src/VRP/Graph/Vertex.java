@@ -5,8 +5,17 @@ import java.util.Map;
 
 public class Vertex {
     public String name; // name of the vertex
+    public VertexType type; // Vertex is vehicle or customer
     public Map<Vertex, Integer> neighbours = new HashMap<>(); // an hash map contains neighbors of the nodes, maps the vertex to it's weight (HashMap used for optimal access in O(1))
 
+    // if node is customer
+    public int demand; // Dc: demand of the customer
+    public int penalty; // Pc: penalty per minute of the customer for being late
+    public int earliestTime; // Ec: earliest time for delivery to the customer
+    public int latestTime; // Lc: latest time for delivery to the customer
+
+    // if node is vehicle
+    public int fixedCost; // Fv: fixed cost for the vehicle
     public int capacity;  // Qv: capacity for the vehicle
 
     // these two attributes used for dijkstra algorithm
