@@ -1,9 +1,9 @@
 package VRP.Graph;
 
 /**
- * Type of the vertex
+ * Type of a vertex
  */
 public enum VertexType {
-    VEHICLE,
+    DEPOT,
     CUSTOMER
 }
