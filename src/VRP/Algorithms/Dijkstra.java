@@ -1,5 +1,6 @@
 package VRP.Algorithms;
 
+import VRP.Graph.Edge;
 import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
 
@@ -30,33 +31,33 @@ public class Dijkstra {
         PriorityQueue<Vertex> pq = new PriorityQueue<>(10, new Comparator<Vertex>() {
             @Override
             public int compare(Vertex v1, Vertex v2) {
-                return Integer.compare(v1.dist, v2.dist);
+                return Integer.compare(v1.distOnShortestPath, v2.distOnShortestPath);
             }
         });
 
         // initialize vertices
         for (Vertex v : adjacencyList.values()) {
             if (v == source){
-                v.dist = 0; v.previous = source; // for start node distance is 0 and previous node is itself
+                v.distOnShortestPath = 0; v.previousNodeOnShortestPath = source; // for start node distance is 0 and previous node is itself
             } else {
-                v.dist = Integer.MAX_VALUE; v.previous = null; // for all other nodes set their distance to infinity and previous to null
+                v.distOnShortestPath = Integer.MAX_VALUE; v.previousNodeOnShortestPath = null; // for all other nodes set their distance to infinity and previous to null
             }
             pq.add(v); // add node to priority queue
         }
 
         while (!pq.isEmpty()) {
             Vertex u = pq.poll(); // vertex with shortest distance (first iteration will return source)
-            if (u.dist == Integer.MAX_VALUE) break; // we can ignore u (and any other remaining vertices) since they are unreachable
+            if (u.distOnShortestPath == Integer.MAX_VALUE) break; // we can ignore u (and any other remaining vertices) since they are unreachable
 
             //look at distances to each neighbour
             for (Map.Entry<Vertex, Integer> a : u.neighbours.entrySet()) {
                 Vertex v = a.getKey(); //the neighbour in this iteration
 
                 int weight = a.getValue();
-                if (u.dist + weight < v.dist) { // shorter path to neighbour found
+                if (u.distOnShortestPath + weight < v.distOnShortestPath) { // shorter path to neighbour found
                     pq.remove(v);             // remove it from pq
-                    v.dist = u.dist + weight; // update its distance
-                    v.previous = u;           // update its previous node on the shortest path
+                    v.distOnShortestPath = u.distOnShortestPath + weight; // update its distance
+                    v.previousNodeOnShortestPath = u;           // update its previous node on the shortest path
                     pq.add(v);                // add it to the pq again
                 }
             }
@@ -80,5 +81,23 @@ public class Dijkstra {
         for (Vertex v : adjacencyList.values()) {
             printPath(v.name);
         }
+    }
+
+    /** Make Shortestpath graph **/
+    public Graph makeShortestPathGraph(){
+        Graph graph = new Graph();
+        for (Vertex u: adjacencyList.values())
+            graph.addVertex(new Vertex(u));
+
+        for (Vertex u: adjacencyList.values()){
+            this.run(u.name);
+
+            for (Vertex v: adjacencyList.values()){
+                graph.addEdge(new Edge(u.name, v.name, v.distOnShortestPath));
+
+            }
+        }
+
+        return graph;
     }
 }
