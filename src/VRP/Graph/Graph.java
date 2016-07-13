@@ -16,15 +16,16 @@ public class Graph {
     /**
      * Constructor: Default
      */
-    public Graph(){
+    public Graph() {
         adjacencyList = new HashMap<>();
     }
 
     /**
      * Constructor: builds a Graph from a csv file
+     *
      * @param path: path to the csv file
      */
-    public Graph(String path){
+    public Graph(String path) {
         adjacencyList = new HashMap<>();
 
         try {
@@ -43,9 +44,10 @@ public class Graph {
             int numberOfCustomers = Integer.parseInt(sc.nextLine().split(",")[1]);
             sc.nextLine(); // skip the line
 
-            for (int i=0 ; i<numberOfCustomers ; i++){
+            for (int i = 0; i < numberOfCustomers; i++) {
                 String[] tokens = sc.nextLine().split(",");
-                addVertex(new Vertex(tokens[0],
+                addVertex(
+                        new Vertex(tokens[0],
                                 VertexType.CUSTOMER,
                                 Integer.parseInt(tokens[1]),
                                 Integer.parseInt(tokens[2]),
@@ -55,9 +57,19 @@ public class Graph {
                 );
             }
 
+            // read ordinary vertices
+            int numberOfOrdinaryVertices = Integer.parseInt(sc.nextLine().split(",")[1]);
+            sc.nextLine(); // skip the line
+
+            for (int i = 0; i < numberOfOrdinaryVertices; i++) {
+                addVertex(new Vertex(sc.nextLine(), VertexType.ORDINARY));
+            }
+
             // read edges
             int numberOfEdges = Integer.parseInt(sc.nextLine().split(",")[1]);
-            for (int i=0 ; i<numberOfEdges ; i++){
+            sc.nextLine(); // skip the line
+
+            for (int i = 0; i < numberOfEdges; i++) {
                 String[] tokens = sc.nextLine().split(",");
                 addEdge(new Edge(tokens[0], tokens[1], Integer.parseInt(tokens[2])));
                 addEdge(new Edge(tokens[1], tokens[0], Integer.parseInt(tokens[2])));
@@ -71,14 +83,14 @@ public class Graph {
     /**
      * adds a vertex to the adjacency list
      */
-    public void addVertex(Vertex u){
+    public void addVertex(Vertex u) {
         if (!adjacencyList.containsKey(u.name)) adjacencyList.put(u.name, u);
     }
 
     /**
      * adds an edge to the adjacency list
      */
-    public void addEdge(Edge e){
+    public void addEdge(Edge e) {
         if (!adjacencyList.containsKey(e.u)) adjacencyList.put(e.u, new Vertex(e.u));
         if (!adjacencyList.containsKey(e.v)) adjacencyList.put(e.v, new Vertex(e.v));
         adjacencyList.get(e.u).neighbours.put(adjacencyList.get(e.v), e.weight);
@@ -93,6 +105,17 @@ public class Graph {
         //one pass to find all vertices
         for (Edge e : edges) {
             addEdge(e);
+        }
+    }
+
+    /**
+     * prints edges of the graph
+     */
+    public void printGraph(){
+        for (Vertex u : adjacencyList.values()){
+            for (Vertex v : u.neighbours.keySet()){
+                System.out.println(u + " -(" + u.neighbours.get(v) + ")-> " + v );
+            }
         }
     }
 }

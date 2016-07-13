@@ -3,6 +3,7 @@ package VRP.Algorithms;
 import VRP.Graph.Edge;
 import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
+import VRP.Graph.VertexType;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -86,13 +87,18 @@ public class Dijkstra {
     /** Make Shortestpath graph **/
     public Graph makeShortestPathGraph(){
         Graph graph = new Graph();
-        for (Vertex u: adjacencyList.values())
-            graph.addVertex(new Vertex(u));
+        for (Vertex u: adjacencyList.values()) {
+            if (u.type != VertexType.ORDINARY) {
+                graph.addVertex(new Vertex(u));
+            }
+        }
 
         for (Vertex u: adjacencyList.values()){
-            this.run(u.name);
+            if (u.type == VertexType.ORDINARY) continue;
 
+            this.run(u.name);
             for (Vertex v: adjacencyList.values()){
+                if (v.type == VertexType.ORDINARY) continue;
                 graph.addEdge(new Edge(u.name, v.name, v.distOnShortestPath));
 
             }

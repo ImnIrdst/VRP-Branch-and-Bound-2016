@@ -11,14 +11,14 @@ number of ordinary nodes,2
 name
 F
 E
-NumberOfEdges,7
+NumberOfEdges,9
 Node 1,Node 2,Weight
 Depot,A,3
 Depot,B,2
 Depot,F,5
+A,C,2
 F,C,4
 A,E,1
-A,D,2
 D,C,3
 C,B,1
 E,D,1

@@ -73,6 +73,14 @@ public class Vertex {
         this.serviceTime = serviceTime;
     }
 
+    /**
+     * constructor for ordinary vertexes
+     */
+    public Vertex(String name, VertexType type){
+        this.name = name;
+        this.type = type;
+    }
+
     // prints path recursively in the following format => vertexName(distance from source)
     public void printPath() {
         if (this == this.previousNodeOnShortestPath) {
