@@ -1,4 +1,4 @@
-import VRP.Algorithms.Dijkstra;
+import VRP.Algorithms.Dijkstra.Dijkstra;
 import VRP.Graph.Edge;
 import VRP.Graph.Graph;
 

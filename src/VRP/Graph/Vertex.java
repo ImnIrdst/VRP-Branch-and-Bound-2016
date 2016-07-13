@@ -12,11 +12,12 @@ public class Vertex {
     public Map<Vertex, Integer> neighbours = new HashMap<>(); // an hash map contains neighbors of the nodes, maps the vertex to it's weight (HashMap used for optimal access in O(1))
 
     // if node is customer
-    public int demand; // Dc: demand of the customer
-    public int penalty; // Pc: penalty per minute of the customer for being late
-    public int earliestTime; // Ec: earliest time for delivery to the customer
-    public int latestTime; // Lc: latest time for delivery to the customer
-    public int serviceTime; // Sc: time required for a car to service the customer
+    public int customerId;          // id of the customer for using in branch and bound (filling servicedNodes boolean array)
+    public int demand;              // Dc: demand of the customer
+    public int penalty;             // Pc: penalty per minute of the customer for being late
+    public int earliestTime;        // Ec: earliest time for delivery to the customer
+    public int latestTime;          // Lc: latest time for delivery to the customer
+    public int serviceTime;         // Sc: time required for a car to service the customer
 
     // if node is depot
     public int numberOfVehicles; // V: number of vehicles on the depot
@@ -39,6 +40,7 @@ public class Vertex {
         this.name = vertex.name;
         this.type = vertex.type;
 
+        this.customerId = vertex.customerId;
         this.demand = vertex.demand;
         this.penalty = vertex.penalty;
         this.earliestTime = vertex.earliestTime;
@@ -63,7 +65,8 @@ public class Vertex {
     /**
      * constructor for customers
      */
-    public Vertex(String name, VertexType type, int demand, int penalty, int earliestTime, int latestTime, int serviceTime) {
+    public Vertex(String name, VertexType type, int customerId,
+                  int demand, int penalty, int earliestTime, int latestTime, int serviceTime) {
         this.name = name;
         this.type = type;
         this.demand = demand;
@@ -71,6 +74,7 @@ public class Vertex {
         this.earliestTime = earliestTime;
         this.latestTime = latestTime;
         this.serviceTime = serviceTime;
+        this.customerId = customerId;
     }
 
     /**

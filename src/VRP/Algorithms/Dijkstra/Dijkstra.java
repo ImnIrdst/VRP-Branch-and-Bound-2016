@@ -1,4 +1,4 @@
-package VRP.Algorithms;
+package VRP.Algorithms.Dijkstra;
 
 import VRP.Graph.Edge;
 import VRP.Graph.Graph;
@@ -18,7 +18,9 @@ public class Dijkstra {
         this.adjacencyList = graph.adjacencyList;
     }
 
-    /** Runs dijkstra using a specified source vertex O(nlogn + E)*/
+    /**
+     *  Runs dijkstra using a specified source vertex O(nlogn + E)
+     */
     public void run(String startName) {
 
         if (!adjacencyList.containsKey(startName)) { // if you set the wrong node to start dijkstra with it
@@ -84,7 +86,7 @@ public class Dijkstra {
         }
     }
 
-    /** Make Shortestpath graph **/
+    /** Make ShortestPath graph **/
     public Graph makeShortestPathGraph(){
         Graph graph = new Graph();
         for (Vertex u: adjacencyList.values()) {

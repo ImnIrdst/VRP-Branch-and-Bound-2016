@@ -1,5 +1,7 @@
 package VRP.Graph;
 
+import VRP.Algorithms.BranchAndBound.BBGlobalVariables;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,17 +40,22 @@ public class Graph {
             int fixedCostOfVehicle = Integer.parseInt(sc.nextLine().split(",")[1]);
             int capacityOfVehicle = Integer.parseInt(sc.nextLine().split(",")[1]);
 
+            // fill the global variable
+            BBGlobalVariables.vehicleFixedCost = fixedCostOfVehicle;
+            BBGlobalVariables.vehicleCapacity  = capacityOfVehicle;
+
             addVertex(new Vertex("Depot", VertexType.DEPOT, numberOfVehicles, fixedCostOfVehicle, capacityOfVehicle));
 
             // read customers info
             int numberOfCustomers = Integer.parseInt(sc.nextLine().split(",")[1]);
             sc.nextLine(); // skip the line
 
+            int cId = 0;
             for (int i = 0; i < numberOfCustomers; i++) {
                 String[] tokens = sc.nextLine().split(",");
                 addVertex(
                         new Vertex(tokens[0],
-                                VertexType.CUSTOMER,
+                                VertexType.CUSTOMER, cId++,
                                 Integer.parseInt(tokens[1]),
                                 Integer.parseInt(tokens[2]),
                                 Integer.parseInt(tokens[3]),
@@ -56,6 +63,9 @@ public class Graph {
                                 Integer.parseInt(tokens[5]))
                 );
             }
+
+            // fill the global variables
+            BBGlobalVariables.numberOfCustomers = numberOfCustomers;
 
             // read ordinary vertices
             int numberOfOrdinaryVertices = Integer.parseInt(sc.nextLine().split(",")[1]);
