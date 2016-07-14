@@ -76,18 +76,22 @@ public class BranchAndBound {
                 }
 
                 if (v.type == VertexType.CUSTOMER){
-                    if (u.remainedGoods < v.demand) continue;
-                    if (u.servicedNodes[v.customerId] == true) continue;
+                    // pruning criteria
+                    if (u.remainedGoods < v.demand) continue;   // check demand criterion
+                    if (u.servicedNodes[v.customerId] == true) continue; // check if this node serviced before
 
-                    if (u.timeElapsed + getDistance(u.vertex, v) > v.latestTime)
+                    // adding time and penalties
+                    if (u.timeElapsed + getDistance(u.vertex, v) > v.latestTime)        // if the vehicle arrive there too late
                         addedPenalty = v.penalty * (u.timeElapsed + getDistance(u.vertex, v) - v.latestTime);
-                    else if (u.timeElapsed + getDistance(u.vertex, v) < v.earliestTime)
+
+                    else if (u.timeElapsed + getDistance(u.vertex, v) < v.earliestTime) // if the vehicle arrive there too early
                         addedTime = getDistance(u.vertex, v) + (v.earliestTime - u.timeElapsed + getDistance(u.vertex, v));
-                    else
+
+                    else                                                                // if he gets there on time
                         addedTime = getDistance(u.vertex, v);
 
+                    // make new node
                     BBNode newNode = new BBNode(v, u.timeElapsed + addedTime, u.penaltyTaken + addedPenalty, u);
-
                     addNodeToPriorityQueue(newNode);
                 }
             }
