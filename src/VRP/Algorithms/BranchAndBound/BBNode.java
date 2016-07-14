@@ -44,10 +44,12 @@ public class BBNode {
         }
 
         // service to this node
-        if (parent != null && vertex.type != VertexType.DEPOT){
-            remainedGoods -= vertex.demand;
-            numberOfServicedCustomers++;
-            servicedNodes[vertex.customerId] = true;
+        if (parent != null && vertex.type == VertexType.CUSTOMER){
+            this.remainedGoods -= vertex.demand;
+            this.timeElapsed += vertex.serviceTime;
+
+            this.numberOfServicedCustomers++;
+            this.servicedNodes[vertex.customerId] = true;
         }
 
         // if the we are in the depot, we must use a new vehicle, and reset time and remained goods
