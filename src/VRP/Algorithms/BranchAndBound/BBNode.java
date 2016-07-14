@@ -69,16 +69,16 @@ public class BBNode {
     /**
      * go up int the tree and print the path
      */
-    void printPath(){
+    public String getStringPath(){
         if (this.parent == null){
-            //System.out.print(this.vertex);
+            return ""; //System.out.print(this.vertex);
         }
         else {
-            this.parent.printPath(); // recursive part of the function
+            String path = parent.getStringPath(); // recursive part of the function
             if (vertex.type == VertexType.DEPOT)
-                System.out.print("\n");
+                return path + "\n";
             else
-                System.out.printf(" -> %s", this.vertex);
+                return path + " -> " + this.vertex;
         }
     }
 

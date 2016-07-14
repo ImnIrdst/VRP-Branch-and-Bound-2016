@@ -17,6 +17,8 @@ public class BranchAndBound {
     public int minimumCost;                   // minimum cost we found
     public BBNode bestNode;                   // best node we found
 
+    private PriorityQueue<BBNode> pq;         // use priority queue (min heap) for best first search
+
     /**
      * constructor for a given graph
      *
@@ -25,6 +27,14 @@ public class BranchAndBound {
     public BranchAndBound(Graph graph) {
         this.adjacencyList = graph.adjacencyList;
         this.minimumCost = Integer.MAX_VALUE;
+
+
+        this.pq = new PriorityQueue<>(10, new Comparator<BBNode>() {
+            @Override
+            public int compare(BBNode u, BBNode v) {
+                return Integer.compare(u.cost(), v.cost());
+            }
+        });
     }
 
     /**
@@ -48,15 +58,7 @@ public class BranchAndBound {
      * @param depotName is name of the depot (node that contains vehicles)
      */
     public void run(String depotName) {
-        // use priority queue for best first search
-        PriorityQueue<BBNode> pq = new PriorityQueue<>(10, new Comparator<BBNode>() {
-            @Override
-            public int compare(BBNode u, BBNode v) {
-                return Integer.compare(u.cost(), v.cost());
-            }
-        });
-
-        // initial node
+        // add initial node
         pq.add(new BBNode(adjacencyList.get(depotName), 0, 0, null));
 
         // go down the tree
@@ -65,35 +67,12 @@ public class BranchAndBound {
         while (!pq.isEmpty()) {
             BBNode u = pq.poll();
 
-            if (u.servicedNodes[0] && u.servicedNodes[1])
-                u = u;
-            if (u.servicedNodes[0] && u.servicedNodes[1] && u.servicedNodes[2])
-                u = u;
-            if (u.servicedNodes[0] && u.servicedNodes[1] && u.servicedNodes[2] && u.servicedNodes[3])
-                u = u;
-
             for (Vertex v : adjacencyList.get(u.vertex.name).neighbours.keySet()) {
                 if (v.type == VertexType.DEPOT          // never go from depot to depot
                         && u.vertex.type == VertexType.DEPOT) continue;
 
                 if (v.type == VertexType.DEPOT){        // if you going to depot just go
-                    BBNode newNode = new BBNode(v, u.timeElapsed, u.penaltyTaken, u);
-
-                    // if this node is an answer
-                    if (newNode.vertex.type == VertexType.DEPOT
-                            && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers
-                            && newNode.cost() < minimumCost) {
-                        bestNode = newNode;
-                        minimumCost = newNode.cost();
-                        continue;
-                    }
-                    // if this node is a terminal node and not reducing the minimum answer throw it out.
-                    if (newNode.vertex.type == VertexType.DEPOT
-                            && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers) {
-                        continue;
-                    }
-
-                    pq.add(newNode); continue;
+                    addNodeToPriorityQueue(new BBNode(v, u.timeElapsed, u.penaltyTaken, u));
                 }
 
                 if (v.type == VertexType.CUSTOMER){
@@ -109,32 +88,44 @@ public class BranchAndBound {
 
                     BBNode newNode = new BBNode(v, u.timeElapsed + addedTime, u.penaltyTaken + addedPenalty, u);
 
-                    // if this node is an answer
-                    if (newNode.vertex.type == VertexType.DEPOT
-                            && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers
-                            && newNode.cost() < minimumCost) {
-                        bestNode = newNode;
-                        minimumCost = newNode.cost();
-                        continue;
-                    }
-                    // if this node is a terminal node and not reducing the minimum answer throw it out.
-                    if (newNode.vertex.type == VertexType.DEPOT
-                            && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers) {
-                        continue;
-                    }
-
-                    // if this node is a intermediate node add it to the queue.
-                    pq.add(newNode);
+                    addNodeToPriorityQueue(newNode);
                 }
             }
         }
     }
 
     /**
+     * add new node to the queue and check some criteria
+     * @param newNode node that must be added to the pq.
+     */
+    void addNodeToPriorityQueue(BBNode newNode){
+        // if this node is an answer
+        if (newNode.vertex.type == VertexType.DEPOT
+                && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers
+                && newNode.cost() < minimumCost) {
+            bestNode = newNode;
+            minimumCost = newNode.cost();
+            return;
+        }
+        // if this node is a terminal node and not reducing the minimum answer throw it out.
+        if (newNode.vertex.type == VertexType.DEPOT
+                && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers) {
+            return;
+        }
+
+        // if this node is a intermediate node add it to the queue.
+        pq.add(newNode);
+    }
+
+    /**
      * print the answer
      */
     public void printTheAnswer(){
-        bestNode.printPath();
-        System.out.println("\n\nMinimum Cost: " + minimumCost);
+        String[] paths = bestNode.getStringPath().split("\n");
+
+        for (String path : paths)
+            System.out.println("Depot " + path + " -> Depot");
+
+        System.out.println("Minimum Cost: " + minimumCost);
     }
 }
