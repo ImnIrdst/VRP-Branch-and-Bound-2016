@@ -15,8 +15,7 @@ public class Vertex {
     public int customerId;          // id of the customer for using in branch and bound (filling servicedNodes boolean array)
     public int demand;              // Dc: demand of the customer
     public int penalty;             // Pc: penalty per minute of the customer for being late
-    public int earliestTime;        // Ec: earliest time for delivery to the customer
-    public int latestTime;          // Lc: latest time for delivery to the customer
+    public int dueDate;        // Ec: earliest time for delivery to the customer
     public int serviceTime;         // Sc: time required for a car to service the customer
 
     // if node is depot
@@ -43,8 +42,7 @@ public class Vertex {
         this.customerId = vertex.customerId;
         this.demand = vertex.demand;
         this.penalty = vertex.penalty;
-        this.earliestTime = vertex.earliestTime;
-        this.latestTime = vertex.latestTime;
+        this.dueDate = vertex.dueDate;
         this.serviceTime = vertex.serviceTime;
 
         this.numberOfVehicles = vertex.numberOfVehicles;
@@ -66,13 +64,12 @@ public class Vertex {
      * constructor for customers
      */
     public Vertex(String name, VertexType type, int customerId,
-                  int demand, int penalty, int earliestTime, int latestTime, int serviceTime) {
+                  int demand, int penalty, int dueDate, int serviceTime) {
         this.name = name;
         this.type = type;
         this.demand = demand;
         this.penalty = penalty;
-        this.earliestTime = earliestTime;
-        this.latestTime = latestTime;
+        this.dueDate = dueDate;
         this.serviceTime = serviceTime;
         this.customerId = customerId;
     }

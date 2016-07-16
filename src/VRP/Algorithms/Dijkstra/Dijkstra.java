@@ -1,5 +1,6 @@
 package VRP.Algorithms.Dijkstra;
 
+import VRP.Algorithms.BranchAndBound.BBGlobalVariables;
 import VRP.Graph.Edge;
 import VRP.Graph.Graph;
 import VRP.Graph.Vertex;

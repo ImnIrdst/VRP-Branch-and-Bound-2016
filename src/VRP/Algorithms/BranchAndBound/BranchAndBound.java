@@ -22,46 +22,35 @@ public class BranchAndBound {
 
     /**
      * constructor for a given graph
+     *
      * @param graph a graph that has a Map<String, Vertex> adjacencyList
      */
     public BranchAndBound(Graph graph) {
         this.adjacencyList = graph.adjacencyList;
         this.minimumCost = Integer.MAX_VALUE;
 
+        // fill the Global variables
+        BBGlobalVariables.graph = graph;
 
         this.pq = new PriorityQueue<>(10, new Comparator<BBNode>() {
             @Override
             public int compare(BBNode u, BBNode v) {
-                return Integer.compare(u.cost(), v.cost());
+                return Integer.compare(u.getCost(), v.getCost());
             }
         });
     }
 
-    /**
-     * returns distance between to node (for simplicity)
-     * @param u beginning node
-     * @param v end node
-     * @return distance of the two nodes
-     */
-    public int getDistance(Vertex u, Vertex v) {
-        if (u.type == VertexType.DEPOT && v.type == VertexType.DEPOT) {
-            return Integer.MAX_VALUE; // there is no way from
-        } else {
-            return adjacencyList.get(u.name).neighbours.get(v);
-        }
-    }
 
     /**
      * runs the algorithm given the depot name
+     *
      * @param depotName is name of the depot (node that contains vehicles)
      */
     public void run(String depotName) {
         // add initial node
-        pq.add(new BBNode(adjacencyList.get(depotName), 0, 0, null));
+        pq.add(new BBNode(adjacencyList.get(depotName), null));
 
         // go down the tree
-        int addedTime = 0;
-        int addedPenalty = 0;
         while (!pq.isEmpty()) {
             BBNode u = pq.poll();
 
@@ -70,7 +59,7 @@ public class BranchAndBound {
                         && u.vertex.type == VertexType.DEPOT) continue;
 
                 if (v.type == VertexType.DEPOT) {        // if you going to depot just go
-                    addNodeToPriorityQueue(new BBNode(v, u.timeElapsed, u.penaltyTaken, u));
+                    addNodeToPriorityQueue(new BBNode(v, u));
                 }
 
                 if (v.type == VertexType.CUSTOMER) {
@@ -78,18 +67,8 @@ public class BranchAndBound {
                     if (u.remainedGoods < v.demand) continue;   // check demand criterion
                     if (u.servicedNodes[v.customerId] == true) continue; // check if this node serviced before
 
-                    // adding time and penalties
-                    if (u.timeElapsed + getDistance(u.vertex, v) > v.latestTime)        // if the vehicle arrive there too late
-                        addedPenalty = v.penalty * (u.timeElapsed + getDistance(u.vertex, v) - v.latestTime);
-
-                    else if (u.timeElapsed + getDistance(u.vertex, v) < v.earliestTime) // if the vehicle arrive there too early
-                        addedTime = getDistance(u.vertex, v) + (v.earliestTime - u.timeElapsed + getDistance(u.vertex, v));
-
-                    else                                                                // if he gets there on time
-                        addedTime = getDistance(u.vertex, v);
-
                     // make new node
-                    BBNode newNode = new BBNode(v, u.timeElapsed + addedTime, u.penaltyTaken + addedPenalty, u);
+                    BBNode newNode = new BBNode(v, u);
                     addNodeToPriorityQueue(newNode);
                 }
             }
@@ -98,15 +77,16 @@ public class BranchAndBound {
 
     /**
      * add new node to the queue and check some criteria
+     *
      * @param newNode node that must be added to the pq.
      */
     void addNodeToPriorityQueue(BBNode newNode) {
         // if this node is an answer
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers
-                && newNode.cost() < minimumCost) {
+                && newNode.getCost() < minimumCost) {
             bestNode = newNode;
-            minimumCost = newNode.cost();
+            minimumCost = newNode.getCost();
             return;
         }
         // if this node is a terminal node and not reducing the minimum answer throw it out.
@@ -123,11 +103,8 @@ public class BranchAndBound {
      * print the answer
      */
     public void printTheAnswer() {
-        String[] paths = bestNode.getStringPath().split("\n");
-
-        for (String path : paths)
-            System.out.println("Depot " + path + " -> Depot");
-
-        System.out.println("Minimum Cost: " + minimumCost);
+        System.out.println("VertexName (arrivalTime, thisVertexPenalty)\n");
+        System.out.println(bestNode.getStringPath()+"\n");
+        System.out.println(bestNode.getPrintCostDetailsString());
     }
 }

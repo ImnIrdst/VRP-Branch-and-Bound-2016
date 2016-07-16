@@ -59,8 +59,7 @@ public class Graph {
                                 Integer.parseInt(tokens[1]),
                                 Integer.parseInt(tokens[2]),
                                 Integer.parseInt(tokens[3]),
-                                Integer.parseInt(tokens[4]),
-                                Integer.parseInt(tokens[5]))
+                                Integer.parseInt(tokens[4]))
                 );
             }
 
@@ -84,6 +83,7 @@ public class Graph {
                 addEdge(new Edge(tokens[0], tokens[1], Integer.parseInt(tokens[2])));
                 addEdge(new Edge(tokens[1], tokens[0], Integer.parseInt(tokens[2])));
             }
+
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
