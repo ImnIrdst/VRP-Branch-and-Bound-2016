@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.PriorityQueue;
 
 /**
- * a branch and bound algorithm for solving vehicle routing problem (VRP)
+ * a branch and bound algorithm for
+ * solving vehicle routing problem (VRP)
  */
 public class BranchAndBound {
     public Map<String, Vertex> adjacencyList; // the adjacencyList of the graph (provided by user)
@@ -21,7 +22,6 @@ public class BranchAndBound {
 
     /**
      * constructor for a given graph
-     *
      * @param graph a graph that has a Map<String, Vertex> adjacencyList
      */
     public BranchAndBound(Graph graph) {
@@ -39,7 +39,6 @@ public class BranchAndBound {
 
     /**
      * returns distance between to node (for simplicity)
-     *
      * @param u beginning node
      * @param v end node
      * @return distance of the two nodes
@@ -54,7 +53,6 @@ public class BranchAndBound {
 
     /**
      * runs the algorithm given the depot name
-     *
      * @param depotName is name of the depot (node that contains vehicles)
      */
     public void run(String depotName) {
@@ -71,11 +69,11 @@ public class BranchAndBound {
                 if (v.type == VertexType.DEPOT          // never go from depot to depot
                         && u.vertex.type == VertexType.DEPOT) continue;
 
-                if (v.type == VertexType.DEPOT){        // if you going to depot just go
+                if (v.type == VertexType.DEPOT) {        // if you going to depot just go
                     addNodeToPriorityQueue(new BBNode(v, u.timeElapsed, u.penaltyTaken, u));
                 }
 
-                if (v.type == VertexType.CUSTOMER){
+                if (v.type == VertexType.CUSTOMER) {
                     // pruning criteria
                     if (u.remainedGoods < v.demand) continue;   // check demand criterion
                     if (u.servicedNodes[v.customerId] == true) continue; // check if this node serviced before
@@ -102,7 +100,7 @@ public class BranchAndBound {
      * add new node to the queue and check some criteria
      * @param newNode node that must be added to the pq.
      */
-    void addNodeToPriorityQueue(BBNode newNode){
+    void addNodeToPriorityQueue(BBNode newNode) {
         // if this node is an answer
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers
@@ -124,7 +122,7 @@ public class BranchAndBound {
     /**
      * print the answer
      */
-    public void printTheAnswer(){
+    public void printTheAnswer() {
         String[] paths = bestNode.getStringPath().split("\n");
 
         for (String path : paths)

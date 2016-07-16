@@ -2,11 +2,11 @@ number of vehicles,3
 fixed cost of vehicles,10
 capacity of vehicles,5
 number of customers,4
-name,demand,penalty,Ec,Lc,Sc
-A,2,2,2,4,1
-B,3,1,1,4,1
-C,4,2,5,8,1
-D,1,3,2,9,1
+name,demand,penalty,DDc,Sc
+A,2,2,3,0
+B,3,1,2,0
+C,4,2,6,0
+D,1,3,5,0
 number of ordinary nodes,2
 name
 F
