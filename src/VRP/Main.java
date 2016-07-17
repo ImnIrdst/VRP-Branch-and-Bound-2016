@@ -8,7 +8,9 @@ import VRP.Graph.Graph;
  * for running the algorithm
  */
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
+
         Graph originalGraph = new Graph("resources/input.csv");
 
         Dijkstra dijkstra = new Dijkstra(originalGraph);
@@ -18,5 +20,10 @@ public class Main {
         BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph);
         branchAndBound.run("Depot");
         branchAndBound.printTheAnswer();
+
+        long finishTime = System.currentTimeMillis();
+
+        System.out.println();
+        System.out.println("Total Calculation time: " + (finishTime - startTime) + "ms");
     }
 }
