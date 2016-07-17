@@ -101,7 +101,8 @@ public class BBNode {
         if (parent == null)
             this.arrivalTime = -1;
         else if (parent.vertex.type == VertexType.DEPOT)
-            this.arrivalTime = Math.max(vertex.dueDate, BBUtils.getDistance(parent.vertex, this.vertex));
+            this.arrivalTime = BBUtils.getDistance(parent.vertex, this.vertex);
+            // this.arrivalTime = Math.max(vertex.dueDate, BBUtils.getDistance(parent.vertex, this.vertex));
         else
             this.arrivalTime = parent.arrivalTime + BBUtils.getDistance(parent.vertex, this.vertex);
     }
@@ -110,8 +111,9 @@ public class BBNode {
      * calculateThisVertexPenalty
      */
     public void calculateThisVertexPenalty() {
-        if (this.vertex.type == VertexType.CUSTOMER)
-            this.thisVertexPenalty = this.vertex.penalty * Math.abs(this.arrivalTime - this.vertex.dueDate);
+        if (this.vertex.type == VertexType.CUSTOMER
+                && this.arrivalTime > this.vertex.dueDate)
+            this.thisVertexPenalty = this.arrivalTime - this.vertex.dueDate;
         else
             this.thisVertexPenalty = 0;
     }
@@ -203,6 +205,6 @@ public class BBNode {
     }
 
     public String detailsForToString(){
-        return ", " + thisVertexPenalty + ", " + curTimeElapsed;
+        return ", " + thisVertexPenalty + ", " + vertex.dueDate;
     }
 }
