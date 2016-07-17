@@ -39,12 +39,15 @@ public class Graph {
             int numberOfVehicles = Integer.parseInt(sc.nextLine().split(",")[1]);
             int fixedCostOfVehicle = Integer.parseInt(sc.nextLine().split(",")[1]);
             int capacityOfVehicle = Integer.parseInt(sc.nextLine().split(",")[1]);
+            int depotDueDate = Integer.parseInt(sc.nextLine().split(",")[1]);
+            int depotPenalty = Integer.parseInt(sc.nextLine().split(",")[1]);
 
             // fill the global variable
             BBGlobalVariables.vehicleFixedCost = fixedCostOfVehicle;
             BBGlobalVariables.vehicleCapacity  = capacityOfVehicle;
 
-            addVertex(new Vertex("Depot", VertexType.DEPOT, numberOfVehicles, fixedCostOfVehicle, capacityOfVehicle));
+            addVertex(new Vertex("Depot", VertexType.DEPOT,
+                    numberOfVehicles, fixedCostOfVehicle, capacityOfVehicle, depotDueDate, depotPenalty, true));
 
             // read customers info
             int numberOfCustomers = Integer.parseInt(sc.nextLine().split(",")[1]);

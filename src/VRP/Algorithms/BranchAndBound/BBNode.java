@@ -111,9 +111,8 @@ public class BBNode {
      * calculateThisVertexPenalty
      */
     public void calculateThisVertexPenalty() {
-        if (this.vertex.type == VertexType.CUSTOMER
-                && this.arrivalTime > this.vertex.dueDate)
-            this.thisVertexPenalty = this.arrivalTime - this.vertex.dueDate;
+        if (this.arrivalTime > this.vertex.dueDate)
+            this.thisVertexPenalty = this.vertex.penalty * (this.arrivalTime - this.vertex.dueDate);
         else
             this.thisVertexPenalty = 0;
     }
@@ -203,11 +202,11 @@ public class BBNode {
             return vertex + " (" + arrivalTime + detailsForToString() + ")";
 
         else if (vertex.type == VertexType.DEPOT && arrivalTime == -1)
-            return vertex + " (" + startTime + detailsForToString() + ")";
+            return vertex + " (" + startTime + ")";
 
         else if (vertex.type == VertexType.DEPOT)
             return vertex + " (" + arrivalTime + detailsForToString() + ")"
-                    + "\n" + vertex + " (" + startTime + detailsForToString() + ")";
+                    + "\n" + vertex + " (" + startTime + ")";
 
         return vertex + " (" + arrivalTime + detailsForToString() + ")";
     }

@@ -47,17 +47,21 @@ public class Vertex {
 
         this.numberOfVehicles = vertex.numberOfVehicles;
         this.fixedCost = vertex.fixedCost;
+        this.capacity = vertex.capacity;
     }
 
     /**
      * constructor for customers for depot
      */
-    public Vertex(String name, VertexType type, int numberOfVehicles, int fixedCost, int capacity) {
+    public Vertex(String name, VertexType type, int numberOfVehicles,
+                  int fixedCost, int capacity, int dueDate, int penalty, boolean justForSeparatingConstructors) {
         this.name = name;
         this.fixedCost = fixedCost;
         this.capacity = capacity;
         this.numberOfVehicles = numberOfVehicles;
         this.type = type;
+        this.dueDate = dueDate;
+        this.penalty = penalty;
     }
 
     /**

@@ -1,6 +1,8 @@
 number of vehicles,3
 fixed cost of vehicles,10
 capacity of vehicles,5
+Depot Due Date,7
+Depot Penalty,2
 number of customers,4
 name,demand,penalty,DDc,Sc
 A,2,1,3,0

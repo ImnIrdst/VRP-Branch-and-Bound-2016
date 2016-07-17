@@ -6,9 +6,7 @@ A solution to Vehicle Routing Problem with Due Dates (VRPD) using Branch and Bou
 - Use Vehicle needed for remaining customers to peek lowest time needed to go from depot and comeback.
 - Use vehicles (and their paths) to produce branch and bound nodes (for VRPTW)
 
-
 # Todo
-- Add Last Depot Due Date
 - Add calculation time to the main function
 - Add a simple lower bound to the branch and bound
 - Implement Knapsack for lower bound.
@@ -16,6 +14,8 @@ A solution to Vehicle Routing Problem with Due Dates (VRPD) using Branch and Bou
 - Use Vehicle needed to peek lowest time needed to go from depot and comeback.
 
 # Done
+- Add Last Depot Due Date
+- Add a stub function for lower bound
 - Remove early arriving penalty
 - Fix vehicle start time, timeElapsed, arrival time, ...
 - Improve printPath function show service times, and penalties on that vertex
