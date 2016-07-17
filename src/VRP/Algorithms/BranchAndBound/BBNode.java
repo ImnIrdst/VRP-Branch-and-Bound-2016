@@ -169,6 +169,14 @@ public class BBNode {
     }
 
     /**
+     * Calculates lower bound for this node
+     * @return lower bound for this node
+     */
+    public int getLowerBound(){
+        return 0;
+    }
+
+    /**
      * @return Detail of attributes that affects the cost
      */
     public String getPrintCostDetailsString() {

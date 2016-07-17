@@ -77,10 +77,10 @@ public class BranchAndBound {
 
     /**
      * add new node to the queue and check some criteria
-     *
      * @param newNode node that must be added to the pq.
      */
     void addNodeToPriorityQueue(BBNode newNode) {
+
         // if this node is an answer
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers
@@ -89,14 +89,29 @@ public class BranchAndBound {
             minimumCost = newNode.getCost();
             return;
         }
-        // if this node is a terminal node and not reducing the minimum answer throw it out.
-        if (newNode.vertex.type == VertexType.DEPOT
-                && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers) {
-            return;
-        }
 
         // if this node is a intermediate node add it to the queue.
-        pq.add(newNode);
+        if (!canBePruned(newNode)) pq.add(newNode);
+    }
+
+    /**
+     * @param newNode: node that must be checked
+     * @return true of node can be pruned from the tree
+     */
+    boolean canBePruned(BBNode newNode){
+        // check lower bound
+        if (newNode.getCost() + newNode.getLowerBound() >= minimumCost)
+            return true;
+
+        // if this node is a terminal node and not reducing the minimum answer throw it out.
+        if (newNode.vertex.type == VertexType.DEPOT
+                && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers)
+            return true;
+
+        // TODO: if remaining vehicles is less than needed prune it
+
+        // else
+        return false;
     }
 
     /**

@@ -12,6 +12,7 @@ A solution to Vehicle Routing Problem with Due Dates (VRPD) using Branch and Bou
 - Add calculation time to the main function
 - Add a simple lower bound to the branch and bound
 - Implement Knapsack for lower bound.
+- if remaining vehicles is less than needed prune it
 - Use Vehicle needed to peek lowest time needed to go from depot and comeback.
 
 # Done
