@@ -40,6 +40,8 @@ public class BBNode {
         this.calculatePenaltyTaken();
         this.calculateServicedNodes();
         this.calculateParentStartTime();
+
+        BBGlobalVariables.numberOfBranchAndBoundNodes++;
     }
 
     /**

@@ -11,4 +11,7 @@ public class BBGlobalVariables {
     public static int numberOfCustomers = 0;
 
     public static Graph graph;
+
+    // for reporting
+    public static int numberOfBranchAndBoundNodes = 0;
 }
