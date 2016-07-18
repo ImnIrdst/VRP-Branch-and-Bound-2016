@@ -1,13 +1,10 @@
 package VRP.Algorithms.BranchAndBound;
 
 import VRP.Algorithms.Other.Greedy;
-import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
 import VRP.Graph.VertexType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * a node that used in branch and bound for VRP
@@ -179,8 +176,9 @@ public class BBNode {
      * @return lower bound for this node
      */
     public int getLowerBound() {
-        return this.getLowerBoundForNumberOfExtraVehiclesNeeded() * BBGlobalVariables.vehicleFixedCost
-                + this.getLowerBoundForTimeNeededToTheEnd();
+        return this.getLowerBoundForPenaltyTaken()
+                + this.getLowerBoundForAdditionalTimeNeededToTheEnd()
+                + this.getLowerBoundForNumberOfExtraVehiclesNeeded() * BBGlobalVariables.vehicleFixedCost;
     }
 
 
@@ -196,11 +194,12 @@ public class BBNode {
     /**
      * @return a lower bound for time needed to end this path
      */
-    public int getLowerBoundForTimeNeededToTheEnd() {
+    public int getLowerBoundForAdditionalTimeNeededToTheEnd() {
         Vertex depotVertex = BBGlobalVariables.graph.adjacencyList.get("Depot");
 
         if (this.vertex.type != VertexType.DEPOT)
             return this.vertex.neighbours.get(depotVertex);
+        return 0;
 
         /*
         ArrayList<Integer> edgeWeightsFromDepotToUnservicedCustomers = new ArrayList<>();
@@ -219,7 +218,7 @@ public class BBNode {
 
         int vehiclesNeeded = getLowerBoundForNumberOfExtraVehiclesNeeded();
         if (vehiclesNeeded * 2 > edgeWeightsFromDepotToUnservicedCustomers.size()) {
-            System.out.println("There Is a Bug in BBNode.getLowerBoundForTimeNeededToTheEnd()!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.out.println("There Is a Bug in BBNode.getLowerBoundForAdditionalTimeNeededToTheEnd()!!!!!!!!!!!!!!!!!!!!!!!!");
             return Integer.MAX_VALUE / 2;
         }
 
@@ -228,8 +227,25 @@ public class BBNode {
         return edgeWeightsFromDepotToUnservicedCustomers.get(vehiclesNeeded * 2 - 1)
                 + edgeWeightsFromDepotToUnservicedCustomers.get(vehiclesNeeded * 2 - 2);
         */
+    }
 
+    /**
+     * If go from this vertex to the depot, when I arrive
+     * there and how much penalty I must take.
+     *
+     * @return a lower bound for additional penalty taken
+     */
+    public int getLowerBoundForPenaltyTaken() {
+        if (this.vertex.type == VertexType.DEPOT) return 0;
 
+        int lowestFinishTime = this.curTimeElapsed + this.getLowerBoundForAdditionalTimeNeededToTheEnd();
+
+        Vertex depotVertex = BBGlobalVariables.graph.adjacencyList.get("Depot");
+
+        if (lowestFinishTime > depotVertex.dueDate)
+            return (lowestFinishTime - depotVertex.dueDate) * depotVertex.penalty;
+
+        return 0;
     }
 
     /**
