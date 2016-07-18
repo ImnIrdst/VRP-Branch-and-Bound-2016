@@ -99,6 +99,22 @@ public class BranchAndBound {
      * @return true of node can be pruned from the tree
      */
     boolean canBePruned(BBNode newNode){
+
+        // if new Node so far cost is more than minimum cost
+        if (newNode.getCost() >= minimumCost)
+            return true;
+
+        // if number of vehicles used is more than we have
+        if (newNode.vehicleUsed > BBGlobalVariables.numberOfVehicles)
+            return true;
+
+        // if can service remained customers with the remained vehicles
+        if (newNode.getMinimumNumberOfExtraVehiclesNeeded() > BBGlobalVariables.numberOfVehicles - newNode.vehicleUsed)
+            return true;
+
+        if (BBGlobalVariables.numberOfBranchAndBoundNodes == 157)
+            newNode = newNode;
+
         // check lower bound
         if (newNode.getCost() + newNode.getLowerBound() >= minimumCost)
             return true;
@@ -108,7 +124,7 @@ public class BranchAndBound {
                 && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers)
             return true;
 
-        // TODO: if remaining vehicles is less than needed prune it
+
 
         // else
         return false;

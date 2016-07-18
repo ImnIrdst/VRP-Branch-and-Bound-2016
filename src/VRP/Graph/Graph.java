@@ -43,8 +43,9 @@ public class Graph {
             int depotPenalty = Integer.parseInt(sc.nextLine().split(",")[1]);
 
             // fill the global variable
+            BBGlobalVariables.numberOfVehicles = numberOfVehicles;
             BBGlobalVariables.vehicleFixedCost = fixedCostOfVehicle;
-            BBGlobalVariables.vehicleCapacity  = capacityOfVehicle;
+            BBGlobalVariables.vehicleCapacity = capacityOfVehicle;
 
             addVertex(new Vertex("Depot", VertexType.DEPOT,
                     numberOfVehicles, fixedCostOfVehicle, capacityOfVehicle, depotDueDate, depotPenalty, true));
@@ -53,17 +54,23 @@ public class Graph {
             int numberOfCustomers = Integer.parseInt(sc.nextLine().split(",")[1]);
             sc.nextLine(); // skip the line
 
+            // filling global variables
+            BBGlobalVariables.customerDemands = new Integer[numberOfCustomers];
+
             int cId = 0;
             for (int i = 0; i < numberOfCustomers; i++) {
                 String[] tokens = sc.nextLine().split(",");
-                addVertex(
-                        new Vertex(tokens[0],
-                                VertexType.CUSTOMER, cId++,
-                                Integer.parseInt(tokens[1]),
-                                Integer.parseInt(tokens[2]),
-                                Integer.parseInt(tokens[3]),
-                                Integer.parseInt(tokens[4]))
-                );
+                Vertex newVertex = new Vertex(tokens[0],
+                        VertexType.CUSTOMER, cId,
+                        Integer.parseInt(tokens[1]),
+                        Integer.parseInt(tokens[2]),
+                        Integer.parseInt(tokens[3]),
+                        Integer.parseInt(tokens[4]));
+
+                addVertex(newVertex);
+
+                // filling global variables
+                BBGlobalVariables.customerDemands[cId++] = newVertex.demand;
             }
 
             // fill the global variables
@@ -124,10 +131,10 @@ public class Graph {
     /**
      * prints edges of the graph
      */
-    public void printGraph(){
-        for (Vertex u : adjacencyList.values()){
-            for (Vertex v : u.neighbours.keySet()){
-                System.out.println(u + " -(" + u.neighbours.get(v) + ")-> " + v );
+    public void printGraph() {
+        for (Vertex u : adjacencyList.values()) {
+            for (Vertex v : u.neighbours.keySet()) {
+                System.out.println(u + " -(" + u.neighbours.get(v) + ")-> " + v);
             }
         }
     }

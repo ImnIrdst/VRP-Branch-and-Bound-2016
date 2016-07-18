@@ -1,5 +1,6 @@
 package VRP.Algorithms.BranchAndBound;
 
+import VRP.Algorithms.Other.Greedy;
 import VRP.Graph.Vertex;
 import VRP.Graph.VertexType;
 
@@ -171,10 +172,34 @@ public class BBNode {
 
     /**
      * Calculates lower bound for this node
+     *
      * @return lower bound for this node
      */
-    public int getLowerBound(){
-        return 0;
+    public int getLowerBound() {
+        return this.getMinimumNumberOfExtraVehiclesNeeded() * BBGlobalVariables.vehicleFixedCost;
+    }
+
+    /**
+     * @return array of unserviced customers demands
+     */
+    public Integer[] getUnservicedCustomersDemands() {
+        int numberOfUnservicedCustomers = BBGlobalVariables.numberOfCustomers - this.numberOfServicedCustomers;
+        Integer[] unservicedCustomersDemands = new Integer[numberOfUnservicedCustomers];
+
+        for (int i = 0, j = 0; i < BBGlobalVariables.numberOfCustomers; i++) {
+            if (this.servicedNodes[i] == false) unservicedCustomersDemands[j++] = BBGlobalVariables.customerDemands[i];
+        }
+
+        return unservicedCustomersDemands;
+    }
+
+    /**
+     * @return minimum number of extra vehicles needed to serve the remaining customers
+     */
+    public int getMinimumNumberOfExtraVehiclesNeeded() {
+        return Greedy.minimumExtraVehiclesNeeded(
+                this.getUnservicedCustomersDemands(), this.remainedGoods, BBGlobalVariables.vehicleCapacity
+        );
     }
 
     /**
@@ -213,7 +238,7 @@ public class BBNode {
         return vertex + " (" + arrivalTime + detailsForToString() + ")";
     }
 
-    public String detailsForToString(){
+    public String detailsForToString() {
         return ", " + thisVertexPenalty + ", " + vertex.dueDate;
     }
 }
