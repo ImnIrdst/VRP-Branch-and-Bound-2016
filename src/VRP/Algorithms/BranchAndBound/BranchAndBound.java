@@ -109,11 +109,8 @@ public class BranchAndBound {
             return true;
 
         // if can service remained customers with the remained vehicles
-        if (newNode.getMinimumNumberOfExtraVehiclesNeeded() > BBGlobalVariables.numberOfVehicles - newNode.vehicleUsed)
+        if (newNode.getLowerBoundForNumberOfExtraVehiclesNeeded() > BBGlobalVariables.numberOfVehicles - newNode.vehicleUsed)
             return true;
-
-        if (BBGlobalVariables.numberOfBranchAndBoundNodes == 157)
-            newNode = newNode;
 
         // check lower bound
         if (newNode.getCost() + newNode.getLowerBound() >= minimumCost)
@@ -123,8 +120,6 @@ public class BranchAndBound {
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers)
             return true;
-
-
 
         // else
         return false;

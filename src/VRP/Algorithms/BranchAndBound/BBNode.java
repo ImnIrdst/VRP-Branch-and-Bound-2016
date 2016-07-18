@@ -1,10 +1,13 @@
 package VRP.Algorithms.BranchAndBound;
 
 import VRP.Algorithms.Other.Greedy;
+import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
 import VRP.Graph.VertexType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * a node that used in branch and bound for VRP
@@ -176,8 +179,69 @@ public class BBNode {
      * @return lower bound for this node
      */
     public int getLowerBound() {
-        return this.getMinimumNumberOfExtraVehiclesNeeded() * BBGlobalVariables.vehicleFixedCost;
+        return this.getLowerBoundForNumberOfExtraVehiclesNeeded() * BBGlobalVariables.vehicleFixedCost
+                + this.getLowerBoundForTimeNeededToTheEnd();
     }
+
+
+    /**
+     * @return minimum number of extra vehicles needed to serve the remaining customers
+     */
+    public int getLowerBoundForNumberOfExtraVehiclesNeeded() {
+        return Greedy.minimumExtraVehiclesNeeded(
+                this.getUnservicedCustomersDemands(), this.remainedGoods, BBGlobalVariables.vehicleCapacity
+        );
+    }
+
+    /**
+     * @return a lower bound for time needed to end this path
+     */
+    public int getLowerBoundForTimeNeededToTheEnd() {
+        Vertex depotVertex = BBGlobalVariables.graph.adjacencyList.get("Depot");
+
+        if (this.vertex.type != VertexType.DEPOT)
+            return this.vertex.neighbours.get(depotVertex);
+
+        /*
+        ArrayList<Integer> edgeWeightsFromDepotToUnservicedCustomers = new ArrayList<>();
+
+        Vertex depotVertex = BBGlobalVariables.graph.adjacencyList.get("Depot");
+        for (Vertex u : BBGlobalVariables.graph.adjacencyList.values()) {
+            if (u.type == VertexType.CUSTOMER && this.servicedNodes[u.customerId] == false) {
+                edgeWeightsFromDepotToUnservicedCustomers.add(depotVertex.neighbours.get(u));
+                edgeWeightsFromDepotToUnservicedCustomers.add(u.neighbours.get(depotVertex));
+            }
+        }
+        if (this.vertex.type == VertexType.CUSTOMER) {
+            edgeWeightsFromDepotToUnservicedCustomers.add(this.vertex.neighbours.get(depotVertex));
+        }
+        Collections.sort(edgeWeightsFromDepotToUnservicedCustomers);
+
+        int vehiclesNeeded = getLowerBoundForNumberOfExtraVehiclesNeeded();
+        if (vehiclesNeeded * 2 > edgeWeightsFromDepotToUnservicedCustomers.size()) {
+            System.out.println("There Is a Bug in BBNode.getLowerBoundForTimeNeededToTheEnd()!!!!!!!!!!!!!!!!!!!!!!!!");
+            return Integer.MAX_VALUE / 2;
+        }
+
+        if (vehiclesNeeded == 0) return 0;
+
+        return edgeWeightsFromDepotToUnservicedCustomers.get(vehiclesNeeded * 2 - 1)
+                + edgeWeightsFromDepotToUnservicedCustomers.get(vehiclesNeeded * 2 - 2);
+        */
+
+
+    }
+
+    /**
+     * @return Detail of attributes that affects the cost
+     */
+    public String getPrintCostDetailsString() {
+        return "Time needed: " + maxTimeElapsed + "\n"
+                + "Penalty Taken: " + penaltyTaken + "\n"
+                + "Number of Vehicles Used: " + vehicleUsed + "\n"
+                + "Minimum Cost for the problem: " + getCost();
+    }
+
 
     /**
      * @return array of unserviced customers demands
@@ -191,25 +255,6 @@ public class BBNode {
         }
 
         return unservicedCustomersDemands;
-    }
-
-    /**
-     * @return minimum number of extra vehicles needed to serve the remaining customers
-     */
-    public int getMinimumNumberOfExtraVehiclesNeeded() {
-        return Greedy.minimumExtraVehiclesNeeded(
-                this.getUnservicedCustomersDemands(), this.remainedGoods, BBGlobalVariables.vehicleCapacity
-        );
-    }
-
-    /**
-     * @return Detail of attributes that affects the cost
-     */
-    public String getPrintCostDetailsString() {
-        return "Time needed: " + maxTimeElapsed + "\n"
-                + "Penalty Taken: " + penaltyTaken + "\n"
-                + "Number of Vehicles Used: " + vehicleUsed + "\n"
-                + "Minimum Cost for the problem: " + getCost();
     }
 
     /**
