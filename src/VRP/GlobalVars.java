@@ -1,11 +1,13 @@
-package VRP.Algorithms.BranchAndBound;
+package VRP;
 
 import VRP.Graph.Graph;
 
 /**
  * global variables used in branch and bound
  */
-public class BBGlobalVariables {
+public class GlobalVars {
+    public static String depotName = "Depot";
+
     public static int vehicleFixedCost = 0;
     public static int vehicleCapacity = 0;
     public static int numberOfCustomers = 0;

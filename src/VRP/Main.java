@@ -1,6 +1,5 @@
 package VRP;
 
-import VRP.Algorithms.BranchAndBound.BBGlobalVariables;
 import VRP.Algorithms.BranchAndBound.BranchAndBound;
 import VRP.Algorithms.Dijkstra.Dijkstra;
 import VRP.Graph.Graph;
@@ -19,7 +18,7 @@ public class Main {
         // preprocessedGraph.printGraph();
 
         BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph);
-        branchAndBound.run("Depot");
+        branchAndBound.run(GlobalVars.depotName);
         branchAndBound.printTheAnswer();
 
         long finishTime = System.currentTimeMillis();
@@ -27,6 +26,6 @@ public class Main {
         System.out.println();
 
         System.out.println("Total Calculation time: " + (finishTime - startTime) + "ms");
-        System.out.println("Number of Branch and Bound Tree Nodes: " + BBGlobalVariables.numberOfBranchAndBoundNodes);
+        System.out.println("Number of Branch and Bound Tree Nodes: " + GlobalVars.numberOfBranchAndBoundNodes);
     }
 }

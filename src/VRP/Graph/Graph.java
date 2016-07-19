@@ -1,10 +1,11 @@
 package VRP.Graph;
 
-import VRP.Algorithms.BranchAndBound.BBGlobalVariables;
+import VRP.GlobalVars;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -20,6 +21,18 @@ public class Graph {
      */
     public Graph() {
         adjacencyList = new HashMap<>();
+    }
+
+    /**
+     * Constructor: Builds an adjacencyList from a set of edges
+     */
+    public Graph(Edge[] edges) {
+        adjacencyList = new HashMap<>();
+
+        //one pass to find all vertices
+        for (Edge e : edges) {
+            addEdge(e);
+        }
     }
 
     /**
@@ -43,11 +56,11 @@ public class Graph {
             int depotPenalty = Integer.parseInt(sc.nextLine().split(",")[1]);
 
             // fill the global variable
-            BBGlobalVariables.numberOfVehicles = numberOfVehicles;
-            BBGlobalVariables.vehicleFixedCost = fixedCostOfVehicle;
-            BBGlobalVariables.vehicleCapacity = capacityOfVehicle;
+            GlobalVars.numberOfVehicles = numberOfVehicles;
+            GlobalVars.vehicleFixedCost = fixedCostOfVehicle;
+            GlobalVars.vehicleCapacity = capacityOfVehicle;
 
-            addVertex(new Vertex("Depot", VertexType.DEPOT,
+            addVertex(new Vertex(GlobalVars.depotName, VertexType.DEPOT,
                     numberOfVehicles, fixedCostOfVehicle, capacityOfVehicle, depotDueDate, depotPenalty, true));
 
             // read customers info
@@ -55,7 +68,7 @@ public class Graph {
             sc.nextLine(); // skip the line
 
             // filling global variables
-            BBGlobalVariables.customerDemands = new Integer[numberOfCustomers];
+            GlobalVars.customerDemands = new Integer[numberOfCustomers];
 
             int cId = 0;
             for (int i = 0; i < numberOfCustomers; i++) {
@@ -70,11 +83,11 @@ public class Graph {
                 addVertex(newVertex);
 
                 // filling global variables
-                BBGlobalVariables.customerDemands[cId++] = newVertex.demand;
+                GlobalVars.customerDemands[cId++] = newVertex.demand;
             }
 
             // fill the global variables
-            BBGlobalVariables.numberOfCustomers = numberOfCustomers;
+            GlobalVars.numberOfCustomers = numberOfCustomers;
 
             // read ordinary vertices
             int numberOfOrdinaryVertices = Integer.parseInt(sc.nextLine().split(",")[1]);
@@ -117,15 +130,10 @@ public class Graph {
     }
 
     /**
-     * Constructor: Builds an adjacencyList from a set of edges
+     * check if the graph contains this vertex name or not
      */
-    public Graph(Edge[] edges) {
-        adjacencyList = new HashMap<>();
-
-        //one pass to find all vertices
-        for (Edge e : edges) {
-            addEdge(e);
-        }
+    public boolean containsVertex(String startName) {
+        return adjacencyList.containsKey(startName);
     }
 
     /**
@@ -138,4 +146,35 @@ public class Graph {
             }
         }
     }
+
+    /**
+     * @return the vertex with given name
+     */
+    public Vertex getVertexByName(String startName) {
+        return adjacencyList.get(startName);
+    }
+
+    /**
+     * @return list of vertices in the graph
+     */
+    public Collection<Vertex> getVertices() {
+        return adjacencyList.values();
+    }
+
+    /**
+     * @return distance between to nodes (by name)
+     */
+    public int getDistance(String uName, String vName){
+        Vertex u = getVertexByName(uName);
+        Vertex v = getVertexByName(vName);
+        return getDistance(u, v);
+    }
+
+    /**
+     * @return distance between to nodes (by vertex)
+     */
+    public int getDistance(Vertex u, Vertex v){
+        return u.neighbours.get(v);
+    }
+
 }

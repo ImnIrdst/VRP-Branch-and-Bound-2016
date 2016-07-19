@@ -1,6 +1,5 @@
 package VRP.Algorithms.Dijkstra;
 
-import VRP.Algorithms.BranchAndBound.BBGlobalVariables;
 import VRP.Graph.Edge;
 import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
@@ -9,27 +8,31 @@ import VRP.Graph.VertexType;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.PriorityQueue;
+
 /**
  * Dijkstra algorithm (Just give it the Graph)
  */
 public class Dijkstra {
-    private Map<String, Vertex> adjacencyList; // the adjacencyList of the graph (provided by user)
+    private Graph graph;
 
-    public Dijkstra(Graph graph){ // constructor
-        this.adjacencyList = graph.adjacencyList;
+    /**
+     * Constructor
+     */
+    public Dijkstra(Graph graph) { // constructor
+        this.graph = graph;
     }
 
     /**
-     *  Runs dijkstra using a specified source vertex O(nlogn + E)
+     * Runs dijkstra using a specified source vertex O(nlogn + E)
      */
     public void run(String startName) {
 
-        if (!adjacencyList.containsKey(startName)) { // if you set the wrong node to start dijkstra with it
+        if (!graph.containsVertex(startName)) { // if you set the wrong node to start dijkstra with it
             System.err.printf("Graph doesn't contain start vertex \"%s\"\n", startName);
             return;
         }
 
-        Vertex source = adjacencyList.get(startName); // extract the source vertex using it's name
+        Vertex source = graph.getVertexByName(startName); // extract the source vertex using it's name
 
         // builds a min heap for extracting minimum distance vertex in log(n) [https://en.wikipedia.org/wiki/Binary_heap]
         PriorityQueue<Vertex> pq = new PriorityQueue<>(10, new Comparator<Vertex>() {
@@ -40,18 +43,21 @@ public class Dijkstra {
         });
 
         // initialize vertices
-        for (Vertex v : adjacencyList.values()) {
-            if (v == source){
-                v.distOnShortestPath = 0; v.previousNodeOnShortestPath = source; // for start node distance is 0 and previous node is itself
+        for (Vertex v : graph.getVertices()) {
+            if (v == source) {
+                v.distOnShortestPath = 0;
+                v.previousNodeOnShortestPath = source; // for start node distance is 0 and previous node is itself
             } else {
-                v.distOnShortestPath = Integer.MAX_VALUE; v.previousNodeOnShortestPath = null; // for all other nodes set their distance to infinity and previous to null
+                v.distOnShortestPath = Integer.MAX_VALUE;
+                v.previousNodeOnShortestPath = null; // for all other nodes set their distance to infinity and previous to null
             }
             pq.add(v); // add node to priority queue
         }
 
         while (!pq.isEmpty()) {
             Vertex u = pq.poll(); // vertex with shortest distance (first iteration will return source)
-            if (u.distOnShortestPath == Integer.MAX_VALUE) break; // we can ignore u (and any other remaining vertices) since they are unreachable
+            if (u.distOnShortestPath == Integer.MAX_VALUE)
+                break; // we can ignore u (and any other remaining vertices) since they are unreachable
 
             //look at distances to each neighbour
             for (Map.Entry<Vertex, Integer> a : u.neighbours.entrySet()) {
@@ -68,45 +74,51 @@ public class Dijkstra {
         }
     }
 
-    /** Prints a path from the source to the specified vertex */
+    /**
+     * Prints a path from the source to the specified vertex
+     */
     public void printPath(String endName) {
-        if (!adjacencyList.containsKey(endName)) { // if you set the wrong node to print the path
+        if (graph.containsVertex(endName)) { // if you set the wrong node to print the path
             System.err.printf("Graph doesn't contain end vertex \"%s\"\n", endName);
             return;
         }
 
         System.out.print("Shortest path for node " + endName + ": ");
-        adjacencyList.get(endName).printPath();
+        graph.getVertexByName(endName).printPath();
         System.out.println();
     }
 
-    /** Prints the path from the source to every vertex (output order is not guaranteed) */
+    /**
+     * Prints the path from the source to every vertex (output order is not guaranteed)
+     */
     public void printAllPaths() {
-        for (Vertex v : adjacencyList.values()) {
+        for (Vertex v : graph.getVertices()) {
             printPath(v.name);
         }
     }
 
-    /** Make ShortestPath graph **/
-    public Graph makeShortestPathGraph(){
-        Graph graph = new Graph();
-        for (Vertex u: adjacencyList.values()) {
+    /**
+     * Make ShortestPath graph
+     **/
+    public Graph makeShortestPathGraph() {
+        Graph shortestPathGraph = new Graph();
+        for (Vertex u : graph.getVertices()) {
             if (u.type != VertexType.ORDINARY) {
-                graph.addVertex(new Vertex(u));
+                shortestPathGraph.addVertex(new Vertex(u));
             }
         }
 
-        for (Vertex u: adjacencyList.values()){
+        for (Vertex u : graph.getVertices()) {
             if (u.type == VertexType.ORDINARY) continue;
 
             this.run(u.name);
-            for (Vertex v: adjacencyList.values()){
+            for (Vertex v : graph.getVertices()) {
                 if (v.type == VertexType.ORDINARY) continue;
-                graph.addEdge(new Edge(u.name, v.name, v.distOnShortestPath));
+                shortestPathGraph.addEdge(new Edge(u.name, v.name, v.distOnShortestPath));
 
             }
         }
 
-        return graph;
+        return shortestPathGraph;
     }
 }

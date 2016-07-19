@@ -1,11 +1,11 @@
 package VRP.Algorithms.BranchAndBound;
 
+import VRP.GlobalVars;
 import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
 import VRP.Graph.VertexType;
 
 import java.util.Comparator;
-import java.util.Map;
 import java.util.PriorityQueue;
 
 /**
@@ -13,7 +13,7 @@ import java.util.PriorityQueue;
  * solving vehicle routing problem (VRP)
  */
 public class BranchAndBound {
-    public Map<String, Vertex> adjacencyList; // the adjacencyList of the graph (provided by user)
+    private Graph graph;
 
     public int minimumCost;                   // minimum cost we found
     public BBNode bestNode;                   // best node we found
@@ -26,11 +26,11 @@ public class BranchAndBound {
      * @param graph a graph that has a Map<String, Vertex> adjacencyList
      */
     public BranchAndBound(Graph graph) {
-        this.adjacencyList = graph.adjacencyList;
+        this.graph = graph;
         this.minimumCost = Integer.MAX_VALUE;
 
         // fill the Global variables
-        BBGlobalVariables.graph = graph;
+        GlobalVars.graph = graph;
 
         this.pq = new PriorityQueue<>(10, new Comparator<BBNode>() {
             @Override
@@ -48,13 +48,14 @@ public class BranchAndBound {
      */
     public void run(String depotName) {
         // add initial node
-        pq.add(new BBNode(adjacencyList.get(depotName), null));
+        Vertex depotVertex = graph.getVertexByName(depotName);
+        pq.add(new BBNode(depotVertex, null));
 
         // go down the tree
         while (!pq.isEmpty()) {
             BBNode u = pq.poll();
 
-            for (Vertex v : adjacencyList.get(u.vertex.name).neighbours.keySet()) {
+            for (Vertex v : u.vertex.neighbours.keySet()) {
                 if (v.type == VertexType.DEPOT          // never go from depot to depot
                         && u.vertex.type == VertexType.DEPOT) continue;
 
@@ -77,13 +78,14 @@ public class BranchAndBound {
 
     /**
      * add new node to the queue and check some criteria
+     *
      * @param newNode node that must be added to the pq.
      */
     void addNodeToPriorityQueue(BBNode newNode) {
 
         // if this node is an answer
         if (newNode.vertex.type == VertexType.DEPOT
-                && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers
+                && newNode.numberOfServicedCustomers == GlobalVars.numberOfCustomers
                 && newNode.getCost() < minimumCost) {
             bestNode = newNode;
             minimumCost = newNode.getCost();
@@ -98,18 +100,18 @@ public class BranchAndBound {
      * @param newNode: node that must be checked
      * @return true of node can be pruned from the tree
      */
-    boolean canBePruned(BBNode newNode){
+    boolean canBePruned(BBNode newNode) {
 
         // if new Node so far cost is more than minimum cost
         if (newNode.getCost() >= minimumCost)
             return true;
 
         // if number of vehicles used is more than we have
-        if (newNode.vehicleUsed > BBGlobalVariables.numberOfVehicles)
+        if (newNode.vehicleUsed > GlobalVars.numberOfVehicles)
             return true;
 
         // if can service remained customers with the remained vehicles
-        if (newNode.getLowerBoundForNumberOfExtraVehiclesNeeded() > BBGlobalVariables.numberOfVehicles - newNode.vehicleUsed)
+        if (newNode.getLowerBoundForNumberOfExtraVehiclesNeeded() > GlobalVars.numberOfVehicles - newNode.vehicleUsed)
             return true;
 
         // check lower bound
@@ -118,7 +120,7 @@ public class BranchAndBound {
 
         // if this node is a terminal node and not reducing the minimum answer throw it out.
         if (newNode.vertex.type == VertexType.DEPOT
-                && newNode.numberOfServicedCustomers == BBGlobalVariables.numberOfCustomers)
+                && newNode.numberOfServicedCustomers == GlobalVars.numberOfCustomers)
             return true;
 
         // else
@@ -130,7 +132,7 @@ public class BranchAndBound {
      */
     public void printTheAnswer() {
         System.out.println("VertexName (arrivalTime, thisVertexPenalty)\n");
-        System.out.println(bestNode.getStringPath()+"\n");
+        System.out.println(bestNode.getStringPath() + "\n");
         System.out.println(bestNode.getPrintCostDetailsString());
     }
 }
