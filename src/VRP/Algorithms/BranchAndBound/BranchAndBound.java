@@ -30,7 +30,7 @@ public class BranchAndBound {
         this.minimumCost = Integer.MAX_VALUE;
 
         // fill the Global variables
-        GlobalVars.graph = graph;
+        GlobalVars.bbGraph = graph;
 
         this.pq = new PriorityQueue<>(10, new Comparator<BBNode>() {
             @Override

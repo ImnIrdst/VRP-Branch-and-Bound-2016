@@ -13,7 +13,7 @@ public class GlobalVars {
     public static int numberOfCustomers = 0;
     public static int numberOfVehicles = 0;
 
-    public static Graph graph;
+    public static Graph bbGraph; // branch and bound graph
     public static Integer[] customerDemands;
 
     // for reporting
