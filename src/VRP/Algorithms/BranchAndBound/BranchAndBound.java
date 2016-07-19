@@ -65,7 +65,7 @@ public class BranchAndBound {
 
                 if (v.type == VertexType.CUSTOMER) {
                     // pruning criteria
-                    if (u.remainedGoods < v.demand) continue;   // check demand criterion
+                    if (u.remainedCapacity < v.demand) continue;   // check demand criterion
                     if (u.servicedNodes[v.customerId] == true) continue; // check if this node serviced before
 
                     // make new node

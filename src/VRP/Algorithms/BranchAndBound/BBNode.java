@@ -15,7 +15,7 @@ public class BBNode {
     public int vehicleUsed;        // number of vehicle used in this node
     public int curTimeElapsed;     // the time elapsed after moving the vehicle in current path
     public int maxTimeElapsed;     // the maximum time elapsed in all paths
-    public int remainedGoods;      // remained goods in the car
+    public int remainedCapacity;   // remained goods in the car
     public int cumulativePenaltyTaken; // cumulative penalty taken in all nodes
     public int cumulativeTimeTaken; // cumulative time that all vehicles spend to serve the customers
     public boolean[] servicedNodes; // nodes that are serviced
@@ -37,7 +37,7 @@ public class BBNode {
         this.calculateVehicleUsed();
         this.calculateCurTimeElapsed();
         this.calculateMaxTimeElapsed();
-        this.calculateRemainedGoods();
+        this.calculateRemainedCapacity();
         this.calculateArrivalTime();
         this.calculateThisVertexPenalty();
         this.calculateCumulativePenaltyTaken();
@@ -89,15 +89,15 @@ public class BBNode {
     }
 
     /**
-     * calculateRemainedGoods
+     * calculateRemainedCapacity
      */
-    public void calculateRemainedGoods() {
+    public void calculateRemainedCapacity() {
         if (parent == null || this.vertex.type == VertexType.DEPOT)
-            this.remainedGoods = GlobalVars.vehicleCapacity;
+            this.remainedCapacity = GlobalVars.vehicleCapacity;
         else if (this.vertex.type == VertexType.CUSTOMER)
-            this.remainedGoods = parent.remainedGoods - this.vertex.demand;
+            this.remainedCapacity = parent.remainedCapacity - this.vertex.demand;
         else
-            this.remainedGoods = parent.remainedGoods;
+            this.remainedCapacity = parent.remainedCapacity;
     }
 
     /**
@@ -197,12 +197,14 @@ public class BBNode {
      */
     public int getLowerBoundForNumberOfExtraVehiclesNeeded() {
         return Greedy.minimumExtraVehiclesNeeded(
-                this.getUnservicedCustomersDemands(), this.remainedGoods, GlobalVars.vehicleCapacity
+                this.getUnservicedCustomersDemands(), this.remainedCapacity, GlobalVars.vehicleCapacity
         );
     }
 
     /**
      * @return a lower bound for cumulative time needed for all the vehicles to serve all customers
+     *
+     * further improvements: only use one edge of current node
      */
     public int getLowerBoundForCumulativeTimeNeededForAllVehicles() {
         int sum = 0;
@@ -241,7 +243,7 @@ public class BBNode {
         int min = Integer.MAX_VALUE;
         for (Vertex u : v.neighbours.keySet()) {
             if (u.name.equals(v.name)) continue;
-            if (!u.name.equals(this.vertex.name)  // TODO: further improvements: only use one edge of current node
+            if (!u.name.equals(this.vertex.name)
                     && u.type == VertexType.CUSTOMER
                     && this.servicedNodes[u.customerId] == true) continue;
 
