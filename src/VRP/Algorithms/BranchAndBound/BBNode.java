@@ -207,8 +207,9 @@ public class BBNode {
     public int getLowerBoundForCumulativeTimeNeededForAllVehicles() {
         int sum = 0;
         for (Vertex v : GlobalVars.bbGraph.getVertices()) {
-            if (v.type == VertexType.CUSTOMER && this.servicedNodes[v.customerId] == false){
-                sum += 2*getMinimumEdgeWeightOfVertex(v);
+            if (v.type == VertexType.CUSTOMER
+                    && this.servicedNodes[v.customerId] == false) {
+                sum += 2 * getMinimumEdgeWeightOfVertex(v);
             }
         }
         return sum;
@@ -238,8 +239,13 @@ public class BBNode {
      */
     public int getMinimumEdgeWeightOfVertex(Vertex v) {
         int min = Integer.MAX_VALUE;
-        for (Vertex u : v.neighbours.keySet()){
-            if (!u.name.equals(v.name)) min = Math.min(min, GlobalVars.bbGraph.getDistance(u, v));
+        for (Vertex u : v.neighbours.keySet()) {
+            if (u.name.equals(v.name)) continue;
+            if (!u.name.equals(this.vertex.name)  // TODO: further improvements: only use one edge of current node
+                    && u.type == VertexType.CUSTOMER
+                    && this.servicedNodes[u.customerId] == true) continue;
+
+            min = Math.min(min, GlobalVars.bbGraph.getDistance(u, v));
         }
         return min;
     }
