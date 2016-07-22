@@ -1,5 +1,7 @@
 package VRP.Graph;
 
+import VRP.GlobalVars;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,26 +10,30 @@ import java.util.Map;
  */
 public class Vertex {
     public String name; // name of the vertex
+    public String coords; // coordinates of the vertex as comma separated a string
     public VertexType type; // Vertex is vehicle or customer
-    public Map<Vertex, Integer> neighbours = new HashMap<>(); // an hash map contains neighbors of the nodes, maps the vertex to it's weight (HashMap used for optimal access in O(1))
+    public Map<Vertex, Double> neighbours = new HashMap<>(); // an hash map contains neighbors of the nodes, maps the vertex to it's weight (HashMap used for optimal access in O(1))
 
     // if node is customer
     public int customerId;          // id of the customer for using in branch and bound (filling servicedNodes boolean array)
     public int demand;              // Dc: demand of the customer
     public int penalty;             // Pc: penalty per minute of the customer for being late
-    public int dueDate;        // Ec: earliest time for delivery to the customer
-    public int serviceTime;         // Sc: time required for a car to service the customer
+    public double dueDate;        // Ec: earliest time for delivery to the customer
+    public double serviceTime;         // Sc: time required for a car to service the customer
 
     // if node is depot
     public int numberOfVehicles; // V: number of vehicles on the depot
-    public int fixedCost; // Fv: fixed cost for the vehicle
     public int capacity;  // Qv: capacity for the vehicle
+    public double fixedCost; // Fv: fixed cost for the vehicle
 
     // these two attributes used for dijkstra algorithm
-    public int distOnShortestPath; // distance from source node (in dijkstra)  to the this vertex (MAX_VALUE assumed to be infinity)
+    public double distOnShortestPath; // distance from source node (in dijkstra)  to the this vertex (MAX_VALUE assumed to be infinity)
     public Vertex previousNodeOnShortestPath;     // previous node in shortest path to this node (in dijkstra)
 
     // constructors
+    public Vertex() {
+    }
+
     public Vertex(String name) {
         this.name = name;
     }
@@ -48,6 +54,21 @@ public class Vertex {
         this.numberOfVehicles = vertex.numberOfVehicles;
         this.fixedCost = vertex.fixedCost;
         this.capacity = vertex.capacity;
+    }
+
+    public Vertex(String name, VertexType type, Map<Vertex, Double> neighbours, int customerId, int demand,
+                  int penalty, int dueDate, int serviceTime, int numberOfVehicles, int fixedCost, int capacity) {
+        this.name = name;
+        this.type = type;
+        this.neighbours = neighbours;
+        this.customerId = customerId;
+        this.demand = demand;
+        this.penalty = penalty;
+        this.dueDate = dueDate;
+        this.serviceTime = serviceTime;
+        this.numberOfVehicles = numberOfVehicles;
+        this.fixedCost = fixedCost;
+        this.capacity = capacity;
     }
 
     /**
@@ -81,10 +102,59 @@ public class Vertex {
     /**
      * constructor for ordinary vertexes
      */
-    public Vertex(String name, VertexType type){
+    public Vertex(String name, VertexType type) {
         this.name = name;
         this.type = type;
     }
+
+    /**
+     * build a node from a attribute table row
+     */
+    public static Vertex buildAVertexFromAttributeTableRow(String attributeTableRow) throws Exception {
+        String[] features = attributeTableRow.split(",");
+
+        if (features.length < 10)
+            throw new Exception("Reads " + features[0] + " Successfully!");
+
+        Vertex vertex = new Vertex();
+
+        String OBJECT_ID = features[0];
+        String X = features[1];
+        String Y = features[2];
+        String NodeType = features[3];
+        String C_Demand = features[4];
+        String DueDate = features[5];
+        String Penalty = features[6];
+        String V_QTY = features[7];
+        String V_FixCost = features[8];
+        String V_Cap = features[9];
+
+        vertex.name = OBJECT_ID;
+        vertex.coords = X + "," + Y;
+
+        if (NodeType.equals("Depot")) vertex.type = VertexType.DEPOT;
+        else if (NodeType.equals("Customer")) vertex.type = VertexType.CUSTOMER;
+        else vertex.type = VertexType.ORDINARY;
+
+        if (C_Demand.length() > 0) vertex.demand = Integer.parseInt(C_Demand);
+        if (DueDate.length() > 0) vertex.dueDate = Double.parseDouble(DueDate);
+        if (Penalty.length() > 0) vertex.penalty = Integer.parseInt(Penalty);
+        if (V_QTY.length() > 0) vertex.numberOfVehicles = Integer.parseInt(V_QTY);
+        if (V_FixCost.length() > 0) vertex.fixedCost = Double.parseDouble(V_FixCost);
+        if (V_Cap.length() > 0) vertex.capacity = Integer.parseInt(V_Cap);
+        if (vertex.type == VertexType.CUSTOMER) vertex.customerId = GlobalVars.numberOfCustomers;
+
+        // fill the global vars
+        if (vertex.type == VertexType.DEPOT) GlobalVars.depotName = vertex.name;
+        if (vertex.type == VertexType.DEPOT) GlobalVars.numberOfVehicles = vertex.numberOfVehicles;
+        if (vertex.type == VertexType.DEPOT) GlobalVars.vehicleFixedCost = vertex.fixedCost;
+        if (vertex.type == VertexType.DEPOT) GlobalVars.vehicleCapacity = vertex.capacity;
+        if (vertex.type == VertexType.CUSTOMER) GlobalVars.customerDemands.add(vertex.demand);
+        if (vertex.type == VertexType.CUSTOMER) GlobalVars.numberOfCustomers++;
+
+        return vertex;
+    }
+
 
     // prints path recursively in the following format => vertexName(distance from source)
     public void printPath() {

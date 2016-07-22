@@ -15,7 +15,7 @@ import java.util.PriorityQueue;
 public class BranchAndBound {
     private Graph graph;
 
-    public int minimumCost;                   // minimum cost we found
+    public double minimumCost;                // minimum cost we found
     public BBNode bestNode;                   // best node we found
 
     private PriorityQueue<BBNode> pq;         // use priority queue (min heap) for best first search
@@ -35,7 +35,7 @@ public class BranchAndBound {
         this.pq = new PriorityQueue<>(10, new Comparator<BBNode>() {
             @Override
             public int compare(BBNode u, BBNode v) {
-                return Integer.compare(u.getCost(), v.getCost());
+                return Double.compare(u.getCost() + u.getLowerBound(), v.getCost() + v.getLowerBound());
             }
         });
     }

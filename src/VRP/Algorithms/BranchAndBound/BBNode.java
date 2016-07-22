@@ -13,18 +13,18 @@ import java.util.Arrays;
 public class BBNode {
     public Vertex vertex;          // current vertex of the graph
     public int vehicleUsed;        // number of vehicle used in this node
-    public int curTimeElapsed;     // the time elapsed after moving the vehicle in current path
-    public int maxTimeElapsed;     // the maximum time elapsed in all paths
+    public double curTimeElapsed;     // the time elapsed after moving the vehicle in current path
+    public double maxTimeElapsed;     // the maximum time elapsed in all paths
     public int remainedCapacity;   // remained goods in the car
-    public int cumulativePenaltyTaken; // cumulative penalty taken in all nodes
-    public int cumulativeTimeTaken; // cumulative time that all vehicles spend to serve the customers
+    public double cumulativePenaltyTaken; // cumulative penalty taken in all nodes
+    public double cumulativeTimeTaken; // cumulative time that all vehicles spend to serve the customers
     public boolean[] servicedNodes; // nodes that are serviced
     public int numberOfServicedCustomers; // for easily terminate the algorithm
     public BBNode parent;          // parent of the node in the BB tree
 
-    public int startTime;          // it's the time when vehicle starts moving
-    public int arrivalTime;        // the moment that the vehicle reached to the node
-    public int thisVertexPenalty;  // the penalty that taken in this vertex
+    public double startTime;          // it's the time when vehicle starts moving
+    public double arrivalTime;        // the moment that the vehicle reached to the node
+    public double thisVertexPenalty;  // the penalty that taken in this vertex
 
     /**
      * constructor for the branch and bound node
@@ -176,7 +176,7 @@ public class BBNode {
     /**
      * @return cost of the node that we are there
      */
-    public int getCost() {            // calculates branch and bound cost of the node
+    public double getCost() {            // calculates branch and bound cost of the node
         return cumulativeTimeTaken + cumulativePenaltyTaken + vehicleUsed * GlobalVars.vehicleFixedCost;
     }
 
@@ -185,7 +185,7 @@ public class BBNode {
      *
      * @return lower bound for this node
      */
-    public int getLowerBound() {
+    public double getLowerBound() {
         return this.getLowerBoundForPenaltyTaken()
                 + this.getLowerBoundForCumulativeTimeNeededForAllVehicles()
                 + this.getLowerBoundForNumberOfExtraVehiclesNeeded() * GlobalVars.vehicleFixedCost;
@@ -211,7 +211,7 @@ public class BBNode {
         for (Vertex v : GlobalVars.bbGraph.getVertices()) {
             if (v.type == VertexType.CUSTOMER
                     && this.servicedNodes[v.customerId] == false) {
-                sum += 2 * getMinimumEdgeWeightOfVertex(v);
+                sum += getMinimumEdgeWeightOfVertex(v);
             }
         }
         return sum;
@@ -223,10 +223,10 @@ public class BBNode {
      *
      * @return a lower bound for additional penalty taken
      */
-    public int getLowerBoundForPenaltyTaken() {
+    public double getLowerBoundForPenaltyTaken() {
         if (this.vertex.type == VertexType.DEPOT) return 0;
 
-        int lowestFinishTime = this.curTimeElapsed + this.getMinimumAdditionalTimeNeededToTheEndThePath();
+        double lowestFinishTime = this.curTimeElapsed + this.getMinimumAdditionalTimeNeededToTheEndThePath();
 
         Vertex depotVertex = GlobalVars.bbGraph.adjacencyList.get(GlobalVars.depotName);
 
@@ -239,8 +239,8 @@ public class BBNode {
     /**
      * @return minimum edge weight of a given vertex
      */
-    public int getMinimumEdgeWeightOfVertex(Vertex v) {
-        int min = Integer.MAX_VALUE;
+    public double getMinimumEdgeWeightOfVertex(Vertex v) {
+        double min = Integer.MAX_VALUE;
         for (Vertex u : v.neighbours.keySet()) {
             if (u.name.equals(v.name)) continue;
             if (!u.name.equals(this.vertex.name)
@@ -266,7 +266,7 @@ public class BBNode {
     /**
      * @return minimum time needed to end this path
      */
-    public int getMinimumAdditionalTimeNeededToTheEndThePath() {
+    public double getMinimumAdditionalTimeNeededToTheEndThePath() {
         Vertex depotVertex = GlobalVars.bbGraph.adjacencyList.get(GlobalVars.depotName);
 
         if (this.vertex.type != VertexType.DEPOT)
@@ -283,7 +283,7 @@ public class BBNode {
         Integer[] unservicedCustomersDemands = new Integer[numberOfUnservicedCustomers];
 
         for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
-            if (this.servicedNodes[i] == false) unservicedCustomersDemands[j++] = GlobalVars.customerDemands[i];
+            if (this.servicedNodes[i] == false) unservicedCustomersDemands[j++] = GlobalVars.customerDemands.get(i);
         }
 
         return unservicedCustomersDemands;

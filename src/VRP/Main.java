@@ -11,12 +11,16 @@ public class Main {
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
 
-        Graph originalGraph = new Graph("resources/input.csv");
+        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+                "/home/iman/Workspace/QGIS/IsfahanAttributeTables/ISFNodes.csv",
+                "/home/iman/Workspace/QGIS/IsfahanAttributeTables/ISFRoads.csv"
+        );
+        // Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
 
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph preprocessedGraph = dijkstra.makeShortestPathGraph();
-        // preprocessedGraph.printGraph();
 
+        preprocessedGraph.printGraph();
         BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph);
         branchAndBound.run(GlobalVars.depotName);
         branchAndBound.printTheAnswer();

@@ -5,10 +5,7 @@ import VRP.GlobalVars;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Simple graph stored in a HashMap adjacency list
@@ -36,13 +33,12 @@ public class Graph {
     }
 
     /**
-     * Constructor: builds a Graph from a csv file
+     * builds a Graph from a csv file
      *
      * @param path: path to the csv file
      */
-    public Graph(String path) {
-        adjacencyList = new HashMap<>();
-
+    public static Graph buildAGraphFromCSVFile(String path) {
+        Graph graph = new Graph();
         try {
             // read file
             FileInputStream file = new FileInputStream(new File(path));
@@ -60,7 +56,7 @@ public class Graph {
             GlobalVars.vehicleFixedCost = fixedCostOfVehicle;
             GlobalVars.vehicleCapacity = capacityOfVehicle;
 
-            addVertex(new Vertex(GlobalVars.depotName, VertexType.DEPOT,
+            graph.addVertex(new Vertex(GlobalVars.depotName, VertexType.DEPOT,
                     numberOfVehicles, fixedCostOfVehicle, capacityOfVehicle, depotDueDate, depotPenalty, true));
 
             // read customers info
@@ -68,7 +64,7 @@ public class Graph {
             sc.nextLine(); // skip the line
 
             // filling global variables
-            GlobalVars.customerDemands = new Integer[numberOfCustomers];
+            GlobalVars.customerDemands = new ArrayList<>();
 
             int cId = 0;
             for (int i = 0; i < numberOfCustomers; i++) {
@@ -80,10 +76,10 @@ public class Graph {
                         Integer.parseInt(tokens[3]),
                         Integer.parseInt(tokens[4]));
 
-                addVertex(newVertex);
+                graph.addVertex(newVertex);
 
                 // filling global variables
-                GlobalVars.customerDemands[cId++] = newVertex.demand;
+                GlobalVars.customerDemands.set(cId++, newVertex.demand);
             }
 
             // fill the global variables
@@ -94,7 +90,7 @@ public class Graph {
             sc.nextLine(); // skip the line
 
             for (int i = 0; i < numberOfOrdinaryVertices; i++) {
-                addVertex(new Vertex(sc.nextLine(), VertexType.ORDINARY));
+                graph.addVertex(new Vertex(sc.nextLine(), VertexType.ORDINARY));
             }
 
             // read edges
@@ -103,14 +99,61 @@ public class Graph {
 
             for (int i = 0; i < numberOfEdges; i++) {
                 String[] tokens = sc.nextLine().split(",");
-                addEdge(new Edge(tokens[0], tokens[1], Integer.parseInt(tokens[2])));
-                addEdge(new Edge(tokens[1], tokens[0], Integer.parseInt(tokens[2])));
+                graph.addEdge(new Edge(tokens[0], tokens[1], Integer.parseInt(tokens[2])));
             }
 
+            return graph;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * build a Graph from an attribute table
+     *
+     * @param nodesFilePath: path to the attribute table (csv) that contains nodes
+     * @param roadsFilePath: path to the attribute table (csv) that contains roads
+     */
+    public static Graph buildAGraphFromAttributeTables(String nodesFilePath, String roadsFilePath) {
+        Graph graph = new Graph();
+        HashMap<String, Vertex> coordsToVertexMap = new HashMap<>();
+
+        // read Nodes
+        try {
+            FileInputStream file = new FileInputStream(new File(nodesFilePath));
+            Scanner sc = new Scanner(file);
+            sc.nextLine();
+
+            while (sc.hasNextLine()) {
+                Vertex newVertex = Vertex.buildAVertexFromAttributeTableRow(sc.nextLine());
+                graph.addVertex(newVertex);
+
+                coordsToVertexMap.put(newVertex.coords, newVertex);
+            }
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
         }
+
+        // read roads
+
+        try {
+            FileInputStream file = new FileInputStream(new File(roadsFilePath));
+            Scanner sc = new Scanner(file);
+            sc.nextLine();
+
+            while (sc.hasNextLine()) {
+                Edge edge = Edge.buildEdgeFromAttributeTableRow(sc.nextLine(), coordsToVertexMap);
+                graph.addEdge(edge);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return graph;
     }
 
     /**
@@ -127,6 +170,7 @@ public class Graph {
         if (!adjacencyList.containsKey(e.u)) adjacencyList.put(e.u, new Vertex(e.u));
         if (!adjacencyList.containsKey(e.v)) adjacencyList.put(e.v, new Vertex(e.v));
         adjacencyList.get(e.u).neighbours.put(adjacencyList.get(e.v), e.weight);
+        adjacencyList.get(e.v).neighbours.put(adjacencyList.get(e.u), e.weight);
     }
 
     /**
@@ -164,7 +208,7 @@ public class Graph {
     /**
      * @return distance between to nodes (by name)
      */
-    public int getDistance(String uName, String vName){
+    public double getDistance(String uName, String vName) {
         Vertex u = getVertexByName(uName);
         Vertex v = getVertexByName(vName);
         return getDistance(u, v);
@@ -173,7 +217,7 @@ public class Graph {
     /**
      * @return distance between to nodes (by vertex)
      */
-    public int getDistance(Vertex u, Vertex v){
+    public double getDistance(Vertex u, Vertex v) {
         return u.neighbours.get(v);
     }
 

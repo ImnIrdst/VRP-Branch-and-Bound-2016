@@ -38,7 +38,7 @@ public class Dijkstra {
         PriorityQueue<Vertex> pq = new PriorityQueue<>(10, new Comparator<Vertex>() {
             @Override
             public int compare(Vertex v1, Vertex v2) {
-                return Integer.compare(v1.distOnShortestPath, v2.distOnShortestPath);
+                return Double.compare(v1.distOnShortestPath, v2.distOnShortestPath);
             }
         });
 
@@ -60,10 +60,10 @@ public class Dijkstra {
                 break; // we can ignore u (and any other remaining vertices) since they are unreachable
 
             //look at distances to each neighbour
-            for (Map.Entry<Vertex, Integer> a : u.neighbours.entrySet()) {
+            for (Map.Entry<Vertex, Double> a : u.neighbours.entrySet()) {
                 Vertex v = a.getKey(); //the neighbour in this iteration
 
-                int weight = a.getValue();
+                double weight = a.getValue();
                 if (u.distOnShortestPath + weight < v.distOnShortestPath) { // shorter path to neighbour found
                     pq.remove(v);             // remove it from pq
                     v.distOnShortestPath = u.distOnShortestPath + weight; // update its distance

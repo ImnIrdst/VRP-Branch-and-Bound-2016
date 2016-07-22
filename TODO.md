@@ -1,9 +1,11 @@
 # Todo
--
-- Integrate this code with ArcGIS
+- Generate the answer routes wtk file
 - Use Vehicle needed to peek lowest time needed to go from depot and comeback.
 
 # Done
+- Read from Nodes attribute table
+- Correct the data types (int -> double)
+- Read from Roads attribute table
 - Add lower bound for additional penalty taken
 - Add lower bound for additional time needed
 - If remaining vehicles is less than needed prune it
