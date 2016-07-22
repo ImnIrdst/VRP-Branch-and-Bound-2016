@@ -1,5 +1,6 @@
 package VRP.Algorithms.Dijkstra;
 
+import VRP.GlobalVars;
 import VRP.Graph.Edge;
 import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
@@ -78,14 +79,27 @@ public class Dijkstra {
      * Prints a path from the source to the specified vertex
      */
     public void printPath(String endName) {
-        if (graph.containsVertex(endName)) { // if you set the wrong node to print the path
+        if (!graph.containsVertex(endName)) { // if you set the wrong node to print the path
             System.err.printf("Graph doesn't contain end vertex \"%s\"\n", endName);
             return;
         }
 
         System.out.print("Shortest path for node " + endName + ": ");
-        graph.getVertexByName(endName).printPath();
+        System.out.print(graph.getVertexByName(endName).getPrintPathString());
         System.out.println();
+    }
+
+    /**
+     * used for wtk exporting
+     */
+    public String getTheShortestPathEdgesWTKStringBetweenSourceAndTheNode(String endNodeName) {
+        String[] nodeNames = graph.getVertexByName(endNodeName).getPrintPathString().split(" -> ");
+
+        StringBuilder result = new StringBuilder("");
+        for (int i = 0; i < nodeNames.length-1; i++) {
+            result.append(graph.getEdgeWTK(nodeNames[i].split(" ")[0], nodeNames[i + 1].split(" ")[0])).append("\n");
+        }
+        return result.toString();
     }
 
     /**
@@ -95,6 +109,11 @@ public class Dijkstra {
         for (Vertex v : graph.getVertices()) {
             printPath(v.name);
         }
+    }
+
+    public String getTheShortestPathEdgesWTKStringBetweenTwoNodes(String u, String v) {
+        this.run(u);
+        return getTheShortestPathEdgesWTKStringBetweenSourceAndTheNode(v);
     }
 
     /**

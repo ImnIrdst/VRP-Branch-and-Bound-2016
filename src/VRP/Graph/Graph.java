@@ -221,4 +221,13 @@ public class Graph {
         return u.neighbours.get(v);
     }
 
+    /**
+     * @return a wtk string for the edge between to nodes in the graph
+     */
+    public String getEdgeWTK(String uName, String vName) {
+        Vertex u = getVertexByName(uName);
+        Vertex v = getVertexByName(vName);
+
+        return "LINESTRING(" + u.getSpacedCoords() + ", " + v.getSpacedCoords() + ")";
+    }
 }

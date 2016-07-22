@@ -155,19 +155,29 @@ public class Vertex {
         return vertex;
     }
 
+    /**
+     * @return coordinates with space between (for wtk)
+     */
+    public String getSpacedCoords(){
+        String X = coords.split(",")[0];
+        String Y = coords.split(",")[1];
+        return X + " " + Y;
+    }
 
-    // prints path recursively in the following format => vertexName(distance from source)
-    public void printPath() {
+
+    /**
+     * prints path recursively in the following format => vertexName(distance from source)
+     */
+    public String getPrintPathString() {
         if (this == this.previousNodeOnShortestPath) {
-            System.out.printf("%s(0)", this.name);
+            return this.name + " (" + this.distOnShortestPath + ")";
 
         } else if (this.previousNodeOnShortestPath == null) {
-            System.out.printf("%s(unreached)", this.name); // there is no path from source to this node
+            return this.name + " (unreached)"; // there is no path from source to this node
 
         } else {
-            this.previousNodeOnShortestPath.printPath(); // recursive part of the function
-            System.out.printf(" -> %s(%d)", this.name, this.distOnShortestPath);
-
+            return this.previousNodeOnShortestPath.getPrintPathString()
+                    + " -> " + this.name + " (" + this.distOnShortestPath + ")"; // recursive part of the function
         }
     }
 

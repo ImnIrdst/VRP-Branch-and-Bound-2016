@@ -4,11 +4,13 @@ import VRP.Algorithms.BranchAndBound.BranchAndBound;
 import VRP.Algorithms.Dijkstra.Dijkstra;
 import VRP.Graph.Graph;
 
+import java.io.FileNotFoundException;
+
 /**
  * for running the algorithm
  */
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         long startTime = System.currentTimeMillis();
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
@@ -20,10 +22,11 @@ public class Main {
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph preprocessedGraph = dijkstra.makeShortestPathGraph();
 
-        preprocessedGraph.printGraph();
+        // preprocessedGraph.printGraph();
         BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph);
         branchAndBound.run(GlobalVars.depotName);
         branchAndBound.printTheAnswer();
+        branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
 
         long finishTime = System.currentTimeMillis();
 

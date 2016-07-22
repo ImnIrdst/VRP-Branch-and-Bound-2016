@@ -1,10 +1,14 @@
 package VRP.Algorithms.BranchAndBound;
 
+import VRP.Algorithms.Dijkstra.Dijkstra;
 import VRP.GlobalVars;
 import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
 import VRP.Graph.VertexType;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
@@ -125,6 +129,35 @@ public class BranchAndBound {
 
         // else
         return false;
+    }
+
+    /**
+     * generates a csv file that contains the wtk info of result routes
+     *
+     * @param folderPath: the path of the folder that file must be save there
+     * @param dijkstra:   Dijkstra algorithm on original graph
+     */
+    public void exportTheResultWTK(String folderPath, Dijkstra dijkstra) throws FileNotFoundException {
+        String[] routes = bestNode.getStringPath().split("\n");
+
+        for (int j = 0; j < routes.length; j++) {
+            String filePath = folderPath + "route" + j + ".csv";
+            FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+            PrintWriter printWriter = new PrintWriter(fileOutputStream);
+
+            printWriter.println("OBJECTID;wrk");
+            String[] routeNodes = routes[j].split("->");
+            for (int i = 0; i < routeNodes.length - 1; i++) {
+                String[] edgesWTKs = dijkstra.getTheShortestPathEdgesWTKStringBetweenTwoNodes(
+                        routeNodes[i].trim().split(" ")[0], routeNodes[i + 1].trim().split(" ")[0]
+                ).split("\n");
+
+                for (int k = 0; k < edgesWTKs.length; k++) {
+                    printWriter.println(k + ";" + edgesWTKs[k]);
+                }
+            }
+            printWriter.close();
+        }
     }
 
     /**

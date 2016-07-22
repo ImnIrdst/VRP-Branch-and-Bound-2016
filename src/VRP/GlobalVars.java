@@ -18,7 +18,7 @@ public class GlobalVars {
     public static int numberOfCustomers = 0;
     public static List<Integer> customerDemands = new ArrayList<>();
 
-    public static Graph bbGraph; // branch and bound graph
+    public static Graph bbGraph; // preprocessed graph
 
     // for reporting
     public static int numberOfBranchAndBoundNodes = 0;
