@@ -29,7 +29,6 @@ public class BBNode {
     /**
      * constructor for the branch and bound node
      */
-
     public BBNode(Vertex vertex, BBNode parent) {
         this.vertex = vertex;
         this.parent = parent;
@@ -46,6 +45,8 @@ public class BBNode {
         this.calculateParentStartTime();
 
         GlobalVars.numberOfBranchAndBoundNodes++;
+        if (GlobalVars.numberOfBranchAndBoundNodes % 100000 == 0)
+            System.out.println("Node expanded so far: " + GlobalVars.numberOfBranchAndBoundNodes);
     }
 
     /**
@@ -133,6 +134,9 @@ public class BBNode {
             this.cumulativePenaltyTaken = parent.cumulativePenaltyTaken + this.thisVertexPenalty;
     }
 
+    /**
+     * calculateCumulativeTimeTaken
+     */
     public void calculateCumulativeTimeTaken() {
         if (parent == null)
             this.cumulativeTimeTaken = 0;
@@ -191,7 +195,6 @@ public class BBNode {
                 + this.getLowerBoundForNumberOfExtraVehiclesNeeded() * GlobalVars.vehicleFixedCost;
     }
 
-
     /**
      * @return minimum number of extra vehicles needed to serve the remaining customers
      */
@@ -203,7 +206,7 @@ public class BBNode {
 
     /**
      * @return a lower bound for cumulative time needed for all the vehicles to serve all customers
-     *
+     * <p>
      * further improvements: only use one edge of current node
      */
     public int getLowerBoundForCumulativeTimeNeededForAllVehicles() {
@@ -228,7 +231,7 @@ public class BBNode {
 
         double lowestFinishTime = this.curTimeElapsed + this.getMinimumAdditionalTimeNeededToTheEndThePath();
 
-        Vertex depotVertex = GlobalVars.bbGraph.adjacencyList.get(GlobalVars.depotName);
+        Vertex depotVertex = GlobalVars.bbGraph.getVertexByName(GlobalVars.depotName);
 
         if (lowestFinishTime > depotVertex.dueDate)
             return (lowestFinishTime - depotVertex.dueDate) * depotVertex.penalty;
@@ -253,27 +256,15 @@ public class BBNode {
     }
 
     /**
-     * @return Detail of attributes that affects the cost
-     */
-    public String getPrintCostDetailsString() {
-        return "Time needed: " + maxTimeElapsed + "\n"
-                + "Travel Time of all vehicles: " + cumulativeTimeTaken + "\n"
-                + "Penalty Taken of all vehicles: " + cumulativePenaltyTaken + "\n"
-                + "Number of Vehicles Used: " + vehicleUsed + "\n"
-                + "Minimum Cost for the problem: " + getCost();
-    }
-
-    /**
      * @return minimum time needed to end this path
      */
     public double getMinimumAdditionalTimeNeededToTheEndThePath() {
-        Vertex depotVertex = GlobalVars.bbGraph.adjacencyList.get(GlobalVars.depotName);
+        Vertex depotVertex = GlobalVars.bbGraph.getVertexByName(GlobalVars.depotName);
 
         if (this.vertex.type != VertexType.DEPOT)
             return this.vertex.neighbours.get(depotVertex);
         return 0;
     }
-
 
     /**
      * @return array of unserviced customers demands
@@ -283,7 +274,7 @@ public class BBNode {
         Integer[] unservicedCustomersDemands = new Integer[numberOfUnservicedCustomers];
 
         for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
-            if (this.servicedNodes[i] == false) unservicedCustomersDemands[j++] = GlobalVars.customerDemands.get(i);
+            if (this.servicedNodes[i] == false) unservicedCustomersDemands[j++] = GlobalVars.customerDemands[i];
         }
 
         return unservicedCustomersDemands;
@@ -298,6 +289,25 @@ public class BBNode {
         } else {
             return parent.getStringPath() + " -> " + this;
         }
+    }
+
+    /**
+     * @return Detail of attributes that affects the cost
+     */
+    public String getPrintCostDetailsString() {
+        return "Time needed: " + maxTimeElapsed + "\n"
+                + "Travel Time of all vehicles: " + cumulativeTimeTaken + "\n"
+                + "Penalty Taken of all vehicles: " + cumulativePenaltyTaken + "\n"
+                + "Number of Vehicles Used: " + vehicleUsed + "\n"
+                + "Minimum Cost for the problem: " + getCost();
+    }
+
+    /**
+     * details of the node stat for the to string function
+     * @return
+     */
+    public String detailsForToString() {
+        return ", " + thisVertexPenalty + ", " + vertex.dueDate;
     }
 
     @Override
@@ -315,9 +325,6 @@ public class BBNode {
         return vertex + " (" + arrivalTime + detailsForToString() + ")";
     }
 
-    public String detailsForToString() {
-        return ", " + thisVertexPenalty + ", " + vertex.dueDate;
-    }
 }
 
 /* Trash

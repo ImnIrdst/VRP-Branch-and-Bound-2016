@@ -11,27 +11,34 @@ import java.io.FileNotFoundException;
  */
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
-        long startTime = System.currentTimeMillis();
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
                 "/home/iman/Workspace/QGIS/IsfahanAttributeTables/ISFNodes.csv",
                 "/home/iman/Workspace/QGIS/IsfahanAttributeTables/ISFRoads.csv"
         );
-        // Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
+//        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
+//        originalGraph.printGraph();
 
+        // build the preprocessed graph
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph preprocessedGraph = dijkstra.makeShortestPathGraph();
+//        preprocessedGraph.printGraph();
 
-        // preprocessedGraph.printGraph();
+        // fill the global variables
+        GlobalVars.setTheGlobalVariables(preprocessedGraph);
+
+        // run the branch and bound algorithm (measure the run time)
+        long startTime = System.currentTimeMillis();
         BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph);
         branchAndBound.run(GlobalVars.depotName);
         branchAndBound.printTheAnswer();
-        branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
-
         long finishTime = System.currentTimeMillis();
 
-        System.out.println();
+        // export the result
+        branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
 
+        // print stats
+        System.out.println();
         System.out.println("Total Calculation time: " + (finishTime - startTime) + "ms");
         System.out.println("Number of Branch and Bound Tree Nodes: " + GlobalVars.numberOfBranchAndBoundNodes);
     }

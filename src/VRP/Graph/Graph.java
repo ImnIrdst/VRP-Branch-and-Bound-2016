@@ -51,10 +51,8 @@ public class Graph {
             int depotDueDate = Integer.parseInt(sc.nextLine().split(",")[1]);
             int depotPenalty = Integer.parseInt(sc.nextLine().split(",")[1]);
 
-            // fill the global variable
-            GlobalVars.numberOfVehicles = numberOfVehicles;
-            GlobalVars.vehicleFixedCost = fixedCostOfVehicle;
-            GlobalVars.vehicleCapacity = capacityOfVehicle;
+            // fill the global variables
+            GlobalVars.depotName = "Depot";
 
             graph.addVertex(new Vertex(GlobalVars.depotName, VertexType.DEPOT,
                     numberOfVehicles, fixedCostOfVehicle, capacityOfVehicle, depotDueDate, depotPenalty, true));
@@ -63,27 +61,18 @@ public class Graph {
             int numberOfCustomers = Integer.parseInt(sc.nextLine().split(",")[1]);
             sc.nextLine(); // skip the line
 
-            // filling global variables
-            GlobalVars.customerDemands = new ArrayList<>();
-
             int cId = 0;
             for (int i = 0; i < numberOfCustomers; i++) {
                 String[] tokens = sc.nextLine().split(",");
                 Vertex newVertex = new Vertex(tokens[0],
-                        VertexType.CUSTOMER, cId,
+                        VertexType.CUSTOMER, cId++,
                         Integer.parseInt(tokens[1]),
                         Integer.parseInt(tokens[2]),
                         Integer.parseInt(tokens[3]),
                         Integer.parseInt(tokens[4]));
 
                 graph.addVertex(newVertex);
-
-                // filling global variables
-                GlobalVars.customerDemands.set(cId++, newVertex.demand);
             }
-
-            // fill the global variables
-            GlobalVars.numberOfCustomers = numberOfCustomers;
 
             // read ordinary vertices
             int numberOfOrdinaryVertices = Integer.parseInt(sc.nextLine().split(",")[1]);
@@ -132,14 +121,15 @@ public class Graph {
                 coordsToVertexMap.put(newVertex.coords, newVertex);
             }
 
+
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
         // read roads
-
         try {
             FileInputStream file = new FileInputStream(new File(roadsFilePath));
             Scanner sc = new Scanner(file);
@@ -178,6 +168,29 @@ public class Graph {
      */
     public boolean containsVertex(String startName) {
         return adjacencyList.containsKey(startName);
+    }
+
+    /**
+     * gets the graph size
+     */
+    public int getGraphSize(){
+        return adjacencyList.size();
+    }
+    /**
+     * @return adjacencyMatrix of the graph
+     */
+    public double[][] getTheAdjacencyMatrix() {
+        int numberOfNodes = this.getGraphSize();
+        double[][] adjacencyMatrix = new double[numberOfNodes][numberOfNodes];
+
+        for (Vertex u : adjacencyList.values()) {
+            for (Vertex v : u.neighbours.keySet()) {
+                adjacencyMatrix[u.getId()][v.getId()] = this.getDistance(u, v);
+            }
+            adjacencyMatrix[u.getId()][u.getId()] = Integer.MAX_VALUE / 2.0;
+        }
+
+        return adjacencyMatrix;
     }
 
     /**

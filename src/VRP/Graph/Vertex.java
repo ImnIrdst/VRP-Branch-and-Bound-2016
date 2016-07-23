@@ -144,21 +144,30 @@ public class Vertex {
         if (V_Cap.length() > 0) vertex.capacity = Integer.parseInt(V_Cap);
         if (vertex.type == VertexType.CUSTOMER) vertex.customerId = GlobalVars.numberOfCustomers;
 
-        // fill the global vars
+        // set the global depot name
         if (vertex.type == VertexType.DEPOT) GlobalVars.depotName = vertex.name;
-        if (vertex.type == VertexType.DEPOT) GlobalVars.numberOfVehicles = vertex.numberOfVehicles;
-        if (vertex.type == VertexType.DEPOT) GlobalVars.vehicleFixedCost = vertex.fixedCost;
-        if (vertex.type == VertexType.DEPOT) GlobalVars.vehicleCapacity = vertex.capacity;
-        if (vertex.type == VertexType.CUSTOMER) GlobalVars.customerDemands.add(vertex.demand);
-        if (vertex.type == VertexType.CUSTOMER) GlobalVars.numberOfCustomers++;
+        if (vertex.type == VertexType.CUSTOMER) GlobalVars.numberOfCustomers ++;
 
         return vertex;
     }
 
     /**
+     * get Id of the node
+     * if n is number of nodes then
+     * 1,2,...,n-1 -> for customers
+     * n -> depot
+     * only must be used for Branch and Bound and after graph has been created.
+     */
+    public int getId() {
+        if (this.type == VertexType.CUSTOMER) return customerId;
+        if (this.type == VertexType.DEPOT) return GlobalVars.numberOfCustomers;
+        return -1;
+    }
+
+    /**
      * @return coordinates with space between (for wtk)
      */
-    public String getSpacedCoords(){
+    public String getSpacedCoords() {
         String X = coords.split(",")[0];
         String Y = coords.split(",")[1];
         return X + " " + Y;
