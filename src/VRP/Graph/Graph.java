@@ -12,6 +12,7 @@ import java.util.*;
  */
 public class Graph {
     public Map<String, Vertex> adjacencyList; // adjacency list: mapping of vertex names to Vertex objects, built from a set of Edge
+    public Map<Integer, Vertex> idToVertexMap; // maps vertex Id to Vertex
 
     /**
      * Constructor: Default
@@ -122,7 +123,6 @@ public class Graph {
             }
 
 
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -173,9 +173,10 @@ public class Graph {
     /**
      * gets the graph size
      */
-    public int getGraphSize(){
+    public int getGraphSize() {
         return adjacencyList.size();
     }
+
     /**
      * @return adjacencyMatrix of the graph
      */
@@ -207,8 +208,19 @@ public class Graph {
     /**
      * @return the vertex with given name
      */
-    public Vertex getVertexByName(String startName) {
-        return adjacencyList.get(startName);
+    public Vertex getVertexByName(String name) {
+        return adjacencyList.get(name);
+    }
+
+    /**
+     * @return the vertex with given id
+     */
+    public Vertex getVertexById(int id) {
+        if (idToVertexMap == null) {
+            idToVertexMap = new HashMap<>();
+            for (Vertex v : getVertices()) idToVertexMap.put(v.getId(), v);
+        }
+        return idToVertexMap.get(id);
     }
 
     /**

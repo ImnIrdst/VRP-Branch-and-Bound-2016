@@ -40,18 +40,13 @@ public class GlobalVars {
         GlobalVars.vehicleCapacity = depotVertex.capacity;
         GlobalVars.vehicleFixedCost = depotVertex.fixedCost;
 
-        // due dates
+        // due dates, demands, penalties, service times
         GlobalVars.nodeDueDates = new double[numberOfNodes];
+        GlobalVars.customerDemands = new int[numberOfNodes];
+        GlobalVars.customerPenaltyCosts = new int[numberOfNodes];
+        GlobalVars.customerServiceTimes = new double[numberOfNodes];
         for (Vertex u : bbGraph.getVertices()) {
             GlobalVars.nodeDueDates[u.getId()] = u.dueDate;
-        }
-
-        // other customer features
-        GlobalVars.customerDemands = new int[numberOfCustomers];
-        GlobalVars.customerPenaltyCosts = new int[numberOfCustomers];
-        GlobalVars.customerServiceTimes = new double[numberOfCustomers];
-        for (Vertex u : bbGraph.getVertices()) {
-            if (u.type != VertexType.CUSTOMER) continue;
             GlobalVars.customerDemands[u.getId()] = u.demand;
             GlobalVars.customerPenaltyCosts[u.getId()] = u.penalty;
             GlobalVars.customerServiceTimes[u.getId()] = u.serviceTime;
