@@ -4,24 +4,12 @@ import VRP.Algorithms.Dijkstra.Dijkstra;
 import VRP.GlobalVars;
 import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
+import com.sun.glass.ui.Pen;
 import ilog.concert.*;
 
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
-
-
-//class Pairing_ {
-//    public String Depot;
-//    public int idOfPairing;
-//    public double Starttime;
-//    public double Endtime;
-//    public double Duration;
-//    public double Cost_Pairing;
-//    public double Rest_Pairing;
-//    public int Number_of_Trips;
-//    public int Crew_AssignedPerson;
-//}
 
 public class Model {
     static IloCplex VRPD;                            // crew rostering problem
@@ -41,7 +29,7 @@ public class Model {
     static int Demand[];
     static int Capacity[];
     static double DD[];
-    static int BigM = (int) 1e9;                      // Big M
+    static int BigM = (int) 1e3;                      // Big M
     static double Start_ProcessTime;
     static double End_ProcessTime;
     static int depotId;
@@ -98,37 +86,7 @@ public class Model {
         addConstraint7();
         addConstraint8();
         addConstraint9();
-//---------------Constraints-----------------------
-        //11: Relation between alpha and (z-dd)
-//        for (int k = 0; k < Max_Number_Vehicles; k++) {
-//            for (int i = 0; i < Number_Nodes; i++) {
-//                VRPD.addLe(VRPD.diff(VRPD.diff(z[i][k], DD[i]), VRPD.prod(BigM, VRPD.diff(2, VRPD.sum(alpha[i][k], y[k])))), 0);
-//            }
-//        }
-//        //12: Relation between alpha and (z-dd)
-//        for (int k = 0; k < Max_Number_Vehicles; k++) {
-//            for (int i = 0; i < Number_Nodes; i++) {
-//                VRPD.addLe(VRPD.sum(VRPD.diff(z[i][k], DD[i]), VRPD.prod(BigM, VRPD.sum(1, VRPD.diff(alpha[i][k], y[k])))), 0);
-//            }
-//        }
-//        //13: delta=0
-//        for (int k = 0; k < Max_Number_Vehicles; k++) {
-//            for (int i = 0; i < Number_Nodes; i++) {
-//                VRPD.addLe(delta[i][k], VRPD.sum(BigM, VRPD.diff(2, VRPD.sum(alpha[i][k], y[k]))));
-//            }
-//        }
-//        //14-1: delta=z-dd
-//        for (int k = 0; k < Max_Number_Vehicles; k++) {
-//            for (int i = 0; i < Number_Nodes; i++) {
-//                VRPD.addLe(delta[i][k], VRPD.sum(VRPD.diff(z[i][k], DD[i]), VRPD.prod(BigM, VRPD.sum(1, VRPD.diff(alpha[i][k], y[k])))));
-//            }
-//        }
-//        //14-2: delta=z-dd
-//        for (int k = 0; k < Max_Number_Vehicles; k++) {
-//            for (int i = 0; i < Number_Nodes; i++) {
-//                VRPD.addGe(delta[i][k], VRPD.diff(VRPD.diff(z[i][k], DD[i]), VRPD.prod(BigM, VRPD.sum(1, VRPD.diff(alpha[i][k], y[k])))));
-//            }
-//        }
+
         for (int k = 0; k < Max_Number_Vehicles; k++) {
             for (int i = 0; i < Number_Nodes; i++) {
                 VRPD.addEq(x[i][i][k], 0.0);
@@ -268,7 +226,6 @@ public class Model {
                 expr7.addTerm(1.0, x[depotId][j][k]);
             }
             VRPD.addEq(expr7, y[k]);
-            // VRPD.addEq(expr7, VRPD.sum(1.0, VRPD.prod(BigM, VRPD.diff(1.0, y[k]))));
         }
     }
 
@@ -280,7 +237,6 @@ public class Model {
                 expr8.addTerm(1.0, x[i][depotId][k]);
             }
             VRPD.addEq(expr8, y[k]);
-            // VRPD.addLe(expr8, VRPD.sum(1.0, VRPD.prod(BigM, VRPD.diff(1.0, y[k]))));
         }
     }
 
@@ -302,12 +258,11 @@ public class Model {
     }
 
     public static void addConstraint9() throws IloException {
-//        for (int k = 0; k < Max_Number_Vehicles; k++) {
-//            for (int i = 0; i < Number_Nodes; i++) {
-//                Cplex
-//                VRPD.add((z[i][k] == delta[i][k]));
-//            }
-//        }
+        for (int k = 0; k < Max_Number_Vehicles; k++) {
+            for (int i = 0; i < Number_Nodes; i++) {
+                VRPD.add(VRPD.and(VRPD.ge(z[i][k], DD[i]), VRPD.eq(delta[i][k], VRPD.diff(z[i][k], DD[i]))));
+            }
+        }
     }
 
 
@@ -319,32 +274,43 @@ public class Model {
             System.out.println("--------------------------------------------------------");
             System.out.println("--------------------------------------------------------");
             System.out.println("Status = " + VRPD.getStatus());
-            System.out.println("Objective Value = " + VRPD.getObjValue());
+            System.out.println("Objective Value = " + String.format("%.1f", VRPD.getObjValue()));
+
             for (int k = 0; k < Max_Number_Vehicles; k++) {
-                System.out.println("Y (" + k + ") = " + VRPD.getValue(y[k]));
-            }
-            for (int k = 0; k < Max_Number_Vehicles; k++) {
-                if (VRPD.getValue(y[k]) == 1.0) {
-                    System.out.print("y" + k + ":");
-                    for (int i = Number_Nodes - 1; i >= 0; i--) {
-                        for (int j = Number_Nodes - 1; j >= 0; j--) {
-                            if (VRPD.getValue(x[i][j][k]) == 1.0) {
-                                Vertex u = ppGraph.getVertexById(i);
-                                Vertex v = ppGraph.getVertexById(j);
-                                System.out.print(" "
-                                        + u
-                                        + " -("
-                                        + ppGraph.getDistance(u, v)
-                                        + ", " + VRPD.getValue(z[j][k])
-                                        + ")-> "
-                                        + v + ","
-                                );
-//
-                            }
-                        }
+                long yk = Math.round(VRPD.getValue(y[k]));
+                System.out.print("Y" + k + " (" + yk + ")" + ",");
+                if (yk == 0) continue;
+                for (int i = Number_Nodes - 1; i >= 0; i--) {
+                    for (int j = Number_Nodes - 1; j >= 0; j--) {
+//                        long xijk = Math.round(VRPD.getValue(x[i][j][k]));
+//                        long zjk = Math.round(VRPD.getValue(z[j][k]));
+//                        long djk = Math.round(VRPD.getValue(delta[j][k]));
+
+                        double xijk = (VRPD.getValue(x[i][j][k]));
+                        double zjk = (VRPD.getValue(z[j][k]));
+                        double djk = (VRPD.getValue(delta[j][k]));
+
+                        String zjkd = String.format("%.1f", VRPD.getValue(z[j][k]));
+                        String pjkd = String.format("%.1f", VRPD.getValue(delta[j][k]) * PenaltyCost[j]);
+
+                        if (xijk == 0) continue;
+                        Vertex u = ppGraph.getVertexById(i);
+                        Vertex v = ppGraph.getVertexById(j);
+
+                        double deb1 = VRPD.getValue(z[j][k]) - VRPD.getValue(z[i][k]);
+                        double deb2 = (Cost_ShortestPath[i][j] + ServiceTime[j]) - BigM*(1-VRPD.getValue(x[i][j][k]));
+
+                        System.out.print(" "
+                                + u
+                                + " -("
+                                + ppGraph.getDistance(u, v)
+                                + ", " + zjkd  + ", " + DD[j] + ", " + pjkd
+                                + ")-> "
+                                + v + ","
+                        );
                     }
-                    System.out.println();
                 }
+                System.out.println();
             }
             System.out.println();
             System.out.println("Processing Time: " + (End_ProcessTime - Start_ProcessTime) / 1000. + " s");
@@ -353,8 +319,6 @@ public class Model {
             System.out.println("Can't be solved!!!!");
         }
     }
-
-
 //    public static void WriteData() throws Exception {
 //
 ////            FileOutputStream object = new FileOutputStream("Output_Crew_Phase3_Crew Assignment_Depot.csv");

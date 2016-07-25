@@ -12,11 +12,11 @@ import java.io.FileNotFoundException;
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
-        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "/home/iman/Workspace/QGIS/IsfahanAttributeTables/ISFNodes.csv",
-                "/home/iman/Workspace/QGIS/IsfahanAttributeTables/ISFRoads.csv"
-        );
-//        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
+//        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+//                "/home/iman/Workspace/QGIS/IsfahanAttributeTables/ISFNodes.csv",
+//                "/home/iman/Workspace/QGIS/IsfahanAttributeTables/ISFRoads.csv"
+//        );
+        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
 //        originalGraph.printGraph();
 
         // build the preprocessed graph
@@ -35,7 +35,7 @@ public class Main {
         long finishTime = System.currentTimeMillis();
 
         // export the result
-        branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
+        // branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
 
         // print stats
         System.out.println();
