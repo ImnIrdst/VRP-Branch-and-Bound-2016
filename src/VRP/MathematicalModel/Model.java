@@ -15,8 +15,8 @@ public class Model {
     static IloCplex VRPD;                            // crew rostering problem
     static IloNumVar[][][] x;
     static IloNumVar[] y;
-    static IloNumVar[][] z;
-    static IloNumVar[][] delta;
+    static IloNumVar[] z;
+    static IloNumVar[] delta;
 
     static int Number_Customers;                    // the maximum number of crew = number of pairings
     static int Number_Nodes;
@@ -26,7 +26,7 @@ public class Model {
     static int FixedCost_Vehicle;          // fix cost for employing one crew
     static int PenaltyCost[];
     static int Demand[];
-    static int Capacity[];
+    static int Capacity;
     static double DD[];
     static double Start_ProcessTime;
     static double End_ProcessTime;
@@ -41,11 +41,11 @@ public class Model {
     }
 
     public static void ReadData() throws Exception {
-        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-8Customers.csv",
-                "resources/ISFRoads.csv"
-        );
-//        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
+//        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+//                "resources/ISFNodes-8Customers.csv",
+//                "resources/ISFRoads.csv"
+//        );
+        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
 
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph preprocessedGraph = dijkstra.makeShortestPathGraph();
@@ -59,7 +59,7 @@ public class Model {
         ServiceTime = GlobalVars.customerServiceTimes;
         PenaltyCost = GlobalVars.customerPenaltyCosts;
         Demand = GlobalVars.customerDemands;
-        Capacity = GlobalVars.vehicleCapacities;
+        Capacity = GlobalVars.vehicleCapacities[0];
         DD = GlobalVars.nodeDueDates;
         Number_Customers = GlobalVars.numberOfCustomers;
         Number_Nodes = GlobalVars.numberOfNodes;
@@ -108,18 +108,14 @@ public class Model {
             y[k] = VRPD.boolVar();
         }
 
-        z = new IloNumVar[Number_Nodes][Max_Number_Vehicles];
-        for (int k = 0; k < Max_Number_Vehicles; k++) {
-            for (int i = 0; i < Number_Nodes; i++) {
-                z[i][k] = VRPD.numVar(0, Double.MAX_VALUE);
-            }
+        z = new IloNumVar[Number_Nodes];
+        for (int i = 0; i < Number_Nodes; i++) {
+            z[i] = VRPD.numVar(0, Double.MAX_VALUE);
         }
 
-        delta = new IloNumVar[Number_Nodes][Max_Number_Vehicles];
-        for (int k = 0; k < Max_Number_Vehicles; k++) {
-            for (int i = 0; i < Number_Nodes; i++) {
-                delta[i][k] = VRPD.numVar(0, Double.MAX_VALUE);
-            }
+        delta = new IloNumVar[Number_Nodes];
+        for (int i = 0; i < Number_Nodes; i++) {
+            delta[i] = VRPD.numVar(0, Double.MAX_VALUE);
         }
     }
 
@@ -140,7 +136,7 @@ public class Model {
 
         for (int k = 0; k < Max_Number_Vehicles; k++) {
             for (int i = 0; i < Number_Nodes; i++) {
-                obj.addTerm(PenaltyCost[i], delta[i][k]);
+                obj.addTerm(PenaltyCost[i], delta[i]);
             }
         }
 
@@ -186,7 +182,7 @@ public class Model {
                     expr3.addTerm(Demand[j], x[i][j][k]);
                 }
             }
-            VRPD.addLe(expr3, Capacity[k]);
+            VRPD.addLe(expr3, Capacity);
         }
     }
 
@@ -239,10 +235,10 @@ public class Model {
                     if (i == j) continue;
                     if (i == depotId)
                         VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
-                                VRPD.ge(z[j][k], (Cost_ShortestPath[i][j] + ServiceTime[j]))));
+                                VRPD.ge(z[j], (Cost_ShortestPath[i][j] + ServiceTime[j]))));
                     else
                         VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
-                                VRPD.ge(VRPD.diff(z[j][k], z[i][k]), (Cost_ShortestPath[i][j] + ServiceTime[j]))));
+                                VRPD.ge(VRPD.diff(z[j], z[i]), (Cost_ShortestPath[i][j] + ServiceTime[j]))));
                 }
             }
         }
@@ -251,7 +247,7 @@ public class Model {
     public static void addConstraint9() throws IloException {
         for (int k = 0; k < Max_Number_Vehicles; k++) {
             for (int i = 0; i < Number_Nodes; i++) {
-                VRPD.add(VRPD.ifThen(VRPD.ge(z[i][k], DD[i]), VRPD.eq(delta[i][k], VRPD.diff(z[i][k], DD[i]))));
+                VRPD.add(VRPD.ifThen(VRPD.ge(z[i], DD[i]), VRPD.eq(delta[i], VRPD.diff(z[i], DD[i]))));
             }
         }
     }
@@ -264,7 +260,7 @@ public class Model {
             System.out.println("--------------------------------------------------------");
             System.out.println("--------------------------------------------------------");
             System.out.println("Status = " + VRPD.getStatus());
-            System.out.println("Objective Value = " + String.format("%.1f", VRPD.getObjValue()));
+            System.out.println("Objective Value = " + String.format("%.4f", VRPD.getObjValue()));
 
             for (int k = 0; k < Max_Number_Vehicles; k++) {
                 long yk = Math.round(VRPD.getValue(y[k]));
@@ -277,11 +273,11 @@ public class Model {
 //                        long zjk = Math.round(VRPD.getValue(z[j][k]));
 //                        long djk = Math.round(VRPD.getValue(delta[j][k]));
                         double xijk = (VRPD.getValue(x[i][j][k]));
-                        double zjk = (VRPD.getValue(z[j][k]));
-                        double djk = (VRPD.getValue(delta[j][k]));
+                        double zjk = (VRPD.getValue(z[j]));
+                        double djk = (VRPD.getValue(delta[j]));
 
-                        String zjkd = String.format("%.1f", VRPD.getValue(z[j][k]));
-                        String pjkd = String.format("%.1f", VRPD.getValue(delta[j][k]) * PenaltyCost[j]);
+                        String zjkd = String.format("%.1f", VRPD.getValue(z[j]));
+                        String pjkd = String.format("%.1f", VRPD.getValue(delta[j]) * PenaltyCost[j]);
 
                         if (xijk == 0) continue;
                         Vertex u = ppGraph.getVertexById(i);
@@ -291,7 +287,7 @@ public class Model {
                                 + u
                                 + " -("
                                 + ppGraph.getDistance(u, v)
-                                + ", " + zjkd  + ", " + DD[j] + ", " + pjkd
+                                + ", " + zjkd + ", " + DD[j] + ", " + pjkd
                                 + ")-> "
                                 + v + ","
                         );
