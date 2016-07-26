@@ -17,7 +17,6 @@ public class Model {
     static IloNumVar[] y;
     static IloNumVar[][] z;
     static IloNumVar[][] delta;
-    static IloNumVar[][] alpha;
 
     static int Number_Customers;                    // the maximum number of crew = number of pairings
     static int Number_Nodes;
@@ -29,7 +28,6 @@ public class Model {
     static int Demand[];
     static int Capacity[];
     static double DD[];
-    static int BigM = (int) 1e3;                      // Big M
     static double Start_ProcessTime;
     static double End_ProcessTime;
     static int depotId;
@@ -43,11 +41,11 @@ public class Model {
     }
 
     public static void ReadData() throws Exception {
-//        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-//                "/home/iman/Workspace/QGIS/IsfahanAttributeTables/ISFNodes.csv",
-//                "/home/iman/Workspace/QGIS/IsfahanAttributeTables/ISFRoads.csv"
-//        );
-        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
+        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+                "resources/ISFNodes-8Customers.csv",
+                "resources/ISFRoads.csv"
+        );
+//        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
 
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph preprocessedGraph = dijkstra.makeShortestPathGraph();
@@ -123,13 +121,6 @@ public class Model {
                 delta[i][k] = VRPD.numVar(0, Double.MAX_VALUE);
             }
         }
-
-        alpha = new IloNumVar[Number_Nodes][Max_Number_Vehicles];
-        for (int i = 0; i < Number_Nodes; i++) {
-            for (int k = 0; k < Max_Number_Vehicles; k++) {
-                alpha[i][k] = VRPD.boolVar();
-            }
-        }
     }
 
     public static void createObjectiveFunctions() throws IloException {
@@ -180,9 +171,9 @@ public class Model {
                     expr2.addTerm(1.0, x[i][j][k]);
                 }
             }
-            VRPD.addLe(expr2, VRPD.prod(BigM, y[k]));
+            VRPD.add(VRPD.ifThen(VRPD.eq(y[k], 0), VRPD.le(expr2, 0)));
             //3-2: if using vehicle k...
-            VRPD.addGe(expr2, VRPD.diff(2, VRPD.prod(BigM, VRPD.diff(1, y[k]))));
+            VRPD.add(VRPD.ifThen(VRPD.eq(y[k], 1), VRPD.ge(expr2, 2)));
         }
     }
 
@@ -247,11 +238,11 @@ public class Model {
                 for (int j = 0; j < Number_Nodes; j++) {
                     if (i == j) continue;
                     if (i == depotId)
-                        VRPD.addGe(z[j][k],
-                                VRPD.diff((Cost_ShortestPath[i][j] + ServiceTime[j]), VRPD.prod(BigM, VRPD.diff(1, x[i][j][k]))));
+                        VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
+                                VRPD.ge(z[j][k], (Cost_ShortestPath[i][j] + ServiceTime[j]))));
                     else
-                        VRPD.addGe(VRPD.diff(z[j][k], z[i][k]),
-                                VRPD.diff((Cost_ShortestPath[i][j] + ServiceTime[j]), VRPD.prod(BigM, VRPD.diff(1, x[i][j][k]))));
+                        VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
+                                VRPD.ge(VRPD.diff(z[j][k], z[i][k]), (Cost_ShortestPath[i][j] + ServiceTime[j]))));
                 }
             }
         }
@@ -260,11 +251,10 @@ public class Model {
     public static void addConstraint9() throws IloException {
         for (int k = 0; k < Max_Number_Vehicles; k++) {
             for (int i = 0; i < Number_Nodes; i++) {
-                VRPD.add(VRPD.and(VRPD.ge(z[i][k], DD[i]), VRPD.eq(delta[i][k], VRPD.diff(z[i][k], DD[i]))));
+                VRPD.add(VRPD.ifThen(VRPD.ge(z[i][k], DD[i]), VRPD.eq(delta[i][k], VRPD.diff(z[i][k], DD[i]))));
             }
         }
     }
-
 
     public static void Solve_Model() throws Exception {
 //        VRPD.setParam(IloCplex.IntParam.Simplex.Display, 0);
@@ -279,13 +269,13 @@ public class Model {
             for (int k = 0; k < Max_Number_Vehicles; k++) {
                 long yk = Math.round(VRPD.getValue(y[k]));
                 System.out.print("Y" + k + " (" + yk + ")" + ",");
+                if (yk == 0) System.out.println();
                 if (yk == 0) continue;
                 for (int i = Number_Nodes - 1; i >= 0; i--) {
                     for (int j = Number_Nodes - 1; j >= 0; j--) {
 //                        long xijk = Math.round(VRPD.getValue(x[i][j][k]));
 //                        long zjk = Math.round(VRPD.getValue(z[j][k]));
 //                        long djk = Math.round(VRPD.getValue(delta[j][k]));
-
                         double xijk = (VRPD.getValue(x[i][j][k]));
                         double zjk = (VRPD.getValue(z[j][k]));
                         double djk = (VRPD.getValue(delta[j][k]));
@@ -296,9 +286,6 @@ public class Model {
                         if (xijk == 0) continue;
                         Vertex u = ppGraph.getVertexById(i);
                         Vertex v = ppGraph.getVertexById(j);
-
-                        double deb1 = VRPD.getValue(z[j][k]) - VRPD.getValue(z[i][k]);
-                        double deb2 = (Cost_ShortestPath[i][j] + ServiceTime[j]) - BigM*(1-VRPD.getValue(x[i][j][k]));
 
                         System.out.print(" "
                                 + u
