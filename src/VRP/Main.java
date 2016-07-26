@@ -28,18 +28,19 @@ public class Main {
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
 
         // run the branch and bound algorithm (measure the run time)
-        long startTime = System.currentTimeMillis();
+        GlobalVars.startTime = System.currentTimeMillis();
         BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph);
         branchAndBound.run(GlobalVars.depotName);
         branchAndBound.printTheAnswer();
-        long finishTime = System.currentTimeMillis();
+        GlobalVars.finishTime = System.currentTimeMillis();
 
         // export the result
         // branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
 
         // print stats
         System.out.println();
-        System.out.println("Total Calculation time: " + (finishTime - startTime)/1000. + "s");
+        System.out.println("Total Calculation time: "
+                + String.format("%.2f", (GlobalVars.finishTime - GlobalVars.startTime)/1000.) + "s");
         System.out.println("Number of Branch and Bound Tree Nodes: " + GlobalVars.numberOfBranchAndBoundNodes);
     }
 }

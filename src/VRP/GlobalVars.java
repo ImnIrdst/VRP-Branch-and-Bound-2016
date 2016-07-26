@@ -25,6 +25,14 @@ public class GlobalVars {
 
     public static Graph bbGraph; // preprocessed graph
 
+    // used for logging
+    public static long startTime;
+    public static long finishTime;
+    public static long printTime;
+    public static long printTimeStepSize = 500;
+    public static double minimumValue;
+
+
     /**
      * initialize the global variables
      *

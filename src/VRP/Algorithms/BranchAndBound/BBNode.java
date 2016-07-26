@@ -45,8 +45,16 @@ public class BBNode {
         this.calculateParentStartTime();
 
         GlobalVars.numberOfBranchAndBoundNodes++;
-        if (GlobalVars.numberOfBranchAndBoundNodes % 100000 == 0)
-            System.out.println("Node expanded so far: " + GlobalVars.numberOfBranchAndBoundNodes);
+
+        long elapsedTime = System.currentTimeMillis() - GlobalVars.startTime;
+
+        if (elapsedTime > GlobalVars.printTime) {
+            GlobalVars.printTime += GlobalVars.printTimeStepSize;
+            System.out.print("Time: " + GlobalVars.printTime/1000 + "s, ");
+            System.out.print("Nodes: " + GlobalVars.numberOfBranchAndBoundNodes + ", ");
+            System.out.println("Minimum value: " + GlobalVars.minimumValue);
+        }
+
     }
 
     /**
@@ -295,16 +303,15 @@ public class BBNode {
      * @return Detail of attributes that affects the cost
      */
     public String getPrintCostDetailsString() {
-        return "Time needed: " + maxTimeElapsed + "\n"
-                + "Travel Time of all vehicles: " + cumulativeTimeTaken + "\n"
-                + "Penalty Taken of all vehicles: " + cumulativePenaltyTaken + "\n"
+        return "Time needed: " + String.format("%.2f", maxTimeElapsed) + "\n"
+                + "Travel Time of all vehicles: " + String.format("%.2f", cumulativeTimeTaken) + "\n"
+                + "Penalty Taken of all vehicles: " + String.format("%.2f", cumulativePenaltyTaken) + "\n"
                 + "Number of Vehicles Used: " + vehicleUsed + "\n"
-                + "Minimum Cost for the problem: " + getCost();
+                + "Minimum Cost for the problem: " + String.format("%.2f", getCost());
     }
 
     /**
      * details of the node stat for the to string function
-     * @return
      */
     public String detailsForToString() {
         return ", " + thisVertexPenalty + ", " + vertex.dueDate;

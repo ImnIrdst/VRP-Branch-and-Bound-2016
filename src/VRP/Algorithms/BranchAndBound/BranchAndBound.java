@@ -31,8 +31,8 @@ public class BranchAndBound {
      */
     public BranchAndBound(Graph graph) {
         this.graph = graph;
-        this.minimumCost = Integer.MAX_VALUE;
-
+        this.minimumCost = 1e9;
+        GlobalVars.minimumValue = this.minimumCost;
         // fill the Global variables
         GlobalVars.bbGraph = graph;
 
@@ -93,6 +93,7 @@ public class BranchAndBound {
                 && newNode.getCost() < minimumCost) {
             bestNode = newNode;
             minimumCost = newNode.getCost();
+            GlobalVars.minimumValue = minimumCost;
             return;
         }
 
@@ -164,7 +165,8 @@ public class BranchAndBound {
      * print the answer
      */
     public void printTheAnswer() {
-        System.out.println("VertexName (arrivalTime, thisVertexPenalty)\n");
+        System.out.println();
+        System.out.println("Format -> VertexName (arrivalTime, thisVertexPenalty, dueDate)");
         System.out.println(bestNode.getStringPath() + "\n");
         System.out.println(bestNode.getPrintCostDetailsString());
     }

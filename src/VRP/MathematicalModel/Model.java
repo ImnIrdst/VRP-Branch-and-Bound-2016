@@ -264,7 +264,7 @@ public class Model {
             System.out.println("--------------------------------------------------------");
             System.out.println("--------------------------------------------------------");
             System.out.println("Status = " + VRPD.getStatus());
-            System.out.println("Objective Value = " + String.format("%.1f", VRPD.getObjValue()));
+            System.out.println("Objective Value = " + String.format("%.2f", VRPD.getObjValue()));
 
             for (int k = 0; k < Max_Number_Vehicles; k++) {
                 long yk = Math.round(VRPD.getValue(y[k]));
@@ -290,7 +290,7 @@ public class Model {
                         System.out.print(" "
                                 + u
                                 + " -("
-                                + ppGraph.getDistance(u, v)
+                                + String.format("%.2f", ppGraph.getDistance(u, v))
                                 + ", " + zjkd  + ", " + DD[j] + ", " + pjkd
                                 + ")-> "
                                 + v + ","
