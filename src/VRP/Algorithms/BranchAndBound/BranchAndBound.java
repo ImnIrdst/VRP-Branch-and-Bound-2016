@@ -29,9 +29,9 @@ public class BranchAndBound {
      *
      * @param graph a graph that has a Map<String, Vertex> adjacencyList
      */
-    public BranchAndBound(Graph graph) {
+    public BranchAndBound(Graph graph, double minimumCost) {
         this.graph = graph;
-        this.minimumCost = 1e9;
+        this.minimumCost = minimumCost;
         GlobalVars.minimumValue = this.minimumCost;
         // fill the Global variables
         GlobalVars.bbGraph = graph;
@@ -51,6 +51,8 @@ public class BranchAndBound {
      * @param depotName is name of the depot (node that contains vehicles)
      */
     public void run(String depotName) {
+        System.out.println("--------------------------");
+        System.out.println("Branch and bound algorithm");
         // add initial node
         Vertex depotVertex = graph.getVertexByName(depotName);
         pq.add(new BBNode(depotVertex, null));

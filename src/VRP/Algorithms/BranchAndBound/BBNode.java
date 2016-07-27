@@ -48,9 +48,9 @@ public class BBNode {
 
         long elapsedTime = System.currentTimeMillis() - GlobalVars.startTime;
 
-        if (elapsedTime > GlobalVars.printTime) {
-            GlobalVars.printTime += GlobalVars.printTimeStepSize;
-            System.out.print("Time: " + GlobalVars.printTime/1000 + "s, ");
+        if (elapsedTime > GlobalVars.bbPrintTime) {
+            GlobalVars.bbPrintTime += GlobalVars.printTimeStepSize;
+            System.out.print("Time: " + GlobalVars.bbPrintTime /1000 + "s, ");
             System.out.print("Nodes: " + GlobalVars.numberOfBranchAndBoundNodes + ", ");
             System.out.println("Minimum value: " + GlobalVars.minimumValue);
         }

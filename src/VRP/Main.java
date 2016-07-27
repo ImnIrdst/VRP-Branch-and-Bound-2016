@@ -2,6 +2,7 @@ package VRP;
 
 import VRP.Algorithms.BranchAndBound.BranchAndBound;
 import VRP.Algorithms.Dijkstra.Dijkstra;
+import VRP.Algorithms.Heuristics.GeneticAlgorithm;
 import VRP.Graph.Graph;
 
 import java.io.FileNotFoundException;
@@ -27,9 +28,14 @@ public class Main {
         // fill the global variables
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
 
-        // run the branch and bound algorithm (measure the run time)
+        // run the genetic algorithm
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
+                preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 50);
+        geneticAlgorithm.run(10000);
+
+        // run the branch and bound algorithm
         GlobalVars.startTime = System.currentTimeMillis();
-        BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph);
+        BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getTheMinimumCost());
         branchAndBound.run(GlobalVars.depotName);
         branchAndBound.printTheAnswer();
         GlobalVars.finishTime = System.currentTimeMillis();

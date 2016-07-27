@@ -1,6 +1,9 @@
 package VRP.Algorithms.Heuristics;
 
+import VRP.GlobalVars;
 import VRP.Graph.Graph;
+import VRP.Graph.Vertex;
+import VRP.Graph.VertexType;
 
 import java.util.*;
 
@@ -20,7 +23,7 @@ public class GeneticAlgorithm {
 
     private long startTime;
 
-    private final double mutationProbability = 0.001;
+    private final double MUTATION_PROBABILITY = 0.5;
 
     /**
      * Constructor Creates a population with given qty
@@ -32,8 +35,6 @@ public class GeneticAlgorithm {
         this.populationSize = populationSize;
         this.minimumCost = Double.MAX_VALUE;
         this.population = new ArrayList<>();
-        for (int i = 0; i < populationSize; i++)
-            population.add(new Chromosome(customerQty + vehicleQty));
     }
 
     /**
@@ -42,15 +43,21 @@ public class GeneticAlgorithm {
      * @param computeDurationMilliSecond is how much time can be consumed
      */
     public void run(int computeDurationMilliSecond) {
+        System.out.println("--------------------------");
+        System.out.println("Genetic algorithm");
+
         startTime = System.currentTimeMillis();
+        long printTime = startTime + GlobalVars.printTimeStepSize;
         initializePopulation(customerQty, vehicleQty);
 
-        while (System.currentTimeMillis() > startTime + computeDurationMilliSecond) {
-            List<Chromosome> newPopulation = new ArrayList<>(population);
+        int iteration = 0;
+        while (System.currentTimeMillis() < startTime + computeDurationMilliSecond) {
+            List<Chromosome> newPopulation = new ArrayList<>();
 
             // cross over
             for (Chromosome c1 : population) {
-                for (Chromosome c2 : population) newPopulation.add(crossOver(c1, c2));
+                for (Chromosome c2 : population)
+                    newPopulation.add(crossOver(c1, c2));
             }
 
             // mutate
@@ -60,7 +67,15 @@ public class GeneticAlgorithm {
             population = selection(newPopulation);
 
             // update best answer
-            minimumCost = population.get(0).getCost();
+            minimumCost = Math.min(minimumCost, population.get(0).getCost());
+
+            // print the progress
+            if (System.currentTimeMillis() > printTime) {
+                printTime += GlobalVars.printTimeStepSize;
+                System.out.printf("Iteration #%d, Time elapsed: %.2fs, Minimum Cost: %.2f\n",
+                        iteration, (System.currentTimeMillis() - startTime) / 1000., minimumCost);
+            }
+            iteration++;
         }
     }
 
@@ -68,14 +83,17 @@ public class GeneticAlgorithm {
      * initializes the population by shuffling the ids of nodes
      */
     public void initializePopulation(int customerQty, int vehicleQty) {
+        int size = customerQty + vehicleQty - 1;
+        for (int i = 0; i < populationSize; i++) {
+            population.add(new Chromosome());
 
-        for (int i = 0; i < customerQty + vehicleQty; i++) {
-            if (i < customerQty)
-                population.get(i).set(i, i);
-            else
-                population.get(i).set(i, customerQty);
-
-            population.get(i).shuffle(); // shuffle to generate a random population
+            for (int j = 0; j < size; j++) {
+                if (j < customerQty)
+                    population.get(i).add(j);
+                else
+                    population.get(i).add(GlobalVars.depotId);
+            }
+            Collections.shuffle(population.get(i).list); // shuffle to generate a random population
         }
     }
 
@@ -85,7 +103,16 @@ public class GeneticAlgorithm {
      * @param chromosome array of id of the nodes
      */
     public void mutate(Chromosome chromosome) {
+        if (getRandInt(1000) / 1000. > MUTATION_PROBABILITY)
+            return;
 
+        int i = getRandInt(chromosome.size);
+        int j = getRandInt(chromosome.size);
+
+        // swap
+        int tmp = chromosome.get(i);
+        chromosome.set(i, chromosome.get(j));
+        chromosome.set(j, tmp);
     }
 
     /**
@@ -96,19 +123,50 @@ public class GeneticAlgorithm {
      * @return a new chromosome by crossover of two given chromosomes
      */
     public Chromosome crossOver(Chromosome chromosome1, Chromosome chromosome2) {
-        return null;
-    }
+        int size = chromosome1.size;
+        int mid = getRandInt(size);
+        Chromosome newChromosome = new Chromosome();
 
-    public List<Chromosome> selection(List<Chromosome> chromosomes) {
-        return null;
+        int[] usedNodes = new int[customerQty + 1];
+        for (int i = 0; i < customerQty; i++) usedNodes[i] = 1;
+        usedNodes[customerQty] = GlobalVars.numberOfVehicles - 1;
+
+        for (int i = 0; i < mid; i++) {
+            newChromosome.add(chromosome1.get(i));
+            usedNodes[chromosome1.get(i)]--;
+        }
+
+        for (int i = 0; i < size; i++) {
+            if (usedNodes[chromosome2.get(i)] > 0) {
+                usedNodes[chromosome2.get(i)]--;
+                newChromosome.add(chromosome2.get(i));
+            }
+
+        }
+
+
+        return newChromosome;
     }
 
     /**
-     * @param chromosome array of id of the nodes
-     * @return the cost for given chromosome
+     * Selects top chromosomes from old population and their children
      */
-    public double fitnessFunction(Chromosome chromosome) {
-        return 0;
+    public List<Chromosome> selection(List<Chromosome> chromosomes) {
+        List<Chromosome> newPopulation = new ArrayList<>();
+
+        // select randomly
+        for (int i = 0; i < populationSize/2; i++) {
+            newPopulation.add(chromosomes.get(i));
+        }
+
+        // select top nodes
+        Collections.sort(chromosomes);
+        for (int i = 0; i < populationSize/2; i++) {
+            newPopulation.add(chromosomes.get(i));
+        }
+
+        Collections.sort(newPopulation);
+        return newPopulation;
     }
 
     /**
@@ -119,31 +177,102 @@ public class GeneticAlgorithm {
     }
 
     /**
+     * @return a random number less than given bound
+     */
+    public int getRandInt(int bound) {
+        Random random = new Random();
+        return random.nextInt(bound);
+    }
+
+    /**
      * Chromosome class for a set of ids (for VRPD) problem
      */
     private class Chromosome implements Comparable<Chromosome> {
         public int size;
         public List<Integer> list;
 
-        public Chromosome(int size) {
-            list = new ArrayList<>(size);
+        /**
+         * default constructor
+         */
+        public Chromosome() {
+            list = new ArrayList<>();
         }
 
+        /**
+         * copy constructor
+         */
         public Chromosome(Chromosome chromosome) {
             this.size = chromosome.size;
             this.list = new ArrayList<>(chromosome.list);
         }
 
+        /**
+         * get value in idx position
+         */
         public int get(int idx) {
             return list.get(idx);
         }
 
+        /**
+         * set value in idx position
+         */
         public void set(int idx, int value) {
             list.set(idx, value);
         }
 
-        public int getCost() {
-            return 0;
+        /**
+         * adds the value to the end of list
+         */
+        public void add(int value) {
+            list.add(value);
+            size++;
+        }
+
+        /**
+         * fitness function for this chromosome
+         */
+        public double getCost() {
+            int vehiclesUsed = 0;
+            int servicedCustomersQty = 0;
+            double cumulativeTimeTaken = 0;
+            double timeElapsedOnThisPath = 0;
+            double cumulativePenaltyTaken = 0;
+            int remainedCapacity = GlobalVars.vehicleCapacity;
+            List<Integer> tmpList = new ArrayList<>(list); tmpList.add(GlobalVars.depotId);
+
+
+            Vertex u = graph.getVertexById(GlobalVars.depotId);
+            for (int i = 0; i < tmpList.size() - 1; i++) {
+                Vertex v = graph.getVertexById(tmpList.get(i));
+                if (u.getId() == v.getId()) continue;
+
+                cumulativeTimeTaken += graph.getDistance(u, v);
+                timeElapsedOnThisPath += graph.getDistance(u, v);
+
+                if (timeElapsedOnThisPath > v.dueDate) {
+                    cumulativePenaltyTaken += (timeElapsedOnThisPath - v.dueDate) * v.penalty;
+                }
+
+                if (v.type == VertexType.CUSTOMER) {
+                    servicedCustomersQty++;
+                    remainedCapacity -= v.demand;
+                }
+
+                if (v.type == VertexType.DEPOT) {
+                    vehiclesUsed++;
+                    timeElapsedOnThisPath = 0;
+                    remainedCapacity = GlobalVars.vehicleCapacity;
+                    if (servicedCustomersQty == GlobalVars.numberOfCustomers)
+                        return vehiclesUsed * GlobalVars.vehicleFixedCost +
+                                cumulativePenaltyTaken + cumulativeTimeTaken;
+                }
+
+                if (remainedCapacity < 0) return GlobalVars.INF;
+
+
+                u = v;
+            }
+            return GlobalVars.INF;
         }
 
         @Override
@@ -151,8 +280,9 @@ public class GeneticAlgorithm {
             return Double.compare(this.getCost(), o.getCost());
         }
 
-        public void shuffle() {
-            Collections.shuffle(list);
+        @Override
+        public String toString() {
+            return list.toString();
         }
     }
 }

@@ -8,6 +8,7 @@ import VRP.Graph.VertexType;
  * global variables used in branch and bound
  */
 public class GlobalVars {
+    public static int depotId;
     public static String depotName;
 
     public static int numberOfNodes = 0;
@@ -28,10 +29,12 @@ public class GlobalVars {
     // used for logging
     public static long startTime;
     public static long finishTime;
-    public static long printTime;
-    public static long printTimeStepSize = 500;
+    public static long bbPrintTime;
+    public static long printTimeStepSize = 1000;
     public static double minimumValue;
 
+    // finals
+    public static final double INF = 1e9;
 
     /**
      * initialize the global variables
@@ -47,6 +50,7 @@ public class GlobalVars {
         GlobalVars.numberOfVehicles = depotVertex.numberOfVehicles;
         GlobalVars.vehicleCapacity = depotVertex.capacity;
         GlobalVars.vehicleFixedCost = depotVertex.fixedCost;
+        GlobalVars.depotId = depotVertex.getId();
 
         // due dates, demands, penalties, service times
         GlobalVars.nodeDueDates = new double[numberOfNodes];
@@ -65,6 +69,8 @@ public class GlobalVars {
         for (int i = 0; i < GlobalVars.numberOfVehicles; i++) {
             GlobalVars.vehicleCapacities[i] = GlobalVars.vehicleCapacity;
         }
+
+
     }
 
     // for reporting
