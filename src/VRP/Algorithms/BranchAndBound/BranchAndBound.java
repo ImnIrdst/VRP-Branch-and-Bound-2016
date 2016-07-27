@@ -53,6 +53,7 @@ public class BranchAndBound {
     public void run(String depotName) {
         System.out.println("--------------------------");
         System.out.println("Branch and bound algorithm");
+        System.out.println("--------------------------");
         // add initial node
         Vertex depotVertex = graph.getVertexByName(depotName);
         pq.add(new BBNode(depotVertex, null));
@@ -92,7 +93,7 @@ public class BranchAndBound {
         // if this node is an answer
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == GlobalVars.numberOfCustomers
-                && newNode.getCost() < minimumCost) {
+                && newNode.getCost() <= minimumCost) {
             bestNode = newNode;
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;

@@ -21,8 +21,6 @@ public class GeneticAlgorithm {
     private double minimumCost;
     private List<Chromosome> population;
 
-    private long startTime;
-
     private final double MUTATION_PROBABILITY = 0.5;
 
     /**
@@ -45,8 +43,9 @@ public class GeneticAlgorithm {
     public void run(int computeDurationMilliSecond) {
         System.out.println("--------------------------");
         System.out.println("Genetic algorithm");
+        System.out.println("--------------------------");
 
-        startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         long printTime = startTime + GlobalVars.printTimeStepSize;
         initializePopulation(customerQty, vehicleQty);
 
@@ -72,7 +71,7 @@ public class GeneticAlgorithm {
             // print the progress
             if (System.currentTimeMillis() > printTime) {
                 printTime += GlobalVars.printTimeStepSize;
-                System.out.printf("Iteration #%d, Time elapsed: %.2fs, Minimum Cost: %.2f\n",
+                System.out.printf("Iteration #%d,\t\tTime elapsed: %.2fs,\t\tMinimum Cost: %.2f\n",
                         iteration, (System.currentTimeMillis() - startTime) / 1000., minimumCost);
             }
             iteration++;
@@ -85,15 +84,7 @@ public class GeneticAlgorithm {
     public void initializePopulation(int customerQty, int vehicleQty) {
         int size = customerQty + vehicleQty - 1;
         for (int i = 0; i < populationSize; i++) {
-            population.add(new Chromosome());
-
-            for (int j = 0; j < size; j++) {
-                if (j < customerQty)
-                    population.get(i).add(j);
-                else
-                    population.get(i).add(GlobalVars.depotId);
-            }
-            Collections.shuffle(population.get(i).list); // shuffle to generate a random population
+            population.add(getRandomChromosome(size));
         }
     }
 
@@ -152,10 +143,15 @@ public class GeneticAlgorithm {
      * Selects top chromosomes from old population and their children
      */
     public List<Chromosome> selection(List<Chromosome> chromosomes) {
+        int size = customerQty + vehicleQty - 1;
         List<Chromosome> newPopulation = new ArrayList<>();
 
+        // new population
+        for (int i = 0; i < populationSize/4; i++) {
+            newPopulation.add(getRandomChromosome(size));
+        }
         // select randomly
-        for (int i = 0; i < populationSize/2; i++) {
+        for (int i = 0; i < populationSize/4; i++) {
             newPopulation.add(chromosomes.get(i));
         }
 
@@ -174,6 +170,20 @@ public class GeneticAlgorithm {
      */
     public double getTheMinimumCost() {
         return minimumCost;
+    }
+
+    public Chromosome getRandomChromosome(int size){
+        Chromosome newChromosome = new Chromosome();
+
+        for (int j = 0; j < size; j++) {
+            if (j < customerQty)
+                newChromosome.add(j);
+            else
+                newChromosome.add(GlobalVars.depotId);
+        }
+        Collections.shuffle(newChromosome.list); // shuffle to generate a random population
+
+        return newChromosome;
     }
 
     /**

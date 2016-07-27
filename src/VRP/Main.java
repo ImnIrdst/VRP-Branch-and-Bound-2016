@@ -30,8 +30,8 @@ public class Main {
 
         // run the genetic algorithm
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 50);
-        geneticAlgorithm.run(10000);
+                preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
+        geneticAlgorithm.run(3000);
 
         // run the branch and bound algorithm
         GlobalVars.startTime = System.currentTimeMillis();
