@@ -61,6 +61,7 @@ public class BranchAndBound {
         // go down the tree
         while (!pq.isEmpty()) {
             BBNode u = pq.poll();
+            if (canBePruned(u)) continue;
 
             for (Vertex v : u.vertex.neighbours.keySet()) {
                 if (v.type == VertexType.DEPOT          // never go from depot to depot
@@ -101,7 +102,10 @@ public class BranchAndBound {
         }
 
         // if this node is a intermediate node add it to the queue.
-        if (!canBePruned(newNode)) pq.add(newNode);
+        if (!canBePruned(newNode)) {
+            pq.add(newNode);
+            GlobalVars.numberOfBranchAndBoundNodes++;
+        }
     }
 
     /**

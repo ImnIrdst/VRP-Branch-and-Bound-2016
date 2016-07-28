@@ -1,8 +1,12 @@
 # Todo
-- Generate the answer nodes wtk file with additional info
+- Make Car pooling Branch
+- remove customer Due Dates
+- Add depot edges to lower bound
 - Use Vehicle needed to peek lowest time needed to go from depot and comeback.
 
 # Done
+- Implement the Genetic Algorithm
+- Generate the answer nodes wtk file with additional info
 - export the answer routes wtk file
 - Read from Nodes attribute table
 - Correct the data types (int -> double)

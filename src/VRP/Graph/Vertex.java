@@ -114,7 +114,7 @@ public class Vertex {
         String[] features = attributeTableRow.split(",");
 
         if (features.length < 10)
-            throw new Exception("Reads " + features[0] + " Successfully!");
+            throw new Exception("Reads " + features[0] + " Nodes Successfully!");
 
         Vertex vertex = new Vertex();
 

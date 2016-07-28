@@ -168,7 +168,7 @@ public class GeneticAlgorithm {
     /**
      * @return minimum cost so far
      */
-    public double getTheMinimumCost() {
+    public double getMinimumCost() {
         return minimumCost;
     }
 

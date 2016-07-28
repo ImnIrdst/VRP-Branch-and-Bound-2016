@@ -74,5 +74,5 @@ public class GlobalVars {
     }
 
     // for reporting
-    public static int numberOfBranchAndBoundNodes = 0;
+    public static int numberOfBranchAndBoundNodes = 1;
 }

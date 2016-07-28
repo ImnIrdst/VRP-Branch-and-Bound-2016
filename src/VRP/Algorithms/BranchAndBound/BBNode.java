@@ -44,8 +44,6 @@ public class BBNode {
         this.calculateServicedNodes();
         this.calculateParentStartTime();
 
-        GlobalVars.numberOfBranchAndBoundNodes++;
-
         long elapsedTime = System.currentTimeMillis() - GlobalVars.startTime;
 
         if (elapsedTime > GlobalVars.bbPrintTime) {
