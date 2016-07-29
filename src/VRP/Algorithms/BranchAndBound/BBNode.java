@@ -74,7 +74,7 @@ public class BBNode {
         if (parent == null) curTimeElapsed = 0;
 
         else if (parent.vertex.type == VertexType.DEPOT)
-            this.curTimeElapsed = GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
+            this.curTimeElapsed = 0;
 
         else if (parent.vertex.type == VertexType.CUSTOMER)
             this.curTimeElapsed = parent.curTimeElapsed + GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
@@ -114,7 +114,7 @@ public class BBNode {
         if (parent == null)
             this.arrivalTime = -1;
         else if (parent.vertex.type == VertexType.DEPOT)
-            this.arrivalTime = GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
+            this.arrivalTime = 0;
             // this.arrivalTime = Math.max(vertex.dueDate, BBUtils.getDistance(parent.vertex, this.vertex));
         else
             this.arrivalTime = parent.arrivalTime + GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
@@ -146,6 +146,8 @@ public class BBNode {
     public void calculateCumulativeTimeTaken() {
         if (parent == null)
             this.cumulativeTimeTaken = 0;
+        else if (parent.vertex.type == VertexType.DEPOT)
+            this.cumulativeTimeTaken = parent.cumulativeTimeTaken;
         else
             this.cumulativeTimeTaken = parent.cumulativeTimeTaken + GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
     }
@@ -174,7 +176,7 @@ public class BBNode {
      */
     public void calculateParentStartTime() {
         if (parent != null && parent.vertex.type == VertexType.DEPOT)
-            parent.startTime = this.arrivalTime - GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
+            parent.startTime = 0; // this.arrivalTime - GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
 
         // for finished nodes.
         if (parent != null && this.vertex.type == VertexType.DEPOT
@@ -321,40 +323,38 @@ public class BBNode {
             return vertex + " (" + arrivalTime + detailsForToString() + ")";
 
         else if (vertex.type == VertexType.DEPOT && arrivalTime == -1)
-            return vertex + " (" + startTime + ")";
+            return "";
 
         else if (vertex.type == VertexType.DEPOT)
-            return vertex + " (" + arrivalTime + detailsForToString() + ")"
-                    + "\n" + vertex + " (" + startTime + ")";
+            return vertex + " (" + arrivalTime + detailsForToString() + ")" + "\n";
 
         return vertex + " (" + arrivalTime + detailsForToString() + ")";
     }
 
 }
 
-/* Trash
-        ArrayList<Integer> edgeWeightsFromDepotToUnservicedCustomers = new ArrayList<>();
-
-        Vertex depotVertex = GlobalVars.bbGraph.adjacencyList.get(GlobalVars.depotName);
-        for (Vertex u : GlobalVars.bbGraph.adjacencyList.values()) {
-            if (u.type == VertexType.CUSTOMER && this.servicedNodes[u.customerId] == false) {
-                edgeWeightsFromDepotToUnservicedCustomers.add(depotVertex.neighbours.get(u));
-                edgeWeightsFromDepotToUnservicedCustomers.add(u.neighbours.get(depotVertex));
-            }
-        }
-        if (this.vertex.type == VertexType.CUSTOMER) {
-            edgeWeightsFromDepotToUnservicedCustomers.add(this.vertex.neighbours.get(depotVertex));
-        }
-        Collections.sort(edgeWeightsFromDepotToUnservicedCustomers);
-
-        int vehiclesNeeded = getLowerBoundForNumberOfExtraVehiclesNeeded();
-        if (vehiclesNeeded * 2 > edgeWeightsFromDepotToUnservicedCustomers.size()) {
-            System.out.println("There Is a Bug in BBNode.getMinimumAdditionalTimeNeededToTheEndThePath()!!!!!!!!!!!!!!!!!!!!!!!!");
-            return Integer.MAX_VALUE / 2;
-        }
-
-        if (vehiclesNeeded == 0) return 0;
-
-        return edgeWeightsFromDepotToUnservicedCustomers.get(vehiclesNeeded * 2 - 1)
-                + edgeWeightsFromDepotToUnservicedCustomers.get(vehiclesNeeded * 2 - 2);
-*/
+//-------------- Trash -------------
+//        ArrayList<Integer> edgeWeightsFromDepotToUnservicedCustomers = new ArrayList<>();
+//
+//        Vertex depotVertex = GlobalVars.bbGraph.adjacencyList.get(GlobalVars.depotName);
+//        for (Vertex u : GlobalVars.bbGraph.adjacencyList.values()) {
+//            if (u.type == VertexType.CUSTOMER && this.servicedNodes[u.customerId] == false) {
+//                edgeWeightsFromDepotToUnservicedCustomers.add(depotVertex.neighbours.get(u));
+//                edgeWeightsFromDepotToUnservicedCustomers.add(u.neighbours.get(depotVertex));
+//            }
+//        }
+//        if (this.vertex.type == VertexType.CUSTOMER) {
+//            edgeWeightsFromDepotToUnservicedCustomers.add(this.vertex.neighbours.get(depotVertex));
+//        }
+//        Collections.sort(edgeWeightsFromDepotToUnservicedCustomers);
+//
+//        int vehiclesNeeded = getLowerBoundForNumberOfExtraVehiclesNeeded();
+//        if (vehiclesNeeded * 2 > edgeWeightsFromDepotToUnservicedCustomers.size()) {
+//            System.out.println("There Is a Bug in BBNode.getMinimumAdditionalTimeNeededToTheEndThePath()!!!!!!!!!!!!!!!!!!!!!!!!");
+//            return Integer.MAX_VALUE / 2;
+//        }
+//
+//        if (vehiclesNeeded == 0) return 0;
+//
+//        return edgeWeightsFromDepotToUnservicedCustomers.get(vehiclesNeeded * 2 - 1)
+//                + edgeWeightsFromDepotToUnservicedCustomers.get(vehiclesNeeded * 2 - 2);

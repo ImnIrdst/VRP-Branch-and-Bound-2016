@@ -1,10 +1,14 @@
 # Todo
-- Make Car pooling Branch
-- remove customer Due Dates
+- correct GA algorithm for car pooling
+- correct branch and bound exporting for carpooling
 - Add depot edges to lower bound
 - Use Vehicle needed to peek lowest time needed to go from depot and comeback.
 
 # Done
+- correct input files for carpooling (remove customer penalty and due dates)
+- correct branch and bound for carpooling
+- remove customer Due Dates
+- Make Car pooling Branch
 - Implement the Genetic Algorithm
 - Generate the answer nodes wtk file with additional info
 - export the answer routes wtk file

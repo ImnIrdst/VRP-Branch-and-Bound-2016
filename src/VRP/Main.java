@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-09-Customers.csv",
+                "resources/ISFNodes-08-Customers.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -31,7 +31,7 @@ public class Main {
         // run the genetic algorithm
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
-        geneticAlgorithm.run(2000);
+        geneticAlgorithm.run(3000);
 
         // run the branch and bound algorithm
         GlobalVars.startTime = System.currentTimeMillis();
