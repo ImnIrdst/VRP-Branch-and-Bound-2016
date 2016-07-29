@@ -1,10 +1,10 @@
 # Todo
-- correct GA algorithm for car pooling
-- correct branch and bound exporting for carpooling
 - Add depot edges to lower bound
+- correct branch and bound exporting for carpooling
 - Use Vehicle needed to peek lowest time needed to go from depot and comeback.
 
 # Done
+- correct GA algorithm for car pooling
 - correct input files for carpooling (remove customer penalty and due dates)
 - correct branch and bound for carpooling
 - remove customer Due Dates

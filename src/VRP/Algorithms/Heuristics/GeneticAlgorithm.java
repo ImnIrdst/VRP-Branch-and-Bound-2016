@@ -255,9 +255,10 @@ public class GeneticAlgorithm {
             for (int i = 0; i < tmpList.size() - 1; i++) {
                 Vertex v = graph.getVertexById(tmpList.get(i));
                 if (u.getId() == v.getId()) continue;
-
-                cumulativeTimeTaken += graph.getDistance(u, v);
-                timeElapsedOnThisPath += graph.getDistance(u, v);
+                if (u.type != VertexType.DEPOT) {
+                    cumulativeTimeTaken += graph.getDistance(u, v);
+                    timeElapsedOnThisPath += graph.getDistance(u, v);
+                }
 
                 if (timeElapsedOnThisPath > v.dueDate) {
                     cumulativePenaltyTaken += (timeElapsedOnThisPath - v.dueDate) * v.penalty;
