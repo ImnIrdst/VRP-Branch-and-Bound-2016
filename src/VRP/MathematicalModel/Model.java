@@ -16,7 +16,7 @@ public class Model {
     static IloNumVar[][][] x;
     static IloNumVar[] y;
     static IloNumVar[][] z;
-    static IloNumVar[][] delta;
+    static IloNumVar[] delta;
 
     static int Number_Customers;                    // the maximum number of crew = number of pairings
     static int Number_Nodes;
@@ -41,11 +41,11 @@ public class Model {
     }
 
     public static void ReadData() throws Exception {
-        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-08-Customers.csv",
-                "resources/ISFRoads.csv"
-        );
-//        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
+//        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+//                "resources/ISFNodes-08-Customers.csv",
+//                "resources/ISFRoads.csv"
+//        );
+        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
 
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph preprocessedGraph = dijkstra.makeShortestPathGraph();
@@ -115,11 +115,9 @@ public class Model {
             }
         }
 
-        delta = new IloNumVar[Number_Nodes][Max_Number_Vehicles];
+        delta = new IloNumVar[Max_Number_Vehicles];
         for (int k = 0; k < Max_Number_Vehicles; k++) {
-            for (int i = 0; i < Number_Nodes; i++) {
-                delta[i][k] = VRPD.numVar(0, Double.MAX_VALUE);
-            }
+            delta[k] = VRPD.numVar(0, Double.MAX_VALUE);
         }
     }
 
@@ -140,10 +138,7 @@ public class Model {
         }
 
         for (int k = 0; k < Max_Number_Vehicles; k++) {
-//            for (int i = 0; i < Number_Nodes; i++) {
-//                obj.addTerm(PenaltyCost[i], delta[i][k]);
-//            }
-            obj.addTerm(PenaltyCost[depotId], delta[depotId][k]);
+            obj.addTerm(PenaltyCost[depotId], delta[k]);
         }
 
         VRPD.addMinimize(obj);
@@ -252,9 +247,7 @@ public class Model {
 
     public static void addConstraint9() throws IloException {
         for (int k = 0; k < Max_Number_Vehicles; k++) {
-            for (int i = 0; i < Number_Nodes; i++) {
-                VRPD.add(VRPD.ifThen(VRPD.ge(z[i][k], DD[i]), VRPD.eq(delta[i][k], VRPD.diff(z[i][k], DD[i]))));
-            }
+            VRPD.add(VRPD.ifThen(VRPD.ge(z[depotId][k], DD[depotId]), VRPD.eq(delta[k], VRPD.diff(z[depotId][k], DD[depotId]))));
         }
     }
 
@@ -280,10 +273,10 @@ public class Model {
 //                        long djk = Math.round(VRPD.getValue(delta[j][k]));
                         double xijk = (VRPD.getValue(x[i][j][k]));
                         double zjk = (VRPD.getValue(z[j][k]));
-                        double djk = (VRPD.getValue(delta[j][k]));
+                        double djk = (VRPD.getValue(delta[k]));
 
                         String zjkd = String.format("%.1f", VRPD.getValue(z[j][k]));
-                        String pjkd = String.format("%.1f", VRPD.getValue(delta[j][k]) * PenaltyCost[j]);
+                        String pjkd = String.format("%.1f", VRPD.getValue(delta[k]) * PenaltyCost[j]);
 
                         if (xijk == 0) continue;
                         Vertex u = ppGraph.getVertexById(i);
