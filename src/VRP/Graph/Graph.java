@@ -157,10 +157,10 @@ public class Graph {
      * adds an edge to the adjacency list
      */
     public void addEdge(Edge e) {
-        if (!adjacencyList.containsKey(e.u)) adjacencyList.put(e.u, new Vertex(e.u));
-        if (!adjacencyList.containsKey(e.v)) adjacencyList.put(e.v, new Vertex(e.v));
-        adjacencyList.get(e.u).neighbours.put(adjacencyList.get(e.v), e.weight);
-        adjacencyList.get(e.v).neighbours.put(adjacencyList.get(e.u), e.weight);
+        if (!adjacencyList.containsKey(e.uName)) adjacencyList.put(e.uName, new Vertex(e.uName));
+        if (!adjacencyList.containsKey(e.vName)) adjacencyList.put(e.vName, new Vertex(e.vName));
+        adjacencyList.get(e.uName).neighbours.put(adjacencyList.get(e.vName), e.weight);
+        adjacencyList.get(e.vName).neighbours.put(adjacencyList.get(e.uName), e.weight);
     }
 
     /**
@@ -231,6 +231,13 @@ public class Graph {
     }
 
     /**
+     * @return list of customers (list of neighbors of depot)
+     */
+    public Collection<Vertex> getCustomerVertices() {
+        return getVertexById(GlobalVars.depotId).neighbours.keySet();
+    }
+
+    /**
      * @return distance between to nodes (by name)
      */
     public double getDistance(String uName, String vName) {
@@ -243,6 +250,8 @@ public class Graph {
      * @return distance between to nodes (by vertex)
      */
     public double getDistance(Vertex u, Vertex v) {
+        if (u.getId() == v.getId())
+            return 0;
         return u.neighbours.get(v);
     }
 

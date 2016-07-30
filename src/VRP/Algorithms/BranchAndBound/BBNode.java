@@ -2,10 +2,14 @@ package VRP.Algorithms.BranchAndBound;
 
 import VRP.Algorithms.Other.Greedy;
 import VRP.GlobalVars;
+import VRP.Graph.Edge;
 import VRP.Graph.Vertex;
 import VRP.Graph.VertexType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * a node that used in branch and bound for VRP
@@ -207,9 +211,14 @@ public class BBNode {
      * @return minimum number of extra vehicles needed to serve the remaining customers
      */
     public int getLowerBoundForNumberOfExtraVehiclesNeeded() {
-        return Greedy.minimumExtraVehiclesNeeded(
+        int extraVehiclesNeeded = Greedy.minimumExtraVehiclesNeeded(
                 this.getUnservicedCustomersDemands(), this.remainedCapacity, GlobalVars.vehicleCapacity
         );
+
+        if (this.vertex.type == VertexType.DEPOT)
+            extraVehiclesNeeded++;
+
+        return extraVehiclesNeeded;
     }
 
     /**
@@ -217,15 +226,33 @@ public class BBNode {
      * <p>
      * further improvements: only use one edge of current node
      */
-    public int getLowerBoundForCumulativeTimeNeededForAllVehicles() {
-        int sum = 0;
-        for (Vertex v : GlobalVars.bbGraph.getVertices()) {
-            if (v.type == VertexType.CUSTOMER
-                    && this.servicedNodes[v.customerId] == false) {
-                sum += getMinimumEdgeWeightOfVertex(v);
-            }
+    public double getLowerBoundForCumulativeTimeNeededForAllVehicles() {
+        double lowerBound = 0;
+        boolean[] markedNodes = new boolean[GlobalVars.numberOfCustomers];
+
+        // for each extra needed vehicle peek an edge from depot an mark the end nodes
+        int extraVehiclesNeeded = getLowerBoundForNumberOfExtraVehiclesNeeded();
+        Vertex depotNode = GlobalVars.bbGraph.getVertexById(GlobalVars.depotId);
+
+        List<Edge> depotEdges = new ArrayList<>();
+        for (Vertex v : depotNode.neighbours.keySet()) {
+            if (this.servicedNodes[v.getId()] == false)
+                depotEdges.add(new Edge(depotNode, v, depotNode.neighbours.get(v)));
         }
-        return sum;
+        Collections.sort(depotEdges);
+
+        for (int i = 0; i < Math.min(extraVehiclesNeeded, depotEdges.size()); i++) {
+            lowerBound += depotEdges.get(i).weight;
+            markedNodes[depotEdges.get(i).v.getId()] = true;
+        }
+
+        // for other nodes peek the minimum edges
+        for (Vertex v : GlobalVars.bbGraph.getCustomerVertices()) {
+            if (markedNodes[v.getId()] == false && this.servicedNodes[v.getId()] == false)
+                lowerBound += getMinimumEdgeWeightOfVertex(v);
+        }
+//        return 0;
+        return lowerBound;
     }
 
     /**

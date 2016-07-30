@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-09-Customers.csv",
+                "resources/ISFNodes-10-Customers.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -31,15 +31,15 @@ public class Main {
         // run the genetic algorithm
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
-        geneticAlgorithm.run(11000);
+        geneticAlgorithm.run(10000);
 
         // run the branch and bound algorithm
         GlobalVars.startTime = System.currentTimeMillis();
         BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost());
         branchAndBound.run(GlobalVars.depotName);
-        branchAndBound.printTheAnswer();
         GlobalVars.finishTime = System.currentTimeMillis();
-
+        branchAndBound.printTheAnswer();
+        
         // export the result
         // branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
 

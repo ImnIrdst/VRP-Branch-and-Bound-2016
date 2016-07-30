@@ -132,7 +132,7 @@ public class Dijkstra {
 
             this.run(u.name);
             for (Vertex v : graph.getVertices()) {
-                if (v.type == VertexType.ORDINARY) continue;
+                if (v.type == VertexType.ORDINARY || u.name.equals(v.name)) continue;
                 shortestPathGraph.addEdge(new Edge(u.name, v.name, v.distOnShortestPath));
 
             }
