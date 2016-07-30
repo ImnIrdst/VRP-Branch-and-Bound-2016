@@ -42,7 +42,7 @@ public class Model {
 
     public static void ReadData() throws Exception {
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-8Customers.csv",
+                "resources/ISFNodes-08-Customers.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -127,6 +127,7 @@ public class Model {
         //-------------Objective Function-------------------
         IloLinearNumExpr obj = VRPD.linearNumExpr();
         for (int i = 0; i < Number_Nodes; i++) {
+            if (i == depotId) continue;
             for (int j = 0; j < Number_Nodes; j++) {
                 for (int k = 0; k < Max_Number_Vehicles; k++) {
                     obj.addTerm(Cost_ShortestPath[i][j], x[i][j][k]);
@@ -139,9 +140,10 @@ public class Model {
         }
 
         for (int k = 0; k < Max_Number_Vehicles; k++) {
-            for (int i = 0; i < Number_Nodes; i++) {
-                obj.addTerm(PenaltyCost[i], delta[i][k]);
-            }
+//            for (int i = 0; i < Number_Nodes; i++) {
+//                obj.addTerm(PenaltyCost[i], delta[i][k]);
+//            }
+            obj.addTerm(PenaltyCost[depotId], delta[depotId][k]);
         }
 
         VRPD.addMinimize(obj);
@@ -239,7 +241,7 @@ public class Model {
                     if (i == j) continue;
                     if (i == depotId)
                         VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
-                                VRPD.ge(z[j][k], (Cost_ShortestPath[i][j] + ServiceTime[j]))));
+                                VRPD.ge(z[j][k], ServiceTime[j])));
                     else
                         VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
                                 VRPD.ge(VRPD.diff(z[j][k], z[i][k]), (Cost_ShortestPath[i][j] + ServiceTime[j]))));
@@ -299,6 +301,7 @@ public class Model {
                 }
                 System.out.println();
             }
+
             System.out.println();
             System.out.println("Processing Time: " + (End_ProcessTime - Start_ProcessTime) / 1000. + " s");
         } else {
