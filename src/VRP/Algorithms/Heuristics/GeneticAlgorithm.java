@@ -147,17 +147,17 @@ public class GeneticAlgorithm {
         List<Chromosome> newPopulation = new ArrayList<>();
 
         // new population
-        for (int i = 0; i < populationSize/4; i++) {
+        for (int i = 0; i < populationSize / 4; i++) {
             newPopulation.add(getRandomChromosome(size));
         }
         // select randomly
-        for (int i = 0; i < populationSize/4; i++) {
+        for (int i = 0; i < populationSize / 4; i++) {
             newPopulation.add(chromosomes.get(i));
         }
 
         // select top nodes
         Collections.sort(chromosomes);
-        for (int i = 0; i < populationSize/2; i++) {
+        for (int i = 0; i < populationSize / 2; i++) {
             newPopulation.add(chromosomes.get(i));
         }
 
@@ -172,7 +172,7 @@ public class GeneticAlgorithm {
         return minimumCost;
     }
 
-    public Chromosome getRandomChromosome(int size){
+    public Chromosome getRandomChromosome(int size) {
         Chromosome newChromosome = new Chromosome();
 
         for (int j = 0; j < size; j++) {
@@ -248,13 +248,16 @@ public class GeneticAlgorithm {
             double timeElapsedOnThisPath = 0;
             double cumulativePenaltyTaken = 0;
             int remainedCapacity = GlobalVars.vehicleCapacity;
-            List<Integer> tmpList = new ArrayList<>(list); tmpList.add(GlobalVars.depotId);
+            List<Integer> tmpList = new ArrayList<>(list);
+            tmpList.add(GlobalVars.depotId);
 
+            timeElapsedOnThisPath = GlobalVars.MDT[0].mdt;
 
             Vertex u = graph.getVertexById(GlobalVars.depotId);
             for (int i = 0; i < tmpList.size() - 1; i++) {
                 Vertex v = graph.getVertexById(tmpList.get(i));
                 if (u.getId() == v.getId()) continue;
+
                 if (u.type != VertexType.DEPOT) {
                     cumulativeTimeTaken += graph.getDistance(u, v);
                     timeElapsedOnThisPath += graph.getDistance(u, v);
@@ -271,11 +274,13 @@ public class GeneticAlgorithm {
 
                 if (v.type == VertexType.DEPOT) {
                     vehiclesUsed++;
-                    timeElapsedOnThisPath = 0;
+
                     remainedCapacity = GlobalVars.vehicleCapacity;
                     if (servicedCustomersQty == GlobalVars.numberOfCustomers)
                         return vehiclesUsed * GlobalVars.vehicleFixedCost +
                                 cumulativePenaltyTaken + cumulativeTimeTaken;
+
+                    timeElapsedOnThisPath = GlobalVars.MDT[vehiclesUsed].mdt;
                 }
 
                 if (remainedCapacity < 0) return GlobalVars.INF;

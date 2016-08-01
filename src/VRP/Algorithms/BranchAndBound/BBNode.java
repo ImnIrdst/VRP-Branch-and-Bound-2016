@@ -118,7 +118,7 @@ public class BBNode {
         if (parent == null)
             this.arrivalTime = -1;
         else if (parent.vertex.type == VertexType.DEPOT)
-            this.arrivalTime = 0;
+            this.arrivalTime = GlobalVars.MDT[vehicleUsed-1].mdt;
             // this.arrivalTime = Math.max(vertex.dueDate, BBUtils.getDistance(parent.vertex, this.vertex));
         else
             this.arrivalTime = parent.arrivalTime + GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);

@@ -15,12 +15,12 @@ public class Model {
     static IloCplex VRPD;                            // crew rostering problem
     static IloNumVar[][][] x;
     static IloNumVar[] y;
-    static IloNumVar[][] z;
+    static IloNumVar[] z;
     static IloNumVar[] delta;
 
     static int Number_Customers;                    // the maximum number of crew = number of pairings
     static int Number_Nodes;
-    static int Max_Number_Vehicles;                    // the maximum number of crew = number of pairings
+    static int Max_Number_Vehicles;                 // the maximum number of crew = number of pairings
     static double Cost_ShortestPath[][];
     static double ServiceTime[];
     static int FixedCost_Vehicle;          // fix cost for employing one crew
@@ -108,11 +108,9 @@ public class Model {
             y[k] = VRPD.boolVar();
         }
 
-        z = new IloNumVar[Number_Nodes][Max_Number_Vehicles];
+        z = new IloNumVar[Max_Number_Vehicles];
         for (int k = 0; k < Max_Number_Vehicles; k++) {
-            for (int i = 0; i < Number_Nodes; i++) {
-                z[i][k] = VRPD.numVar(0, Double.MAX_VALUE);
-            }
+            z[k] = VRPD.numVar(0, Double.MAX_VALUE);
         }
 
         delta = new IloNumVar[Max_Number_Vehicles];
@@ -180,6 +178,7 @@ public class Model {
             IloLinearNumExpr expr3 = VRPD.linearNumExpr();
             for (int i = 0; i < Number_Nodes; i++) {
                 for (int j = 0; j < Number_Nodes; j++) {
+                    if (j == depotId) continue;
                     expr3.addTerm(Demand[j], x[i][j][k]);
                 }
             }
@@ -193,7 +192,7 @@ public class Model {
             for (int h = 0; h < Number_Nodes; h++) {
                 IloLinearNumExpr expr5 = VRPD.linearNumExpr();
                 IloLinearNumExpr expr6 = VRPD.linearNumExpr();
-                if (h != depotId) {                          // how to define depot???
+                if (h != depotId) {
                     for (int i = 0; i < Number_Nodes; i++) {
                         expr5.addTerm(1.0, x[i][h][k]);
                     }
@@ -231,23 +230,22 @@ public class Model {
     public static void addConstraint8() throws IloException {
         // 8: arrival time to each customer
         for (int k = 0; k < Max_Number_Vehicles; k++) {
+            IloLinearNumExpr expr9 = VRPD.linearNumExpr();
             for (int i = 0; i < Number_Nodes; i++) {
                 for (int j = 0; j < Number_Nodes; j++) {
-                    if (i == j) continue;
-                    if (i == depotId)
-                        VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
-                                VRPD.ge(z[j][k], ServiceTime[j])));
-                    else
-                        VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
-                                VRPD.ge(VRPD.diff(z[j][k], z[i][k]), (Cost_ShortestPath[i][j] + ServiceTime[j]))));
+                    if (i == depotId) continue;
+                    expr9.addTerm(Cost_ShortestPath[i][j] + ServiceTime[j], x[i][j][k]);
                 }
             }
+            VRPD.addEq(z[k], expr9);
         }
     }
 
     public static void addConstraint9() throws IloException {
         for (int k = 0; k < Max_Number_Vehicles; k++) {
-            VRPD.add(VRPD.ifThen(VRPD.ge(z[depotId][k], DD[depotId]), VRPD.eq(delta[k], VRPD.diff(z[depotId][k], DD[depotId]))));
+            VRPD.add(VRPD.ifThen(VRPD.ge(z[k], DD[depotId]),
+                    VRPD.eq(delta[k], VRPD.diff(z[k], DD[depotId] - GlobalVars.MDT[k].mdt)))
+            );
         }
     }
 
@@ -263,20 +261,21 @@ public class Model {
 
             for (int k = 0; k < Max_Number_Vehicles; k++) {
                 long yk = Math.round(VRPD.getValue(y[k]));
-                System.out.print("Y" + k + " (" + yk + ")" + ",");
+                double zk = (VRPD.getValue(z[k])) + GlobalVars.MDT[k].mdt;
+                double dk = (VRPD.getValue(delta[k]));
+                String zjkd = String.format("%.1f", zk);
+                String pjkd = String.format("%.1f", VRPD.getValue(delta[k]) * PenaltyCost[depotId]);
+
+                System.out.print("Y" + k + " (" + yk + ", " + GlobalVars.MDT[k].mdt
+                        + ", " + zjkd  + ", " + DD[depotId] + ", " + dk + ", " + pjkd + ")" + ",");
                 if (yk == 0) System.out.println();
                 if (yk == 0) continue;
-                for (int i = Number_Nodes - 1; i >= 0; i--) {
+                for (int i = Number_Nodes - 2; i >= 0; i--) {
                     for (int j = Number_Nodes - 1; j >= 0; j--) {
 //                        long xijk = Math.round(VRPD.getValue(x[i][j][k]));
 //                        long zjk = Math.round(VRPD.getValue(z[j][k]));
-//                        long djk = Math.round(VRPD.getValue(delta[j][k]));
+//                        long djk = Math.round(VRPD.getValue(delta[j][k]))
                         double xijk = (VRPD.getValue(x[i][j][k]));
-                        double zjk = (VRPD.getValue(z[j][k]));
-                        double djk = (VRPD.getValue(delta[k]));
-
-                        String zjkd = String.format("%.1f", VRPD.getValue(z[j][k]));
-                        String pjkd = String.format("%.1f", VRPD.getValue(delta[k]) * PenaltyCost[j]);
 
                         if (xijk == 0) continue;
                         Vertex u = ppGraph.getVertexById(i);
@@ -286,7 +285,6 @@ public class Model {
                                 + u
                                 + " -("
                                 + String.format("%.2f", ppGraph.getDistance(u, v))
-                                + ", " + zjkd  + ", " + DD[j] + ", " + pjkd
                                 + ")-> "
                                 + v + ","
                         );
