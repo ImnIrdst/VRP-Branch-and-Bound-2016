@@ -19,6 +19,7 @@ public class GeneticAlgorithm {
     private int customerQty;
     private int populationSize;
     private double minimumCost;
+    private Chromosome bestChromosome;
     private List<Chromosome> population;
 
     private final double MUTATION_PROBABILITY = 0.5;
@@ -66,7 +67,10 @@ public class GeneticAlgorithm {
             population = selection(newPopulation);
 
             // update best answer
-            minimumCost = Math.min(minimumCost, population.get(0).getCost());
+            if (population.get(0).getCost() < minimumCost){
+                minimumCost = population.get(0).getCost();
+                bestChromosome = population.get(0);
+            }
 
             // print the progress
             if (System.currentTimeMillis() > printTime) {
@@ -172,6 +176,10 @@ public class GeneticAlgorithm {
         return minimumCost;
     }
 
+    public void printBestChromosome(){
+        System.out.println("Best Chromosome: " + bestChromosome);
+    }
+
     public Chromosome getRandomChromosome(int size) {
         Chromosome newChromosome = new Chromosome();
 
@@ -200,6 +208,9 @@ public class GeneticAlgorithm {
     private class Chromosome implements Comparable<Chromosome> {
         public int size;
         public List<Integer> list;
+
+        private int cost;
+        private boolean isCostCalculated = false;
 
         /**
          * default constructor
@@ -242,17 +253,23 @@ public class GeneticAlgorithm {
          * fitness function for this chromosome
          */
         public double getCost() {
-            int vehiclesUsed = 0;
+            if (isCostCalculated == true)
+                return cost;
+
+            int remainedCapacity = 0;
+            int vehiclesUsageCost = 0;
             int servicedCustomersQty = 0;
+
             double cumulativeTimeTaken = 0;
             double timeElapsedOnThisPath = 0;
             double cumulativePenaltyTaken = 0;
-            int remainedCapacity = GlobalVars.vehicleCapacity;
+
             List<Integer> tmpList = new ArrayList<>(list);
             tmpList.add(GlobalVars.depotId);
 
-            timeElapsedOnThisPath = GlobalVars.MDT[0].mdt;
-
+            if (tmpList.get(0) == 3 && tmpList.get(1) == 2
+                    && tmpList.get(2) == 1 && tmpList.get(4) == 0)
+                tmpList = tmpList;
             Vertex u = graph.getVertexById(GlobalVars.depotId);
             for (int i = 0; i < tmpList.size() - 1; i++) {
                 Vertex v = graph.getVertexById(tmpList.get(i));
@@ -263,7 +280,16 @@ public class GeneticAlgorithm {
                     timeElapsedOnThisPath += graph.getDistance(u, v);
                 }
 
-                if (timeElapsedOnThisPath > v.dueDate) {
+                if (u.type == VertexType.DEPOT && v.hasVehicle == 0)
+                    return GlobalVars.INF;
+
+                if (u.type == VertexType.DEPOT && v.hasVehicle == 1) {
+                    remainedCapacity = v.capacity;
+                    vehiclesUsageCost += v.fixCost;
+                    timeElapsedOnThisPath = v.mdt;
+                }
+
+                if (v.type == VertexType.DEPOT && timeElapsedOnThisPath > v.dueDate) {
                     cumulativePenaltyTaken += (timeElapsedOnThisPath - v.dueDate) * v.penalty;
                 }
 
@@ -273,18 +299,13 @@ public class GeneticAlgorithm {
                 }
 
                 if (v.type == VertexType.DEPOT) {
-                    vehiclesUsed++;
+                    vehiclesUsageCost++;
 
-                    remainedCapacity = GlobalVars.vehicleCapacity;
                     if (servicedCustomersQty == GlobalVars.numberOfCustomers)
-                        return vehiclesUsed * GlobalVars.vehicleFixedCost +
-                                cumulativePenaltyTaken + cumulativeTimeTaken;
-
-                    timeElapsedOnThisPath = GlobalVars.MDT[vehiclesUsed].mdt;
+                        return vehiclesUsageCost + cumulativePenaltyTaken + cumulativeTimeTaken;
                 }
 
                 if (remainedCapacity < 0) return GlobalVars.INF;
-
 
                 u = v;
             }

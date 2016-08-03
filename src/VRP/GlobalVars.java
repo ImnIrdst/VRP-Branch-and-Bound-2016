@@ -19,11 +19,9 @@ public class GlobalVars {
     public static int depotId;
     public static String depotName;
 
+    public static int numberOfVehicles = 0;
     public static int numberOfNodes = 0;
     public static int numberOfCustomers = 0;
-    public static int numberOfVehicles = 0;
-    public static int vehicleCapacity = 0;
-    public static double vehicleFixedCost = 0;
 
     public static int[] vehicleCapacities;
     public static int[] customerDemands;
@@ -60,9 +58,6 @@ public class GlobalVars {
         GlobalVars.bbGraph = bbGraph;
         GlobalVars.numberOfNodes = bbGraph.getGraphSize();
         GlobalVars.numberOfCustomers = GlobalVars.numberOfNodes - 1;
-        GlobalVars.numberOfVehicles = depotVertex.numberOfVehicles;
-        GlobalVars.vehicleCapacity = depotVertex.capacity;
-        GlobalVars.vehicleFixedCost = depotVertex.fixedCost;
         GlobalVars.depotId = depotVertex.getId();
 
         // due dates, demands, penalties, service times
@@ -71,27 +66,15 @@ public class GlobalVars {
         GlobalVars.customerPenaltyCosts = new int[numberOfNodes];
         GlobalVars.customerServiceTimes = new double[numberOfNodes];
         for (Vertex u : bbGraph.getVertices()) {
-            GlobalVars.nodeDueDates[u.getId()] = u.dueDate;
             GlobalVars.customerDemands[u.getId()] = u.demand;
-            GlobalVars.customerPenaltyCosts[u.getId()] = u.penalty;
             GlobalVars.customerServiceTimes[u.getId()] = u.serviceTime;
         }
 
         // vehicle capacities
-        GlobalVars.vehicleCapacities = new int[GlobalVars.numberOfVehicles];
-        for (int i = 0; i < GlobalVars.numberOfVehicles; i++) {
-            GlobalVars.vehicleCapacities[i] = GlobalVars.vehicleCapacity;
-        }
-
-        // MDTs
-        GlobalVars.MDT = new MDTPair[GlobalVars.numberOfVehicles];
-        FileInputStream file = new FileInputStream(new File("resources/vehiclesMDT.txt"));
-        Scanner sc = new Scanner(file);
-        String[] mdtStrings = sc.nextLine().split(",");
-        for (int i=0 ; i<GlobalVars.numberOfVehicles ; i++){
-            GlobalVars.MDT[i] = new MDTPair(i, Double.parseDouble(mdtStrings[i]));
-        }
-        Arrays.sort(GlobalVars.MDT);
+//        GlobalVars.vehicleCapacities = new int[GlobalVars.numberOfCustomers];
+//        for (int i = 0; i < GlobalVars.numberOfCustomers; i++) {
+//            GlobalVars.vehicleCapacities[i] = GlobalVars.vehicleCapacity;
+//        }
     }
 
     public static class MDTPair implements Comparable<MDTPair> {

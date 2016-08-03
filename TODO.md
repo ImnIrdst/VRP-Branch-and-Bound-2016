@@ -1,9 +1,13 @@
 # Todo
-- Add depot edges to lower bound
+- Modify the Branch and bound algorithm for new input and model
+- for branch and bound Consider that all capacities and fix costs are identical
+- for branch and bound Change the greedy algorithm for variable fix cost and capacities
+- Correct input from attribute table
 - correct branch and bound exporting for carpooling
 - Use Vehicle needed to peek lowest time needed to go from depot and comeback.
-
+Best Chromosome: [3, 2, 1, 4, 0, 4]
 # Done
+- Add depot edges to lower bound
 - correct GA algorithm for car pooling
 - correct input files for carpooling (remove customer penalty and due dates)
 - correct branch and bound for carpooling

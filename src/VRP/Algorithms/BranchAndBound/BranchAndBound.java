@@ -71,6 +71,10 @@ public class BranchAndBound {
                     addNodeToPriorityQueue(new BBNode(v, u));
                 }
 
+                if (u.vertex.type == VertexType.DEPOT
+                        && v.type == VertexType.CUSTOMER
+                        && v.hasVehicle == 0) continue;
+
                 if (v.type == VertexType.CUSTOMER) {
                     // pruning criteria
                     if (u.remainedCapacity < v.demand) continue;   // check demand criterion

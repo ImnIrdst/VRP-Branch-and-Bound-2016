@@ -23,22 +23,23 @@ public class Main {
         // build the preprocessed graph
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph preprocessedGraph = dijkstra.makeShortestPathGraph();
-//        preprocessedGraph.printGraph();
 
         // fill the global variables
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
+        preprocessedGraph.printGraph();
 
         // run the genetic algorithm
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
         geneticAlgorithm.run(1000);
+        geneticAlgorithm.printBestChromosome();
 
         // run the branch and bound algorithm
         GlobalVars.startTime = System.currentTimeMillis();
-        BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost());
-        branchAndBound.run(GlobalVars.depotName);
+//        BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost());
+//        branchAndBound.run(GlobalVars.depotName);
         GlobalVars.finishTime = System.currentTimeMillis();
-        branchAndBound.printTheAnswer();
+//        branchAndBound.printTheAnswer();
         
         // export the result
         // branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);

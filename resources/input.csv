@@ -1,14 +1,12 @@
-number of vehicles,3
-fixed cost of vehicles,10
-capacity of vehicles,5
-Depot Due Date,5
-Depot Penalty,2
+Depot
+Due Date,Depot Penalty,
+5,2
 number of customers,4
-name,demand,penalty,DDc,Sc
-A,2,0,0,0
-B,3,0,0,0
-C,4,0,0,0
-D,1,0,0,0
+name,demand,Sc,hasVehicle,vehicleCapacity,vehicleFixCost,MDT
+A,2,0,0,0,0,1
+B,3,0,1,5,10,2
+C,4,0,1,5,10,3
+D,1,0,1,5,10,4
 number of ordinary nodes,2
 name
 F

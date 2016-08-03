@@ -17,6 +17,7 @@ import java.util.List;
 public class BBNode {
     public Vertex vertex;          // current vertex of the graph
     public int vehicleUsed;        // number of vehicle used in this node
+    public int vehicleUsageCost;
     public double curTimeElapsed;     // the time elapsed after moving the vehicle in current path
     public double maxTimeElapsed;     // the maximum time elapsed in all paths
     public int remainedCapacity;   // remained goods in the car
@@ -103,8 +104,9 @@ public class BBNode {
      * calculateRemainedCapacity
      */
     public void calculateRemainedCapacity() {
-        if (parent == null || this.vertex.type == VertexType.DEPOT)
-            this.remainedCapacity = GlobalVars.vehicleCapacity;
+        if (this.vertex.type == VertexType.CUSTOMER
+                && this.parent.vertex.type == VertexType.DEPOT)
+            this.remainedCapacity = this.vertex.capacity - this.vertex.demand;
         else if (this.vertex.type == VertexType.CUSTOMER)
             this.remainedCapacity = parent.remainedCapacity - this.vertex.demand;
         else
@@ -193,7 +195,7 @@ public class BBNode {
      * @return cost of the node that we are there
      */
     public double getCost() {            // calculates branch and bound cost of the node
-        return cumulativeTimeTaken + cumulativePenaltyTaken + vehicleUsed * GlobalVars.vehicleFixedCost;
+        return cumulativeTimeTaken + cumulativePenaltyTaken + vehicleUsageCost;
     }
 
     /**
@@ -203,22 +205,22 @@ public class BBNode {
      */
     public double getLowerBound() {
         return this.getLowerBoundForPenaltyTaken()
-                + this.getLowerBoundForCumulativeTimeNeededForAllVehicles()
-                + this.getLowerBoundForNumberOfExtraVehiclesNeeded() * GlobalVars.vehicleFixedCost;
+                + this.getLowerBoundForCumulativeTimeNeededForAllVehicles();
+                // + this.getLowerBoundForNumberOfExtraVehiclesNeeded() * GlobalVars.vehicleFixedCost;
     }
 
     /**
      * @return minimum number of extra vehicles needed to serve the remaining customers
      */
     public int getLowerBoundForNumberOfExtraVehiclesNeeded() {
-        int extraVehiclesNeeded = Greedy.minimumExtraVehiclesNeeded(
-                this.getUnservicedCustomersDemands(), this.remainedCapacity, GlobalVars.vehicleCapacity
-        );
+//        int extraVehiclesNeeded = Greedy.minimumExtraVehiclesNeeded(
+//                this.getUnservicedCustomersDemands(), this.remainedCapacity, GlobalVars.vehicleCapacity
+//        );
+//
+//        if (this.vertex.type == VertexType.DEPOT)
+//            extraVehiclesNeeded++;
 
-        if (this.vertex.type == VertexType.DEPOT)
-            extraVehiclesNeeded++;
-
-        return extraVehiclesNeeded;
+        return 0;
     }
 
     /**

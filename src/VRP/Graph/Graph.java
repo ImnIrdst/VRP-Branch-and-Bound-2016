@@ -43,35 +43,35 @@ public class Graph {
         try {
             // read file
             FileInputStream file = new FileInputStream(new File(path));
-            Scanner sc = new Scanner(file);
+            Scanner sc = new Scanner(file); sc.nextLine(); sc.nextLine();
+
+            String[] tokens;
 
             // read depot Info
-            int numberOfVehicles = Integer.parseInt(sc.nextLine().split(",")[1]);
-            int fixedCostOfVehicle = Integer.parseInt(sc.nextLine().split(",")[1]);
-            int capacityOfVehicle = Integer.parseInt(sc.nextLine().split(",")[1]);
-            int depotDueDate = Integer.parseInt(sc.nextLine().split(",")[1]);
-            int depotPenalty = Integer.parseInt(sc.nextLine().split(",")[1]);
-
-            // fill the global variables
-            GlobalVars.depotName = "Depot";
-
+            tokens = sc.nextLine().split(",");
+            GlobalVars.depotName = "Depot"; // fill the global variables
             graph.addVertex(new Vertex(GlobalVars.depotName, VertexType.DEPOT,
-                    numberOfVehicles, fixedCostOfVehicle, capacityOfVehicle, depotDueDate, depotPenalty, true));
+                    Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1])));
+
 
             // read customers info
             int numberOfCustomers = Integer.parseInt(sc.nextLine().split(",")[1]);
             sc.nextLine(); // skip the line
 
             int cId = 0;
+            GlobalVars.numberOfVehicles = 0;
             for (int i = 0; i < numberOfCustomers; i++) {
-                String[] tokens = sc.nextLine().split(",");
+                tokens = sc.nextLine().split(",");
                 Vertex newVertex = new Vertex(tokens[0],
                         VertexType.CUSTOMER, cId++,
                         Integer.parseInt(tokens[1]),
-                        Integer.parseInt(tokens[2]),
+                        Double.parseDouble(tokens[2]),
                         Integer.parseInt(tokens[3]),
-                        Integer.parseInt(tokens[4]));
-
+                        Integer.parseInt(tokens[4]),
+                        Integer.parseInt(tokens[5]),
+                        Double.parseDouble(tokens[6]));
+                if (newVertex.hasVehicle == 1)
+                    GlobalVars.numberOfVehicles++;
                 graph.addVertex(newVertex);
             }
 
@@ -88,7 +88,7 @@ public class Graph {
             sc.nextLine(); // skip the line
 
             for (int i = 0; i < numberOfEdges; i++) {
-                String[] tokens = sc.nextLine().split(",");
+                tokens = sc.nextLine().split(",");
                 graph.addEdge(new Edge(tokens[0], tokens[1], Integer.parseInt(tokens[2])));
             }
 
