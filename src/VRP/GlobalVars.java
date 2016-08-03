@@ -23,13 +23,7 @@ public class GlobalVars {
     public static int numberOfNodes = 0;
     public static int numberOfCustomers = 0;
 
-    public static int[] vehicleCapacities;
     public static int[] customerDemands;
-    public static int[] customerPenaltyCosts;
-    public static double[] customerServiceTimes;
-    public static double[] nodeDueDates;
-
-    public static MDTPair[] MDT;
 
     public static Graph bbGraph; // preprocessed graph
 
@@ -59,22 +53,6 @@ public class GlobalVars {
         GlobalVars.numberOfNodes = bbGraph.getGraphSize();
         GlobalVars.numberOfCustomers = GlobalVars.numberOfNodes - 1;
         GlobalVars.depotId = depotVertex.getId();
-
-        // due dates, demands, penalties, service times
-        GlobalVars.nodeDueDates = new double[numberOfNodes];
-        GlobalVars.customerDemands = new int[numberOfNodes];
-        GlobalVars.customerPenaltyCosts = new int[numberOfNodes];
-        GlobalVars.customerServiceTimes = new double[numberOfNodes];
-        for (Vertex u : bbGraph.getVertices()) {
-            GlobalVars.customerDemands[u.getId()] = u.demand;
-            GlobalVars.customerServiceTimes[u.getId()] = u.serviceTime;
-        }
-
-        // vehicle capacities
-//        GlobalVars.vehicleCapacities = new int[GlobalVars.numberOfCustomers];
-//        for (int i = 0; i < GlobalVars.numberOfCustomers; i++) {
-//            GlobalVars.vehicleCapacities[i] = GlobalVars.vehicleCapacity;
-//        }
     }
 
     public static class MDTPair implements Comparable<MDTPair> {

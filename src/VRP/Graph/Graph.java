@@ -180,7 +180,7 @@ public class Graph {
     /**
      * @return adjacencyMatrix of the graph
      */
-    public double[][] getTheAdjacencyMatrix() {
+    public double[][] getAdjacencyMatrix() {
         int numberOfNodes = this.getGraphSize();
         double[][] adjacencyMatrix = new double[numberOfNodes][numberOfNodes];
 

@@ -1,11 +1,13 @@
 # Todo
-- Modify branch and bound (without lower bounds)
+
 - Add lower bounds.
 - Correct input from attribute table
 - correct branch and bound exporting for carpooling
 - Use Vehicle needed to peek lowest time needed to go from depot and comeback.
 
 # Done
+- Modify mathematical model for for new input and model
+- Modify branch and bound (without lower bounds)
 - Modify the Branch and bound algorithm for new input and model
 - Add depot edges to lower bound
 - correct GA algorithm for car pooling
