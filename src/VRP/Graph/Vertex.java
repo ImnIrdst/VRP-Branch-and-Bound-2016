@@ -41,11 +41,11 @@ public class Vertex {
     /**
      * constructor for depot
      */
-    public Vertex(String name, VertexType type, int penalty, double dueDate) {
+    public Vertex(String name, VertexType type, double dueDate, int penalty) {
         this.name = name;
         this.type = type;
-        this.penalty = penalty;
         this.dueDate = dueDate;
+        this.penalty = penalty;
     }
 
     /**
@@ -87,6 +87,8 @@ public class Vertex {
         this.fixCost = vertex.fixCost;
         this.mdt = vertex.mdt;
         this.serviceTime = vertex.serviceTime;
+        this.penalty = vertex.penalty;
+        this.dueDate = vertex.dueDate;
     }
 
     /**
@@ -178,6 +180,6 @@ public class Vertex {
 
     @Override
     public String toString() {
-        return name + ", " + getId();
+        return name + "[" + getId() + "]";
     }
 }

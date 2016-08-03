@@ -17,7 +17,7 @@ import java.util.List;
 public class BBNode {
     public Vertex vertex;          // current vertex of the graph
     public int vehicleUsed;        // number of vehicle used in this node
-    public int vehicleUsageCost;
+    public double vehicleUsageCost;
     public double curTimeElapsed;     // the time elapsed after moving the vehicle in current path
     public double maxTimeElapsed;     // the maximum time elapsed in all paths
     public int remainedCapacity;   // remained goods in the car
@@ -37,8 +37,8 @@ public class BBNode {
     public BBNode(Vertex vertex, BBNode parent) {
         this.vertex = vertex;
         this.parent = parent;
-
         this.calculateVehicleUsed();
+        this.calculateVehicleUsageCost();
         this.calculateCurTimeElapsed();
         this.calculateMaxTimeElapsed();
         this.calculateRemainedCapacity();
@@ -72,6 +72,15 @@ public class BBNode {
             this.vehicleUsed = parent.vehicleUsed;
     }
 
+    public void calculateVehicleUsageCost(){
+        if (parent == null)
+            vehicleUsageCost = 0;
+        else if (parent.vertex.type == VertexType.DEPOT)
+            this.vehicleUsageCost = parent.vehicleUsageCost + this.vertex.fixCost;
+        else
+            this.vehicleUsageCost = parent.vehicleUsageCost;
+    }
+
     /**
      * calculateCurTimeElapsed
      */
@@ -79,7 +88,7 @@ public class BBNode {
         if (parent == null) curTimeElapsed = 0;
 
         else if (parent.vertex.type == VertexType.DEPOT)
-            this.curTimeElapsed = 0;
+            this.curTimeElapsed = this.vertex.mdt;
 
         else if (parent.vertex.type == VertexType.CUSTOMER)
             this.curTimeElapsed = parent.curTimeElapsed + GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
@@ -104,7 +113,9 @@ public class BBNode {
      * calculateRemainedCapacity
      */
     public void calculateRemainedCapacity() {
-        if (this.vertex.type == VertexType.CUSTOMER
+        if (parent == null)
+            this.remainedCapacity = 0;
+        else if (this.vertex.type == VertexType.CUSTOMER
                 && this.parent.vertex.type == VertexType.DEPOT)
             this.remainedCapacity = this.vertex.capacity - this.vertex.demand;
         else if (this.vertex.type == VertexType.CUSTOMER)
@@ -120,8 +131,7 @@ public class BBNode {
         if (parent == null)
             this.arrivalTime = -1;
         else if (parent.vertex.type == VertexType.DEPOT)
-            this.arrivalTime = GlobalVars.MDT[vehicleUsed-1].mdt;
-            // this.arrivalTime = Math.max(vertex.dueDate, BBUtils.getDistance(parent.vertex, this.vertex));
+            this.arrivalTime = this.vertex.mdt;
         else
             this.arrivalTime = parent.arrivalTime + GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
     }
@@ -204,8 +214,8 @@ public class BBNode {
      * @return lower bound for this node
      */
     public double getLowerBound() {
-        return this.getLowerBoundForPenaltyTaken()
-                + this.getLowerBoundForCumulativeTimeNeededForAllVehicles();
+        return 0;// this.getLowerBoundForPenaltyTaken()
+                // + this.getLowerBoundForCumulativeTimeNeededForAllVehicles();
                 // + this.getLowerBoundForNumberOfExtraVehiclesNeeded() * GlobalVars.vehicleFixedCost;
     }
 
@@ -253,7 +263,6 @@ public class BBNode {
             if (markedNodes[v.getId()] == false && this.servicedNodes[v.getId()] == false)
                 lowerBound += getMinimumEdgeWeightOfVertex(v);
         }
-//        return 0;
         return lowerBound;
     }
 
@@ -266,9 +275,8 @@ public class BBNode {
     public double getLowerBoundForPenaltyTaken() {
         if (this.vertex.type == VertexType.DEPOT) return 0;
 
-        double lowestFinishTime = this.curTimeElapsed + this.getMinimumAdditionalTimeNeededToTheEndThePath();
-
         Vertex depotVertex = GlobalVars.bbGraph.getVertexByName(GlobalVars.depotName);
+        double lowestFinishTime = this.curTimeElapsed + this.getMinimumAdditionalTimeNeededToTheEndThePath();
 
         if (lowestFinishTime > depotVertex.dueDate)
             return (lowestFinishTime - depotVertex.dueDate) * depotVertex.penalty;
@@ -336,6 +344,7 @@ public class BBNode {
                 + "Travel Time of all vehicles: " + String.format("%.2f", cumulativeTimeTaken) + "\n"
                 + "Penalty Taken of all vehicles: " + String.format("%.2f", cumulativePenaltyTaken) + "\n"
                 + "Number of Vehicles Used: " + vehicleUsed + "\n"
+                + "Cumulative Vehicles Usage Cost: " + vehicleUsageCost + "\n"
                 + "Minimum Cost for the problem: " + String.format("%.2f", getCost());
     }
 

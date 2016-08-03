@@ -61,6 +61,23 @@ public class BranchAndBound {
         // go down the tree
         while (!pq.isEmpty()) {
             BBNode u = pq.poll();
+            if (u.vertex.getId() == 1
+                    && u.parent != null && u.parent.vertex.getId() == 4
+                    && u.parent.parent != null && u.parent.parent.vertex.getId() == 2
+                    && u.parent.parent.parent != null && u.parent.parent.parent.vertex.getId() == 3)
+                u = u;
+
+            if (u.vertex.getId() == 4
+                    && u.parent != null && u.parent.vertex.getId() == 2
+                    && u.parent.parent != null && u.parent.parent.vertex.getId() == 3
+                    ) // && u.parent.parent.parent != null && u.parent.parent.parent.vertex.getId() == 3)
+                u = u;
+
+            if (u.vertex.getId() == 2
+                    && u.parent != null && u.parent.vertex.getId() == 3
+                    )//&& u.parent.parent != null && u.parent.parent.vertex.getId() == 3
+                    //&& u.parent.parent.parent != null && u.parent.parent.parent.vertex.getId() == 3)
+                u = u;
             if (canBePruned(u)) continue;
 
             for (Vertex v : u.vertex.neighbours.keySet()) {
@@ -68,7 +85,7 @@ public class BranchAndBound {
                         && u.vertex.type == VertexType.DEPOT) continue;
 
                 if (v.type == VertexType.DEPOT) {        // if you going to depot just go
-                    addNodeToPriorityQueue(new BBNode(v, u));
+                    addNodeToPriorityQueue(new BBNode(v, u)); continue;
                 }
 
                 if (u.vertex.type == VertexType.DEPOT
@@ -77,7 +94,7 @@ public class BranchAndBound {
 
                 if (v.type == VertexType.CUSTOMER) {
                     // pruning criteria
-                    if (u.remainedCapacity < v.demand) continue;   // check demand criterion
+                    // if (u.remainedCapacity < v.demand) continue;   // check demand criterion
                     if (u.servicedNodes[v.customerId] == true) continue; // check if this node serviced before
 
                     // make new node
@@ -117,6 +134,9 @@ public class BranchAndBound {
      * @return true of node can be pruned from the tree
      */
     boolean canBePruned(BBNode newNode) {
+        // if new node capacity is negative
+        if (newNode.remainedCapacity < 0)
+            return true;
 
         // if new Node so far cost is more than minimum cost
         if (newNode.getCost() >= minimumCost)

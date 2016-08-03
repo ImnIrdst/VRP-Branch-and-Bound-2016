@@ -177,7 +177,7 @@ public class GeneticAlgorithm {
     }
 
     public void printBestChromosome(){
-        System.out.println("Best Chromosome: " + bestChromosome);
+        System.out.println("Best Chromosome: " + bestChromosome + ", " + minimumCost);
     }
 
     public Chromosome getRandomChromosome(int size) {
@@ -299,8 +299,6 @@ public class GeneticAlgorithm {
                 }
 
                 if (v.type == VertexType.DEPOT) {
-                    vehiclesUsageCost++;
-
                     if (servicedCustomersQty == GlobalVars.numberOfCustomers)
                         return vehiclesUsageCost + cumulativePenaltyTaken + cumulativeTimeTaken;
                 }

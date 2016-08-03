@@ -31,15 +31,15 @@ public class Main {
         // run the genetic algorithm
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
-        geneticAlgorithm.run(1000);
+        geneticAlgorithm.run(1111);
         geneticAlgorithm.printBestChromosome();
 
         // run the branch and bound algorithm
         GlobalVars.startTime = System.currentTimeMillis();
-//        BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost());
-//        branchAndBound.run(GlobalVars.depotName);
+        BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost());
+        branchAndBound.run(GlobalVars.depotName);
         GlobalVars.finishTime = System.currentTimeMillis();
-//        branchAndBound.printTheAnswer();
+        branchAndBound.printTheAnswer();
         
         // export the result
         // branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
