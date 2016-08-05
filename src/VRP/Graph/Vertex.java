@@ -19,7 +19,7 @@ public class Vertex {
     public int demand;              // Dc: demand of the customer
     public int capacity;            // Q: capacity of vehicle
     public int hasVehicle;          // Binary variable
-    public double fixCost;          // F: fix cost vehicle k
+    public double fixedCost;          // F: fix cost vehicle k
     public double mdt;              // V: Minimum Departure Time
     public double serviceTime;         // Sc: time required for a car to service the customer
 
@@ -53,14 +53,14 @@ public class Vertex {
      */
     public Vertex(String name, VertexType type,
                   int customerId, int demand, double serviceTime,
-                  int hasVehicle, int capacity, double fixCost, double mdt) {
+                  int hasVehicle, int capacity, double fixedCost, double mdt) {
         this.name = name;
         this.type = type;
         this.customerId = customerId;
         this.demand = demand;
         this.hasVehicle = hasVehicle;
         this.capacity = capacity;
-        this.fixCost = fixCost;
+        this.fixedCost = fixedCost;
         this.mdt = mdt;
         this.serviceTime = serviceTime;
     }
@@ -84,7 +84,7 @@ public class Vertex {
         this.hasVehicle = vertex.hasVehicle;
         this.demand = vertex.demand;
         this.capacity = vertex.capacity;
-        this.fixCost = vertex.fixCost;
+        this.fixedCost = vertex.fixedCost;
         this.mdt = vertex.mdt;
         this.serviceTime = vertex.serviceTime;
         this.penalty = vertex.penalty;

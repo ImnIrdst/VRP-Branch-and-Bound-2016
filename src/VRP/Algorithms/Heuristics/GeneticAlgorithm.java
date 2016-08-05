@@ -267,9 +267,6 @@ public class GeneticAlgorithm {
             List<Integer> tmpList = new ArrayList<>(list);
             tmpList.add(GlobalVars.depotId);
 
-            if (tmpList.get(0) == 3 && tmpList.get(1) == 2
-                    && tmpList.get(2) == 1 && tmpList.get(4) == 0)
-                tmpList = tmpList;
             Vertex u = graph.getVertexById(GlobalVars.depotId);
             for (int i = 0; i < tmpList.size() - 1; i++) {
                 Vertex v = graph.getVertexById(tmpList.get(i));
@@ -285,7 +282,7 @@ public class GeneticAlgorithm {
 
                 if (u.type == VertexType.DEPOT && v.hasVehicle == 1) {
                     remainedCapacity = v.capacity;
-                    vehiclesUsageCost += v.fixCost;
+                    vehiclesUsageCost += v.fixedCost;
                     timeElapsedOnThisPath = v.mdt;
                 }
 

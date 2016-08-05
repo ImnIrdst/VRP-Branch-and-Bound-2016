@@ -11,7 +11,6 @@ import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Model {
@@ -26,7 +25,7 @@ public class Model {
     static int vehiclesQty;
 
     static double t[][];
-    static List<Integer> vehicleIds;                 // indexes of nodes with vehicles
+    static List<Integer> vehicleIds;         // indexes of nodes with vehicles
 
     static int depotId;
     static Vertex depot;
@@ -77,8 +76,8 @@ public class Model {
         addConstraint3();
         addConstraint4();
         addConstraint5();
-        // addConstraint6();
-         addConstraint7();
+        addConstraint6();
+        addConstraint7();
         addConstraint8();
         addConstraint9();
     }
@@ -123,7 +122,7 @@ public class Model {
         }
 
         for (int k = 0; k < vehiclesQty; k++) {
-            obj.addTerm(getVehicle(k).fixCost, y[k]);
+            obj.addTerm(getVehicle(k).fixedCost, y[k]);
         }
 
         for (int k = 0; k < vehiclesQty; k++) {
@@ -171,7 +170,7 @@ public class Model {
             //3-2: if using vehicle k...
             VRPD.add(VRPD.ifThen(VRPD.eq(y[k], 1), VRPD.ge(expr2, 2)));
 
-            //3-3:
+            //3-3: if vehicle k has been used then the edge depot -> vehicle(k) is must be in the graph
             VRPD.add(VRPD.ifThen(VRPD.eq(y[k], 1), VRPD.eq(x[depotId][getVehicle(k).getId()][k], 1)));
         }
     }
@@ -211,8 +210,8 @@ public class Model {
         }
     }
 
+    //6:for each vehicle: Emanations from depot=1
     public static void addConstraint6() throws IloException {
-        //6:for each vehicle: Emanations from depot=1
         for (int k = 0; k < vehiclesQty; k++) {
             IloLinearNumExpr expr7 = VRPD.linearNumExpr();
             for (int j = 0; j < nodesQty; j++) {
@@ -222,8 +221,8 @@ public class Model {
         }
     }
 
+    //7:for each vehicle: links toward depot=1
     public static void addConstraint7() throws IloException {
-        //7-1:for each vehicle: links toward depot=1
         for (int k = 0; k < vehiclesQty; k++) {
             IloLinearNumExpr expr8 = VRPD.linearNumExpr();
             for (int i = 0; i < nodesQty; i++) {
@@ -233,8 +232,8 @@ public class Model {
         }
     }
 
+    // 8: arrival time to depot
     public static void addConstraint8() throws IloException {
-        // 8: arrival time to each customer
         for (int k = 0; k < vehiclesQty; k++) {
             IloLinearNumExpr expr9 = VRPD.linearNumExpr();
             for (int i = 0; i < nodesQty; i++) {
@@ -248,6 +247,7 @@ public class Model {
         }
     }
 
+    // 9: depot delay
     public static void addConstraint9() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
             VRPD.add(VRPD.ifThen(VRPD.ge(z[k], depot.dueDate - getVehicle(k).mdt),

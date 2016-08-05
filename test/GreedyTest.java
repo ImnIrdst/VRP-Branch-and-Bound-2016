@@ -1,13 +1,24 @@
+import VRP.Algorithms.Other.CapacityCostPair;
 import VRP.Algorithms.Other.Greedy;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by iman on 7/18/16.
+ * Tests Greedy Algorithms
  */
 public class GreedyTest {
-    public static void main(String[] args){
-        Integer[] customersDemands = new Integer[]{4,1,2,3,1};
-        System.out.println(Greedy.minimumExtraVehiclesNeeded(customersDemands, 2, 5));
+    public static void main(String[] args) {
+
+        int sumOfCustomersDemands = 7 + 4 + 3 + 2 + 1 + 1;
+        Integer[] customerDemands = {7, 4, 3, 2, 1, 1};
+        List<CapacityCostPair> vehiclesCapacity = new ArrayList<>();
+
+        vehiclesCapacity.add(new CapacityCostPair(6, 12));
+        vehiclesCapacity.add(new CapacityCostPair(8, 16));
+        // vehiclesCapacity[2] = new CapacityCostPair(5, 0);
+
+        System.out.println(Greedy.minimumExtraVehicleUsageCostNeeded(customerDemands, 5, vehiclesCapacity));
+        System.out.println(Greedy.minimumExtraVehiclesNeeded(customerDemands, 5, 8));
     }
 }

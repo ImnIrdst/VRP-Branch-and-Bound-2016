@@ -1,8 +1,10 @@
 package VRP.Algorithms.BranchAndBound;
 
+import VRP.Algorithms.Other.CapacityCostPair;
 import VRP.Algorithms.Other.Greedy;
 import VRP.GlobalVars;
 import VRP.Graph.Edge;
+import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
 import VRP.Graph.VertexType;
 
@@ -31,6 +33,10 @@ public class BBNode {
     public double arrivalTime;        // the moment that the vehicle reached to the node
     public double thisVertexPenalty;  // the penalty that taken in this vertex
 
+    public double lowerBoundForVehicleCost;
+    public double lowerBoundForPenaltyTaken;
+    public double lowerBoundForTimeTaken;
+
     /**
      * constructor for the branch and bound node
      */
@@ -48,6 +54,10 @@ public class BBNode {
         this.calculateCumulativeTimeTaken();
         this.calculateServicedNodes();
         this.calculateParentStartTime();
+
+        this.calculateLowerBoundForPenaltyTaken();
+        this.calculateLowerBoundForMinimumVehicleUsageCost();
+        this.calculateLowerBoundForCumulativeTimeNeededForAllVehicles();
 
         long elapsedTime = System.currentTimeMillis() - GlobalVars.startTime;
 
@@ -72,11 +82,11 @@ public class BBNode {
             this.vehicleUsed = parent.vehicleUsed;
     }
 
-    public void calculateVehicleUsageCost(){
+    public void calculateVehicleUsageCost() {
         if (parent == null)
             vehicleUsageCost = 0;
         else if (parent.vertex.type == VertexType.DEPOT)
-            this.vehicleUsageCost = parent.vehicleUsageCost + this.vertex.fixCost;
+            this.vehicleUsageCost = parent.vehicleUsageCost + this.vertex.fixedCost;
         else
             this.vehicleUsageCost = parent.vehicleUsageCost;
     }
@@ -214,31 +224,44 @@ public class BBNode {
      * @return lower bound for this node
      */
     public double getLowerBound() {
-        return 0;// this.getLowerBoundForPenaltyTaken()
-                // + this.getLowerBoundForCumulativeTimeNeededForAllVehicles();
-                // + this.getLowerBoundForNumberOfExtraVehiclesNeeded() * GlobalVars.vehicleFixedCost;
+        return lowerBoundForVehicleCost + lowerBoundForTimeTaken + lowerBoundForPenaltyTaken;
     }
 
     /**
-     * @return minimum number of extra vehicles needed to serve the remaining customers
+     * calculates Lower Bound For Minimum Vehicle Usage Cost
      */
-    public int getLowerBoundForNumberOfExtraVehiclesNeeded() {
-//        int extraVehiclesNeeded = Greedy.minimumExtraVehiclesNeeded(
-//                this.getUnservicedCustomersDemands(), this.remainedCapacity, GlobalVars.vehicleCapacity
-//        );
-//
-//        if (this.vertex.type == VertexType.DEPOT)
-//            extraVehiclesNeeded++;
+    public void calculateLowerBoundForMinimumVehicleUsageCost() {
+        int numberOfUnservicedCustomers = GlobalVars.numberOfCustomers - this.numberOfServicedCustomers;
 
-        return 0;
+        Integer[] unservicedCustomersDemands = new Integer[numberOfUnservicedCustomers];
+        List<CapacityCostPair> vehicleCapacities = new ArrayList<>();
+
+        int sumOfDemands = 0;
+        int sumOfCapacity = 0;
+        for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
+            if (this.servicedNodes[i] == false) {
+                Vertex v = GlobalVars.bbGraph.getVertexById(i);
+                unservicedCustomersDemands[j++] = v.demand;
+                sumOfDemands += v.demand;
+
+                if (v.hasVehicle == 1) {
+                    vehicleCapacities.add(new CapacityCostPair(v.capacity, v.fixedCost));
+                    sumOfCapacity += v.capacity;
+                }
+            }
+        }
+
+        if (sumOfCapacity + remainedCapacity < sumOfDemands)
+            this.lowerBoundForVehicleCost = GlobalVars.INF;
+        else
+            this.lowerBoundForVehicleCost = Greedy.minimumExtraVehicleUsageCostNeeded(
+                    unservicedCustomersDemands, remainedCapacity, vehicleCapacities);
     }
 
     /**
-     * @return a lower bound for cumulative time needed for all the vehicles to serve all customers
-     * <p>
-     * further improvements: only use one edge of current node
+     * calculates a lower bound for cumulative time needed for all the vehicles to serve all customers
      */
-    public double getLowerBoundForCumulativeTimeNeededForAllVehicles() {
+    public void calculateLowerBoundForCumulativeTimeNeededForAllVehicles() {
         double lowerBound = 0;
         boolean[] markedNodes = new boolean[GlobalVars.numberOfCustomers];
 
@@ -263,25 +286,59 @@ public class BBNode {
             if (markedNodes[v.getId()] == false && this.servicedNodes[v.getId()] == false)
                 lowerBound += getMinimumEdgeWeightOfVertex(v);
         }
-        return lowerBound;
+
+        this.lowerBoundForTimeTaken = lowerBound;
     }
 
     /**
      * If go from this vertex to the depot, when I arrive
      * there and how much penalty I must take.
-     *
-     * @return a lower bound for additional penalty taken
+     * <p/>
+     * calculates the lower bound for additional penalty taken
      */
-    public double getLowerBoundForPenaltyTaken() {
-        if (this.vertex.type == VertexType.DEPOT) return 0;
+    public void calculateLowerBoundForPenaltyTaken() {
+        if (this.vertex.type == VertexType.DEPOT) return;
 
         Vertex depotVertex = GlobalVars.bbGraph.getVertexByName(GlobalVars.depotName);
         double lowestFinishTime = this.curTimeElapsed + this.getMinimumAdditionalTimeNeededToTheEndThePath();
 
         if (lowestFinishTime > depotVertex.dueDate)
-            return (lowestFinishTime - depotVertex.dueDate) * depotVertex.penalty;
+            this.lowerBoundForPenaltyTaken = (lowestFinishTime - depotVertex.dueDate) * depotVertex.penalty;
+        else
+            this.lowerBoundForPenaltyTaken = 0;
+    }
 
-        return 0;
+    /**
+     * @return minimum number of extra vehicles needed to serve the remaining customers
+     */
+    public int getLowerBoundForNumberOfExtraVehiclesNeeded() {
+        int numberOfUnservicedCustomers = GlobalVars.numberOfCustomers - this.numberOfServicedCustomers;
+        Integer[] unservicedCustomersDemands = new Integer[numberOfUnservicedCustomers];
+
+        int sumOfDemands = 0;
+        int sumOfCapacity = 0;
+        int maximumCapacity = 0;
+        for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
+            if (this.servicedNodes[i] == false) {
+                Vertex v = GlobalVars.bbGraph.getVertexById(i);
+                unservicedCustomersDemands[j++] = v.demand;
+                sumOfDemands += v.demand;
+
+                if (v.hasVehicle == 1) {
+                    sumOfCapacity += v.capacity;
+                    maximumCapacity = Math.max(v.capacity, maximumCapacity);
+                }
+            }
+        }
+
+        if (sumOfCapacity + remainedCapacity < sumOfDemands)
+            return (int) GlobalVars.INF;
+
+        int extraVehiclesNeeded = Greedy.minimumExtraVehiclesNeeded(
+                unservicedCustomersDemands, this.remainedCapacity, maximumCapacity
+        );
+
+        return extraVehiclesNeeded;
     }
 
     /**
@@ -309,20 +366,6 @@ public class BBNode {
         if (this.vertex.type != VertexType.DEPOT)
             return this.vertex.neighbours.get(depotVertex);
         return 0;
-    }
-
-    /**
-     * @return array of unserviced customers demands
-     */
-    public Integer[] getUnservicedCustomersDemands() {
-        int numberOfUnservicedCustomers = GlobalVars.numberOfCustomers - this.numberOfServicedCustomers;
-        Integer[] unservicedCustomersDemands = new Integer[numberOfUnservicedCustomers];
-
-        for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
-            if (this.servicedNodes[i] == false) unservicedCustomersDemands[j++] = GlobalVars.customerDemands[i];
-        }
-
-        return unservicedCustomersDemands;
     }
 
     /**
