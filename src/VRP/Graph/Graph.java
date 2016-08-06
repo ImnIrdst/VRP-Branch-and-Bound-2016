@@ -43,7 +43,9 @@ public class Graph {
         try {
             // read file
             FileInputStream file = new FileInputStream(new File(path));
-            Scanner sc = new Scanner(file); sc.nextLine(); sc.nextLine();
+            Scanner sc = new Scanner(file);
+            sc.nextLine();
+            sc.nextLine();
 
             String[] tokens;
 
@@ -253,6 +255,18 @@ public class Graph {
         if (u.getId() == v.getId())
             return 0;
         return u.neighbours.get(v);
+    }
+
+    public Graph getCopy() {
+        Graph newGraph = new Graph();
+        for (Vertex u : this.getVertices()) {
+            for (Vertex v : this.getVertices()) {
+                newGraph.addVertex(new Vertex(u));
+                newGraph.addVertex(new Vertex(v));
+                newGraph.addEdge(new Edge(u.name, v.name, getDistance(u, v)));
+            }
+        }
+        return newGraph;
     }
 
     /**

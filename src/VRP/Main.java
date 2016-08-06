@@ -13,11 +13,11 @@ import java.io.FileNotFoundException;
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
-//        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-//                "resources/ISFNodes-10-Customers.csv",
-//                "resources/ISFRoads.csv"
-//        );
-        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
+        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+                "resources/ISF-08-Customers.csv",
+                "resources/ISFRoads.csv"
+        );
+//        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
 //        originalGraph.printGraph();
 
         // build the preprocessed graph
@@ -26,7 +26,7 @@ public class Main {
 
         // fill the global variables
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
-        preprocessedGraph.printGraph();
+        // preprocessedGraph.printGraph();
 
         // run the genetic algorithm
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
@@ -36,7 +36,7 @@ public class Main {
 
         // run the branch and bound algorithm
         GlobalVars.startTime = System.currentTimeMillis();
-        BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost());
+        BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
         branchAndBound.run(GlobalVars.depotName);
         GlobalVars.finishTime = System.currentTimeMillis();
         branchAndBound.printTheAnswer();

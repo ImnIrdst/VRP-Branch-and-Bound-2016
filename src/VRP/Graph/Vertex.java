@@ -15,7 +15,7 @@ public class Vertex {
     public Map<Vertex, Double> neighbours = new HashMap<>(); // an hash map contains neighbors of the nodes, maps the vertex to it's weight (HashMap used for optimal access in O(1))
 
     // if node is customer
-    public int customerId;          // id of the customer for using in branch and bound (filling servicedNodes boolean array)
+    public int id;          // id of the customer for using in branch and bound (filling servicedNodes boolean array)
     public int demand;              // Dc: demand of the customer
     public int capacity;            // Q: capacity of vehicle
     public int hasVehicle;          // Binary variable
@@ -52,11 +52,11 @@ public class Vertex {
      * constructor for customer
      */
     public Vertex(String name, VertexType type,
-                  int customerId, int demand, double serviceTime,
+                  int id, int demand, double serviceTime,
                   int hasVehicle, int capacity, double fixedCost, double mdt) {
         this.name = name;
         this.type = type;
-        this.customerId = customerId;
+        this.id = id;
         this.demand = demand;
         this.hasVehicle = hasVehicle;
         this.capacity = capacity;
@@ -80,7 +80,7 @@ public class Vertex {
         this.name = vertex.name;
         this.coords = vertex.coords;
         this.type = vertex.type;
-        this.customerId = vertex.customerId;
+        this.id = vertex.id;
         this.hasVehicle = vertex.hasVehicle;
         this.demand = vertex.demand;
         this.capacity = vertex.capacity;
@@ -97,7 +97,7 @@ public class Vertex {
     public static Vertex buildAVertexFromAttributeTableRow(String attributeTableRow) throws Exception {
         String[] features = attributeTableRow.split(",");
 
-        if (features.length < 10)
+        if (features.length < 12)
             throw new Exception("Reads " + features[0] + " Nodes Successfully!");
 
         Vertex vertex = new Vertex();
@@ -106,31 +106,44 @@ public class Vertex {
         String X = features[1];
         String Y = features[2];
         String NodeType = features[3];
-        String C_Demand = features[4];
-        String DueDate = features[5];
-        String Penalty = features[6];
-        String V_QTY = features[7];
+        String Demand = features[4];
+        String MDT = features[5];
+        String ServiceTime = features[6];
+        String HasVehicle = features[7];
         String V_FixCost = features[8];
         String V_Cap = features[9];
+        String DueDate = features[10];
+        String Penalty = features[11];
 
         vertex.name = OBJECT_ID;
         vertex.coords = X + "," + Y;
 
-        if (NodeType.equals("Depot")) vertex.type = VertexType.DEPOT;
-        else if (NodeType.equals("Customer")) vertex.type = VertexType.CUSTOMER;
-        else vertex.type = VertexType.ORDINARY;
+        switch (NodeType) {
+            case "Depot":
+                vertex.type = VertexType.DEPOT;
+                break;
+            case "Customer":
+                vertex.type = VertexType.CUSTOMER;
+                break;
+            default:
+                vertex.type = VertexType.ORDINARY;
+                break;
+        }
 
-        if (C_Demand.length() > 0) vertex.demand = Integer.parseInt(C_Demand);
-//        if (DueDate.length() > 0) vertex.dueDate = Double.parseDouble(DueDate);
-//        if (Penalty.length() > 0) vertex.penalty = Integer.parseInt(Penalty);
-//        if (V_QTY.length() > 0) vertex.numberOfVehicles = Integer.parseInt(V_QTY);
-//        if (V_FixCost.length() > 0) vertex.fixedCost = Double.parseDouble(V_FixCost);
-//        if (V_Cap.length() > 0) vertex.capacity = Integer.parseInt(V_Cap);
-        if (vertex.type == VertexType.CUSTOMER) vertex.customerId = GlobalVars.numberOfCustomers;
+        if (Demand.length() > 0) vertex.demand = Integer.parseInt(Demand);
+        if (MDT.length() > 0) vertex.mdt = Double.parseDouble(MDT);
+        if (ServiceTime.length() > 0) vertex.serviceTime = Double.parseDouble(ServiceTime);
+        if (HasVehicle.length() > 0) vertex.hasVehicle = Integer.parseInt(HasVehicle);
+        if (V_FixCost.length() > 0) vertex.fixedCost = Double.parseDouble(V_FixCost);
+        if (V_Cap.length() > 0) vertex.capacity = Integer.parseInt(V_Cap);
+        if (DueDate.length() > 0) vertex.dueDate = Double.parseDouble(DueDate);
+        if (Penalty.length() > 0) vertex.penalty = Integer.parseInt(Penalty);
+        if (vertex.type == VertexType.CUSTOMER) vertex.id = GlobalVars.numberOfCustomers;
 
-        // set the global depot name
+        // set the global variables
         if (vertex.type == VertexType.DEPOT) GlobalVars.depotName = vertex.name;
-        if (vertex.type == VertexType.CUSTOMER) GlobalVars.numberOfCustomers ++;
+        if (vertex.type == VertexType.CUSTOMER) GlobalVars.numberOfCustomers++;
+        if (vertex.type == VertexType.CUSTOMER && vertex.hasVehicle == 1) GlobalVars.numberOfVehicles++;
 
         return vertex;
     }
@@ -143,8 +156,8 @@ public class Vertex {
      * only must be used for Branch and Bound and after graph has been created.
      */
     public int getId() {
-        if (this.type == VertexType.CUSTOMER) return customerId;
-        if (this.type == VertexType.DEPOT) return GlobalVars.numberOfCustomers;
+        if (this.type == VertexType.CUSTOMER || this.type == VertexType.DEPOT)
+            return this.id;
         return -1;
     }
 

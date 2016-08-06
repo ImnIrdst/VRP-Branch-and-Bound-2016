@@ -4,7 +4,6 @@ import VRP.Algorithms.Other.CapacityCostPair;
 import VRP.Algorithms.Other.Greedy;
 import VRP.GlobalVars;
 import VRP.Graph.Edge;
-import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
 import VRP.Graph.VertexType;
 
@@ -18,16 +17,17 @@ import java.util.List;
  */
 public class BBNode {
     public Vertex vertex;          // current vertex of the graph
+    public BBNode parent;          // parent of the node in the BB tree
+
     public int vehicleUsed;        // number of vehicle used in this node
     public double vehicleUsageCost;
     public double curTimeElapsed;     // the time elapsed after moving the vehicle in current path
     public double maxTimeElapsed;     // the maximum time elapsed in all paths
-    public int remainedCapacity;   // remained goods in the car
     public double cumulativePenaltyTaken; // cumulative penalty taken in all nodes
     public double cumulativeTimeTaken; // cumulative time that all vehicles spend to serve the customers
+    public int remainedCapacity;   // remained goods in the car
     public boolean[] servicedNodes; // nodes that are serviced
     public int numberOfServicedCustomers; // for easily terminate the algorithm
-    public BBNode parent;          // parent of the node in the BB tree
 
     public double startTime;          // it's the time when vehicle starts moving
     public double arrivalTime;        // the moment that the vehicle reached to the node
@@ -43,6 +43,7 @@ public class BBNode {
     public BBNode(Vertex vertex, BBNode parent) {
         this.vertex = vertex;
         this.parent = parent;
+
         this.calculateVehicleUsed();
         this.calculateVehicleUsageCost();
         this.calculateCurTimeElapsed();
@@ -101,7 +102,7 @@ public class BBNode {
             this.curTimeElapsed = this.vertex.mdt;
 
         else if (parent.vertex.type == VertexType.CUSTOMER)
-            this.curTimeElapsed = parent.curTimeElapsed + GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
+            this.curTimeElapsed = parent.curTimeElapsed + GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
 
         calculateMaxTimeElapsed();
         if (this.vertex.type == VertexType.DEPOT) this.curTimeElapsed = 0;
@@ -128,8 +129,10 @@ public class BBNode {
         else if (this.vertex.type == VertexType.CUSTOMER
                 && this.parent.vertex.type == VertexType.DEPOT)
             this.remainedCapacity = this.vertex.capacity - this.vertex.demand;
+
         else if (this.vertex.type == VertexType.CUSTOMER)
             this.remainedCapacity = parent.remainedCapacity - this.vertex.demand;
+
         else
             this.remainedCapacity = parent.remainedCapacity;
     }
@@ -143,7 +146,7 @@ public class BBNode {
         else if (parent.vertex.type == VertexType.DEPOT)
             this.arrivalTime = this.vertex.mdt;
         else
-            this.arrivalTime = parent.arrivalTime + GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
+            this.arrivalTime = parent.arrivalTime + GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
     }
 
     /**
@@ -172,10 +175,12 @@ public class BBNode {
     public void calculateCumulativeTimeTaken() {
         if (parent == null)
             this.cumulativeTimeTaken = 0;
+
         else if (parent.vertex.type == VertexType.DEPOT)
-            this.cumulativeTimeTaken = parent.cumulativeTimeTaken;
+            this.cumulativeTimeTaken = parent.cumulativeTimeTaken + 0;
+
         else
-            this.cumulativeTimeTaken = parent.cumulativeTimeTaken + GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
+            this.cumulativeTimeTaken = parent.cumulativeTimeTaken + GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
     }
 
     /**
@@ -185,13 +190,14 @@ public class BBNode {
         if (parent == null) {
             this.numberOfServicedCustomers = 0;
             this.servicedNodes = new boolean[GlobalVars.numberOfCustomers];
+
         } else {
             this.servicedNodes = Arrays.copyOf(parent.servicedNodes, parent.servicedNodes.length);
             this.numberOfServicedCustomers = parent.numberOfServicedCustomers;
 
             if (this.vertex.type == VertexType.CUSTOMER) {
                 this.numberOfServicedCustomers++;
-                this.servicedNodes[this.vertex.customerId] = true;
+                this.servicedNodes[this.vertex.id] = true;
             }
         }
 
@@ -202,7 +208,7 @@ public class BBNode {
      */
     public void calculateParentStartTime() {
         if (parent != null && parent.vertex.type == VertexType.DEPOT)
-            parent.startTime = 0; // this.arrivalTime - GlobalVars.bbGraph.getDistance(parent.vertex, this.vertex);
+            parent.startTime = 0; // this.arrivalTime - GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
 
         // for finished nodes.
         if (parent != null && this.vertex.type == VertexType.DEPOT
@@ -210,22 +216,6 @@ public class BBNode {
             this.startTime = -1;
     }
 
-
-    /**
-     * @return cost of the node that we are there
-     */
-    public double getCost() {            // calculates branch and bound cost of the node
-        return cumulativeTimeTaken + cumulativePenaltyTaken + vehicleUsageCost;
-    }
-
-    /**
-     * Calculates lower bound for this node
-     *
-     * @return lower bound for this node
-     */
-    public double getLowerBound() {
-        return lowerBoundForVehicleCost + lowerBoundForTimeTaken + lowerBoundForPenaltyTaken;
-    }
 
     /**
      * calculates Lower Bound For Minimum Vehicle Usage Cost
@@ -240,7 +230,7 @@ public class BBNode {
         int sumOfCapacity = 0;
         for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
             if (this.servicedNodes[i] == false) {
-                Vertex v = GlobalVars.bbGraph.getVertexById(i);
+                Vertex v = GlobalVars.ppGraph.getVertexById(i);
                 unservicedCustomersDemands[j++] = v.demand;
                 sumOfDemands += v.demand;
 
@@ -266,8 +256,8 @@ public class BBNode {
         boolean[] markedNodes = new boolean[GlobalVars.numberOfCustomers];
 
         // for each extra needed vehicle peek an edge from depot an mark the end nodes
-        int extraVehiclesNeeded = getLowerBoundForNumberOfExtraVehiclesNeeded();
-        Vertex depotNode = GlobalVars.bbGraph.getVertexById(GlobalVars.depotId);
+        int extraVehiclesNeeded = getMinimumNumberOfExtraVehiclesNeeded();
+        Vertex depotNode = GlobalVars.ppGraph.getVertexById(GlobalVars.depotId);
 
         List<Edge> depotEdges = new ArrayList<>();
         for (Vertex v : depotNode.neighbours.keySet()) {
@@ -282,7 +272,7 @@ public class BBNode {
         }
 
         // for other nodes peek the minimum edges
-        for (Vertex v : GlobalVars.bbGraph.getCustomerVertices()) {
+        for (Vertex v : GlobalVars.ppGraph.getCustomerVertices()) {
             if (markedNodes[v.getId()] == false && this.servicedNodes[v.getId()] == false)
                 lowerBound += getMinimumEdgeWeightOfVertex(v);
         }
@@ -299,7 +289,7 @@ public class BBNode {
     public void calculateLowerBoundForPenaltyTaken() {
         if (this.vertex.type == VertexType.DEPOT) return;
 
-        Vertex depotVertex = GlobalVars.bbGraph.getVertexByName(GlobalVars.depotName);
+        Vertex depotVertex = GlobalVars.ppGraph.getVertexByName(GlobalVars.depotName);
         double lowestFinishTime = this.curTimeElapsed + this.getMinimumAdditionalTimeNeededToTheEndThePath();
 
         if (lowestFinishTime > depotVertex.dueDate)
@@ -308,51 +298,70 @@ public class BBNode {
             this.lowerBoundForPenaltyTaken = 0;
     }
 
+
     /**
-     * @return minimum number of extra vehicles needed to serve the remaining customers
+     * @return cost of the node that we are there
      */
-    public int getLowerBoundForNumberOfExtraVehiclesNeeded() {
-        int numberOfUnservicedCustomers = GlobalVars.numberOfCustomers - this.numberOfServicedCustomers;
-        Integer[] unservicedCustomersDemands = new Integer[numberOfUnservicedCustomers];
-
-        int sumOfDemands = 0;
-        int sumOfCapacity = 0;
-        int maximumCapacity = 0;
-        for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
-            if (this.servicedNodes[i] == false) {
-                Vertex v = GlobalVars.bbGraph.getVertexById(i);
-                unservicedCustomersDemands[j++] = v.demand;
-                sumOfDemands += v.demand;
-
-                if (v.hasVehicle == 1) {
-                    sumOfCapacity += v.capacity;
-                    maximumCapacity = Math.max(v.capacity, maximumCapacity);
-                }
-            }
-        }
-
-        if (sumOfCapacity + remainedCapacity < sumOfDemands)
-            return (int) GlobalVars.INF;
-
-        int extraVehiclesNeeded = Greedy.minimumExtraVehiclesNeeded(
-                unservicedCustomersDemands, this.remainedCapacity, maximumCapacity
-        );
-
-        return extraVehiclesNeeded;
+    public double getCost() {            // calculates branch and bound cost of the node
+        return cumulativeTimeTaken + cumulativePenaltyTaken + vehicleUsageCost;
     }
 
     /**
-     * @return minimum edge weight of a given vertex
+     * Calculates lower bound for this node
+     *
+     * @return lower bound for this node
      */
+    public double getLowerBound() {
+        return lowerBoundForVehicleCost + lowerBoundForTimeTaken + lowerBoundForPenaltyTaken;
+    }
+
+    // --------------   helper functions ---------------
+
+    /**
+     * @return minimum number of extra vehicles needed to serve the remaining customers
+     */
+    public int getMinimumNumberOfExtraVehiclesNeeded() {
+            int numberOfUnservicedCustomers = GlobalVars.numberOfCustomers - this.numberOfServicedCustomers;
+            Integer[] unservicedCustomersDemands = new Integer[numberOfUnservicedCustomers];
+
+            int sumOfDemands = 0;
+            int sumOfCapacity = 0;
+            int maximumCapacity = 0;
+            for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
+                if (this.servicedNodes[i] == false) {
+                    Vertex v = GlobalVars.ppGraph.getVertexById(i);
+                    unservicedCustomersDemands[j++] = v.demand;
+                    sumOfDemands += v.demand;
+
+                    if (v.hasVehicle == 1) {
+                        sumOfCapacity += v.capacity;
+                        maximumCapacity = Math.max(v.capacity, maximumCapacity);
+                    }
+                }
+            }
+
+            if (sumOfCapacity + remainedCapacity < sumOfDemands)
+                return (int) GlobalVars.INF;
+
+            int extraVehiclesNeeded = Greedy.minimumExtraVehiclesNeeded(
+                    unservicedCustomersDemands, this.remainedCapacity, maximumCapacity
+            );
+
+            return extraVehiclesNeeded;
+        }
+
+        /**
+         * @return minimum edge weight of a given vertex
+         */
     public double getMinimumEdgeWeightOfVertex(Vertex v) {
         double min = Integer.MAX_VALUE;
         for (Vertex u : v.neighbours.keySet()) {
             if (u.name.equals(v.name)) continue;
             if (!u.name.equals(this.vertex.name)
                     && u.type == VertexType.CUSTOMER
-                    && this.servicedNodes[u.customerId] == true) continue;
+                    && this.servicedNodes[u.id] == true) continue;
 
-            min = Math.min(min, GlobalVars.bbGraph.getDistance(u, v));
+            min = Math.min(min, GlobalVars.ppGraph.getDistance(u, v));
         }
         return min;
     }
@@ -361,12 +370,15 @@ public class BBNode {
      * @return minimum time needed to end this path
      */
     public double getMinimumAdditionalTimeNeededToTheEndThePath() {
-        Vertex depotVertex = GlobalVars.bbGraph.getVertexByName(GlobalVars.depotName);
+        Vertex depotVertex = GlobalVars.ppGraph.getVertexByName(GlobalVars.depotName);
 
         if (this.vertex.type != VertexType.DEPOT)
             return this.vertex.neighbours.get(depotVertex);
         return 0;
     }
+
+
+    // --------------   result printing functions ---------------
 
     /**
      * go up int the tree and print the path
@@ -388,28 +400,29 @@ public class BBNode {
                 + "Penalty Taken of all vehicles: " + String.format("%.2f", cumulativePenaltyTaken) + "\n"
                 + "Number of Vehicles Used: " + vehicleUsed + "\n"
                 + "Cumulative Vehicles Usage Cost: " + vehicleUsageCost + "\n"
-                + "Minimum Cost for the problem: " + String.format("%.2f", getCost());
+                + "Minimum Cost for the problem: " + String.format("%.8f", getCost());
     }
 
     /**
      * details of the node stat for the to string function
      */
     public String detailsForToString() {
-        return ", " + thisVertexPenalty + ", " + vertex.dueDate;
+        return String.format(", %.2f, %.2f, %d, %d, %d",
+                thisVertexPenalty, vertex.dueDate, vertex.demand, vertex.capacity, vertex.hasVehicle);
     }
 
     @Override
     public String toString() {
         if (vertex.type == VertexType.DEPOT && startTime == -1)
-            return vertex + " (" + arrivalTime + detailsForToString() + ")";
+            return vertex + " (" + String.format("%.2f", arrivalTime) + detailsForToString() + ")";
 
         else if (vertex.type == VertexType.DEPOT && arrivalTime == -1)
             return "";
 
         else if (vertex.type == VertexType.DEPOT)
-            return vertex + " (" + arrivalTime + detailsForToString() + ")" + "\n";
+            return vertex + " (" + String.format("%.2f", arrivalTime) + detailsForToString() + ")" + "\n";
 
-        return vertex + " (" + arrivalTime + detailsForToString() + ")";
+        return vertex + " (" + String.format("%.2f", arrivalTime) + detailsForToString() + ")";
     }
 
 }
@@ -417,9 +430,9 @@ public class BBNode {
 //-------------- Trash -------------
 //        ArrayList<Integer> edgeWeightsFromDepotToUnservicedCustomers = new ArrayList<>();
 //
-//        Vertex depotVertex = GlobalVars.bbGraph.adjacencyList.get(GlobalVars.depotName);
-//        for (Vertex u : GlobalVars.bbGraph.adjacencyList.values()) {
-//            if (u.type == VertexType.CUSTOMER && this.servicedNodes[u.customerId] == false) {
+//        Vertex depotVertex = GlobalVars.ppGraph.adjacencyList.get(GlobalVars.depotName);
+//        for (Vertex u : GlobalVars.ppGraph.adjacencyList.values()) {
+//            if (u.type == VertexType.CUSTOMER && this.servicedNodes[u.id] == false) {
 //                edgeWeightsFromDepotToUnservicedCustomers.add(depotVertex.neighbours.get(u));
 //                edgeWeightsFromDepotToUnservicedCustomers.add(u.neighbours.get(depotVertex));
 //            }
@@ -429,7 +442,7 @@ public class BBNode {
 //        }
 //        Collections.sort(edgeWeightsFromDepotToUnservicedCustomers);
 //
-//        int vehiclesNeeded = getLowerBoundForNumberOfExtraVehiclesNeeded();
+//        int vehiclesNeeded = getMinimumNumberOfExtraVehiclesNeeded();
 //        if (vehiclesNeeded * 2 > edgeWeightsFromDepotToUnservicedCustomers.size()) {
 //            System.out.println("There Is a Bug in BBNode.getMinimumAdditionalTimeNeededToTheEndThePath()!!!!!!!!!!!!!!!!!!!!!!!!");
 //            return Integer.MAX_VALUE / 2;

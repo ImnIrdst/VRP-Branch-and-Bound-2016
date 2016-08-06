@@ -29,12 +29,13 @@ public class BranchAndBound {
      *
      * @param graph a graph that has a Map<String, Vertex> adjacencyList
      */
-    public BranchAndBound(Graph graph, double minimumCost) {
+    public BranchAndBound(Graph graph, double upperBound) {
         this.graph = graph;
-        this.minimumCost = minimumCost;
-        GlobalVars.minimumValue = this.minimumCost;
+        this.minimumCost = upperBound;
+
         // fill the Global variables
-        GlobalVars.bbGraph = graph;
+        GlobalVars.ppGraph = graph;
+        GlobalVars.minimumValue = this.minimumCost;
 
         this.pq = new PriorityQueue<>(10, new Comparator<BBNode>() {
             @Override
@@ -54,6 +55,7 @@ public class BranchAndBound {
         System.out.println("--------------------------");
         System.out.println("Branch and bound algorithm");
         System.out.println("--------------------------");
+
         // add initial node
         Vertex depotVertex = graph.getVertexByName(depotName);
         pq.add(new BBNode(depotVertex, null));
@@ -61,41 +63,21 @@ public class BranchAndBound {
         // go down the tree
         while (!pq.isEmpty()) {
             BBNode u = pq.poll();
-            if (u.vertex.getId() == 1
-                    && u.parent != null && u.parent.vertex.getId() == 4
-                    && u.parent.parent != null && u.parent.parent.vertex.getId() == 2
-                    && u.parent.parent.parent != null && u.parent.parent.parent.vertex.getId() == 3)
-                u = u;
-
-            if (u.vertex.getId() == 4
-                    && u.parent != null && u.parent.vertex.getId() == 2
-                    && u.parent.parent != null && u.parent.parent.vertex.getId() == 3
-                    ) // && u.parent.parent.parent != null && u.parent.parent.parent.vertex.getId() == 3)
-                u = u;
-
-            if (u.vertex.getId() == 2
-                    && u.parent != null && u.parent.vertex.getId() == 3
-                    )//&& u.parent.parent != null && u.parent.parent.vertex.getId() == 3
-                    //&& u.parent.parent.parent != null && u.parent.parent.parent.vertex.getId() == 3)
-                u = u;
             if (canBePruned(u)) continue;
 
             for (Vertex v : u.vertex.neighbours.keySet()) {
-                if (v.type == VertexType.DEPOT          // never go from depot to depot
-                        && u.vertex.type == VertexType.DEPOT) continue;
 
+                if (v.id == u.vertex.id) continue;         // never go from node to itself
                 if (v.type == VertexType.DEPOT) {        // if you going to depot just go
                     addNodeToPriorityQueue(new BBNode(v, u)); continue;
                 }
 
                 if (u.vertex.type == VertexType.DEPOT
-                        && v.type == VertexType.CUSTOMER
-                        && v.hasVehicle == 0) continue;
+                        && v.type == VertexType.CUSTOMER && v.hasVehicle == 0) continue;
 
                 if (v.type == VertexType.CUSTOMER) {
                     // pruning criteria
-                    // if (u.remainedCapacity < v.demand) continue;   // check demand criterion
-                    if (u.servicedNodes[v.customerId] == true) continue; // check if this node serviced before
+                    if (u.servicedNodes[v.getId()] == true) continue; // check if this node serviced before
 
                     // make new node
                     BBNode newNode = new BBNode(v, u);
@@ -134,29 +116,17 @@ public class BranchAndBound {
      * @return true of node can be pruned from the tree
      */
     boolean canBePruned(BBNode newNode) {
+
         // if new node capacity is negative
         if (newNode.remainedCapacity < 0)
             return true;
 
         // if new Node so far cost is more than minimum cost
-        if (newNode.getCost() >= minimumCost)
-            return true;
-
-        // if number of vehicles used is more than we have
-        if (newNode.vehicleUsed > GlobalVars.numberOfVehicles)
-            return true;
-
-        // if can service remained customers with the remained vehicles
-        if (newNode.getLowerBoundForNumberOfExtraVehiclesNeeded() > GlobalVars.numberOfVehicles - newNode.vehicleUsed)
+        if (newNode.getCost() > minimumCost)
             return true;
 
         // check lower bound
-        if (newNode.getCost() + newNode.getLowerBound() >= minimumCost)
-            return true;
-
-        // if this node is a terminal node and not reducing the minimum answer throw it out.
-        if (newNode.vertex.type == VertexType.DEPOT
-                && newNode.numberOfServicedCustomers == GlobalVars.numberOfCustomers)
+        if (newNode.getCost() + newNode.getLowerBound() > minimumCost)
             return true;
 
         // else

@@ -17,7 +17,7 @@ public class Greedy {
      * @param otherVehiclesCapacity current vehicle remained capacity
      * @return how much extra vehicles needed to satisfy remained customers demand
      */
-    public static int minimumExtraVehicleUsageCostNeeded(
+    public static double minimumExtraVehicleUsageCostNeeded(
             Integer[] customerDemands, int currentVehicleCapacity, List<CapacityCostPair> otherVehiclesCapacity) {
 
         Arrays.sort(customerDemands, new Comparator<Integer>() {
@@ -29,10 +29,10 @@ public class Greedy {
 
 
         int capacityUsed = 0;
-        int maximumSatisfiedDemand = 0;
         boolean[] isCustomerServiced = new boolean[customerDemands.length];
         for (int i = 0; i < customerDemands.length; i++) {
             if (capacityUsed >= currentVehicleCapacity) break;
+
             if (capacityUsed + customerDemands[i] <= currentVehicleCapacity) {
                 capacityUsed += customerDemands[i];
                 isCustomerServiced[i] = true;
@@ -103,13 +103,13 @@ public class Greedy {
      * @param otherVehiclesCapacity current vehicle remained capacity
      * @return how much extra vehicles needed to satisfy remained customers demand
      */
-    private static int minimumVehicleUsageCostNeeded(
+    private static double minimumVehicleUsageCostNeeded(
             int sumOfCustomerDemands, List<CapacityCostPair> otherVehiclesCapacity) {
 
         Collections.sort(otherVehiclesCapacity);
 
         int i = 0;
-        int extraVehicleUsageCostNeeded = 0;
+        double extraVehicleUsageCostNeeded = 0;
         int remainedDemands = sumOfCustomerDemands;
         while (i < otherVehiclesCapacity.size()) {
             if (remainedDemands < otherVehiclesCapacity.get(i).capacity) break;

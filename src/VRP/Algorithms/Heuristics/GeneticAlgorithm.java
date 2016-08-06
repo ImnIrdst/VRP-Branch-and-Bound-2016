@@ -6,6 +6,7 @@ import VRP.Graph.Vertex;
 import VRP.Graph.VertexType;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * An Implementation of GA Algorithm used for
@@ -22,7 +23,12 @@ public class GeneticAlgorithm {
     private Chromosome bestChromosome;
     private List<Chromosome> population;
 
-    private final double MUTATION_PROBABILITY = 0.5;
+    private final boolean IS_VERBOSE = false;
+    private final double MUTATION_PROBABILITY = 0.005;
+
+    private int depotId;
+    private long printTimeStepSize;
+    private double INF;
 
     /**
      * Constructor Creates a population with given qty
@@ -34,6 +40,10 @@ public class GeneticAlgorithm {
         this.populationSize = populationSize;
         this.minimumCost = Double.MAX_VALUE;
         this.population = new ArrayList<>();
+
+        this.INF = GlobalVars.INF;
+        this.depotId = GlobalVars.depotId;
+        this.printTimeStepSize = GlobalVars.printTimeStepSize;
     }
 
     /**
@@ -42,12 +52,14 @@ public class GeneticAlgorithm {
      * @param computeDurationMilliSecond is how much time can be consumed
      */
     public void run(int computeDurationMilliSecond) {
-        System.out.println("--------------------------");
-        System.out.println("Genetic algorithm");
-        System.out.println("--------------------------");
+        if (IS_VERBOSE) {
+            System.out.println("--------------------------");
+            System.out.println("Genetic algorithm");
+            System.out.println("--------------------------");
+        }
 
         long startTime = System.currentTimeMillis();
-        long printTime = startTime + GlobalVars.printTimeStepSize;
+        long printTime = startTime + printTimeStepSize;
         initializePopulation(customerQty, vehicleQty);
 
         int iteration = 0;
@@ -67,14 +79,14 @@ public class GeneticAlgorithm {
             population = selection(newPopulation);
 
             // update best answer
-            if (population.get(0).getCost() < minimumCost){
+            if (population.get(0).getCost() < minimumCost) {
                 minimumCost = population.get(0).getCost();
                 bestChromosome = population.get(0);
             }
 
             // print the progress
-            if (System.currentTimeMillis() > printTime) {
-                printTime += GlobalVars.printTimeStepSize;
+            if (System.currentTimeMillis() > printTime && IS_VERBOSE) {
+                printTime += printTimeStepSize;
                 System.out.printf("Iteration #%d,\t\tTime elapsed: %.2fs,\t\tMinimum Cost: %.2f\n",
                         iteration, (System.currentTimeMillis() - startTime) / 1000., minimumCost);
             }
@@ -124,7 +136,7 @@ public class GeneticAlgorithm {
 
         int[] usedNodes = new int[customerQty + 1];
         for (int i = 0; i < customerQty; i++) usedNodes[i] = 1;
-        usedNodes[customerQty] = GlobalVars.numberOfVehicles - 1;
+        usedNodes[customerQty] = vehicleQty - 1;
 
         for (int i = 0; i < mid; i++) {
             newChromosome.add(chromosome1.get(i));
@@ -176,8 +188,8 @@ public class GeneticAlgorithm {
         return minimumCost;
     }
 
-    public void printBestChromosome(){
-        System.out.println("Best Chromosome: " + bestChromosome + ", " + minimumCost);
+    public void printBestChromosome() {
+        System.out.println("Best Chromosome: " + bestChromosome + ", " + String.format("%.8f", minimumCost));
     }
 
     public Chromosome getRandomChromosome(int size) {
@@ -187,7 +199,7 @@ public class GeneticAlgorithm {
             if (j < customerQty)
                 newChromosome.add(j);
             else
-                newChromosome.add(GlobalVars.depotId);
+                newChromosome.add(depotId);
         }
         Collections.shuffle(newChromosome.list); // shuffle to generate a random population
 
@@ -265,12 +277,34 @@ public class GeneticAlgorithm {
             double cumulativePenaltyTaken = 0;
 
             List<Integer> tmpList = new ArrayList<>(list);
-            tmpList.add(GlobalVars.depotId);
+            tmpList.add(depotId);
 
-            Vertex u = graph.getVertexById(GlobalVars.depotId);
+//            List<Integer> debugList = new ArrayList<>();
+//            debugList.add(7);
+//            debugList.add(6);
+//            debugList.add(3);
+//            debugList.add(2);
+//            debugList.add(8);
+//            debugList.add(0);
+//            debugList.add(5);
+//            debugList.add(4);
+//            debugList.add(8);
+//            debugList.add(1);
+//            debugList.add(8);
+//
+//            if (debugList.equals(tmpList))
+//                tmpList = tmpList;
+
+            Vertex u = graph.getVertexById(depotId);
             for (int i = 0; i < tmpList.size() - 1; i++) {
-                Vertex v = graph.getVertexById(tmpList.get(i));
-                if (u.getId() == v.getId()) continue;
+                Vertex v = null;
+                try {
+                    v = graph.getVertexById(tmpList.get(i));
+                    if (u.getId() == v.getId()) continue;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
 
                 if (u.type != VertexType.DEPOT) {
                     cumulativeTimeTaken += graph.getDistance(u, v);
@@ -278,7 +312,7 @@ public class GeneticAlgorithm {
                 }
 
                 if (u.type == VertexType.DEPOT && v.hasVehicle == 0)
-                    return GlobalVars.INF;
+                    return INF;
 
                 if (u.type == VertexType.DEPOT && v.hasVehicle == 1) {
                     remainedCapacity = v.capacity;
@@ -296,15 +330,15 @@ public class GeneticAlgorithm {
                 }
 
                 if (v.type == VertexType.DEPOT) {
-                    if (servicedCustomersQty == GlobalVars.numberOfCustomers)
+                    if (servicedCustomersQty == customerQty)
                         return vehiclesUsageCost + cumulativePenaltyTaken + cumulativeTimeTaken;
                 }
 
-                if (remainedCapacity < 0) return GlobalVars.INF;
+                if (remainedCapacity < 0) return INF;
 
                 u = v;
             }
-            return GlobalVars.INF;
+            return INF;
         }
 
         @Override

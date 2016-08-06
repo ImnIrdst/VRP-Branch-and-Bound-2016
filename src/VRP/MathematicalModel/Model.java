@@ -39,11 +39,11 @@ public class Model {
     }
 
     public static void ReadData() throws Exception {
-//        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-//                "resources/ISFNodes-08-Customers.csv",
-//                "resources/ISFRoads.csv"
-//        );
-        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
+        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+                "resources/ISF-08-Customers.csv",
+                "resources/ISFRoads.csv"
+        );
+//        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
 
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph preprocessedGraph = dijkstra.makeShortestPathGraph();
@@ -52,7 +52,7 @@ public class Model {
 
         t = preprocessedGraph.getAdjacencyMatrix();
         depotId = GlobalVars.depotId;
-        depot   = preprocessedGraph.getVertexById(depotId);
+        depot = preprocessedGraph.getVertexById(depotId);
         ppGraph = preprocessedGraph;
 
         nodesQty = GlobalVars.numberOfNodes;
@@ -60,7 +60,7 @@ public class Model {
         vehiclesQty = GlobalVars.numberOfVehicles;
 
         vehicleIds = new ArrayList<>();
-        for (Vertex v: ppGraph.getVertices()){
+        for (Vertex v : ppGraph.getVertices()) {
             if (v.hasVehicle == 1) vehicleIds.add(v.getId());
         }
     }
@@ -139,6 +139,16 @@ public class Model {
                 VRPD.addEq(x[i][i][k], 0.0);
             }
         }
+
+//        for (int k = 0; k < vehiclesQty; k++) {
+//            for (int i = 0; i < nodesQty; i++) {
+//                for (int j = 0; j < nodesQty; j++) {
+//                    if (i != depotId && j != depotId) {
+//                        VRPD.addEq(x[i][j][k], VRPD.diff(1, x[j][i][k]));
+//                    }
+//                }
+//            }
+//        }
     }
 
     //2: each node is visited exactly once (Except Depot)
@@ -170,8 +180,8 @@ public class Model {
             //3-2: if using vehicle k...
             VRPD.add(VRPD.ifThen(VRPD.eq(y[k], 1), VRPD.ge(expr2, 2)));
 
-            //3-3: if vehicle k has been used then the edge depot -> vehicle(k) is must be in the graph
-            VRPD.add(VRPD.ifThen(VRPD.eq(y[k], 1), VRPD.eq(x[depotId][getVehicle(k).getId()][k], 1)));
+//            //3-3: if vehicle k has been used then the edge depot -> vehicle(k) is must be in the graph
+//            VRPD.add(VRPD.ifThen(VRPD.eq(y[k], 1), VRPD.eq(x[depotId][getVehicle(k).getId()][k], 1)));
         }
     }
 
@@ -274,10 +284,10 @@ public class Model {
                 String pjkd = String.format("%.1f", VRPD.getValue(delta[k]) * depot.penalty);
 
                 System.out.print("Y" + k + " (" + yk + ", " + getVehicle(k).mdt
-                        + ", " + zjkd  + ", " + depot.dueDate + ", " + dk + ", " + pjkd + ")" + ",");
+                        + ", " + zjkd + ", " + depot.dueDate + ", " + dk + ", " + pjkd + ")" + ",");
                 if (yk == 0) System.out.println();
                 if (yk == 0) continue;
-                for (int i = nodesQty - 2; i >= 0; i--) {
+                for (int i = nodesQty - 1; i >= 0; i--) {
                     for (int j = nodesQty - 1; j >= 0; j--) {
 //                        long xijk = Math.round(VRPD.getValue(x[i][j][k]));
 //                        long zjk = Math.round(VRPD.getValue(z[j][k]));
@@ -308,7 +318,7 @@ public class Model {
         }
     }
 
-    public static Vertex getVehicle(int id){
+    public static Vertex getVehicle(int id) {
         return ppGraph.getVertexById(vehicleIds.get(id));
     }
 //    public static void WriteData() throws Exception {
