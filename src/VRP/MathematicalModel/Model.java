@@ -180,8 +180,8 @@ public class Model {
             //3-2: if using vehicle k...
             VRPD.add(VRPD.ifThen(VRPD.eq(y[k], 1), VRPD.ge(expr2, 2)));
 
-//            //3-3: if vehicle k has been used then the edge depot -> vehicle(k) is must be in the graph
-//            VRPD.add(VRPD.ifThen(VRPD.eq(y[k], 1), VRPD.eq(x[depotId][getVehicle(k).getId()][k], 1)));
+            //3-3: if vehicle k has been used then the edge depot -> vehicle(k) is must be in the graph
+            VRPD.add(VRPD.ifThen(VRPD.eq(y[k], 1), VRPD.eq(x[depotId][getVehicle(k).getId()][k], 1)));
         }
     }
 
@@ -275,7 +275,7 @@ public class Model {
             System.out.println("--------------------------------------------------------");
             System.out.println("Status = " + VRPD.getStatus());
             System.out.println("Objective Value = " + String.format("%.2f", VRPD.getObjValue()));
-
+            System.out.println("yk, mdt, zk, dd, delta, penalty");
             for (int k = 0; k < vehiclesQty; k++) {
                 long yk = Math.round(VRPD.getValue(y[k]));
                 double zk = (VRPD.getValue(z[k])) + getVehicle(k).mdt;
