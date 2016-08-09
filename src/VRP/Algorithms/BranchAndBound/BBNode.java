@@ -330,7 +330,6 @@ public class BBNode {
             for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
                 if (this.servicedNodes[i] == false) {
                     Vertex v = GlobalVars.ppGraph.getVertexById(i);
-                    unservicedCustomersDemands[j++] = v.demand;
                     sumOfDemands += v.demand;
 
                     if (v.hasVehicle == 1) {

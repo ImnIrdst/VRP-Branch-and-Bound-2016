@@ -17,7 +17,7 @@ public class Model {
     static IloCplex VRPD;                            // crew rostering problem
     static IloNumVar[][][] x;
     static IloNumVar[] y;
-    static IloNumVar[] z;
+    static IloNumVar[][] z;
     static IloNumVar[] delta;
 
     static int nodesQty;
@@ -40,7 +40,7 @@ public class Model {
 
     public static void ReadData() throws Exception {
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISF-08-Customers.csv",
+                "resources/ISF-09-03-Customers.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -48,7 +48,7 @@ public class Model {
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph preprocessedGraph = dijkstra.makeShortestPathGraph();
         GlobalVars.setTheGlobalVariables(preprocessedGraph); // fill the global variables
-        preprocessedGraph.printGraph();
+//        preprocessedGraph.printGraph();
 
         t = preprocessedGraph.getAdjacencyMatrix();
         depotId = GlobalVars.depotId;
@@ -63,6 +63,9 @@ public class Model {
         for (Vertex v : ppGraph.getVertices()) {
             if (v.hasVehicle == 1) vehicleIds.add(v.getId());
         }
+
+        System.out.println("customersQty " + customersQty);
+        System.out.println("vehicleQty: " + vehiclesQty);
     }
 
     public static void Create_Model() throws Exception {
@@ -98,9 +101,11 @@ public class Model {
             y[k] = VRPD.boolVar();
         }
 
-        z = new IloNumVar[vehiclesQty];
-        for (int k = 0; k < vehiclesQty; k++) {
-            z[k] = VRPD.numVar(0, Double.MAX_VALUE);
+        z = new IloNumVar[nodesQty][vehiclesQty];
+        for (int i=0 ; i<nodesQty ; i++) {
+            for (int k = 0; k < vehiclesQty; k++) {
+                z[i][k] = VRPD.numVar(0, Double.MAX_VALUE);
+            }
         }
 
         delta = new IloNumVar[vehiclesQty];
@@ -244,24 +249,29 @@ public class Model {
 
     // 8: arrival time to depot
     public static void addConstraint8() throws IloException {
+        // 8: arrival time to each customer
         for (int k = 0; k < vehiclesQty; k++) {
-            IloLinearNumExpr expr9 = VRPD.linearNumExpr();
             for (int i = 0; i < nodesQty; i++) {
                 for (int j = 0; j < nodesQty; j++) {
-                    if (i == depotId) continue;
-                    Vertex vj = ppGraph.getVertexById(j);
-                    expr9.addTerm(t[i][j] + vj.serviceTime, x[i][j][k]);
+                    if (i == j) continue;
+                    Vertex v = ppGraph.getVertexById(j);
+
+                    if (i == depotId)
+                        VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
+                                VRPD.ge(z[j][k], v.serviceTime + v.mdt)));
+                    else
+                        VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
+                                VRPD.ge(VRPD.diff(z[j][k], z[i][k]), (t[i][j] + v.serviceTime))));
                 }
             }
-            VRPD.addEq(z[k], expr9);
         }
     }
 
     // 9: depot delay
     public static void addConstraint9() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
-            VRPD.add(VRPD.ifThen(VRPD.ge(z[k], depot.dueDate - getVehicle(k).mdt),
-                    VRPD.eq(delta[k], VRPD.diff(z[k], depot.dueDate - getVehicle(k).mdt)))
+            VRPD.add(VRPD.ifThen(VRPD.ge(z[depotId][k], depot.dueDate),
+                    VRPD.eq(delta[k], VRPD.diff(z[depotId][k], depot.dueDate)))
             );
         }
     }
@@ -278,7 +288,7 @@ public class Model {
             System.out.println("yk, mdt, zk, dd, delta, penalty");
             for (int k = 0; k < vehiclesQty; k++) {
                 long yk = Math.round(VRPD.getValue(y[k]));
-                double zk = (VRPD.getValue(z[k])) + getVehicle(k).mdt;
+                double zk = (VRPD.getValue(z[depotId][k])) + getVehicle(k).mdt;
                 double dk = (VRPD.getValue(delta[k]));
                 String zjkd = String.format("%.1f", zk);
                 String pjkd = String.format("%.1f", VRPD.getValue(delta[k]) * depot.penalty);
