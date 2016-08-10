@@ -167,7 +167,7 @@ public class BranchAndBound {
      */
     public void printTheAnswer() {
         System.out.println();
-        System.out.println("Format -> VertexName (arrivalTime, thisVertexPenalty, dueDate)");
+        System.out.println("Format -> VertexName (arrivalTime, thisVertexPenalty, vertex.dueDate, vertex.demand, vertex.capacity, vertex.hasVehicle)");
         System.out.println(bestNode.getStringPath() + "\n");
         System.out.println(bestNode.getPrintCostDetailsString());
     }

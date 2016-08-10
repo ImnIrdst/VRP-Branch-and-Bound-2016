@@ -16,9 +16,9 @@ public class GreedyTest {
 
         vehiclesCapacity.add(new CapacityCostPair(6, 12));
         vehiclesCapacity.add(new CapacityCostPair(8, 16));
-        // vehiclesCapacity[2] = new CapacityCostPair(5, 0);
+        vehiclesCapacity.add(new CapacityCostPair(5, 0));
 
-        System.out.println(Greedy.minimumExtraVehicleUsageCostNeeded(customerDemands, 5, vehiclesCapacity));
-        System.out.println(Greedy.minimumExtraVehiclesNeeded(customerDemands, 5, 8));
+        System.out.println(Greedy.minimumExtraVehicleUsageCostNeeded(sumOfCustomersDemands, vehiclesCapacity));
+        System.out.println(Greedy.minimumExtraVehiclesNeeded(sumOfCustomersDemands, vehiclesCapacity));
     }
 }

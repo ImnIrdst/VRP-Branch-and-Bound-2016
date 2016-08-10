@@ -153,7 +153,7 @@ public class BBNode {
      * calculateThisVertexPenalty
      */
     public void calculateThisVertexPenalty() {
-        if (this.arrivalTime > this.vertex.dueDate)
+        if (this.arrivalTime > this.vertex.dueDate && this.vertex.type == VertexType.DEPOT)
             this.thisVertexPenalty = this.vertex.penalty * (this.arrivalTime - this.vertex.dueDate);
         else
             this.thisVertexPenalty = 0;
@@ -221,9 +221,6 @@ public class BBNode {
      * calculates Lower Bound For Minimum Vehicle Usage Cost
      */
     public void calculateLowerBoundForMinimumVehicleUsageCost() {
-        int numberOfUnservicedCustomers = GlobalVars.numberOfCustomers - this.numberOfServicedCustomers;
-
-        Integer[] unservicedCustomersDemands = new Integer[numberOfUnservicedCustomers];
         List<CapacityCostPair> vehicleCapacities = new ArrayList<>();
 
         int sumOfDemands = 0;
@@ -231,7 +228,6 @@ public class BBNode {
         for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
             if (this.servicedNodes[i] == false) {
                 Vertex v = GlobalVars.ppGraph.getVertexById(i);
-                unservicedCustomersDemands[j++] = v.demand;
                 sumOfDemands += v.demand;
 
                 if (v.hasVehicle == 1) {
@@ -240,12 +236,12 @@ public class BBNode {
                 }
             }
         }
+        vehicleCapacities.add(new CapacityCostPair(this.remainedCapacity, 0));
 
         if (sumOfCapacity + remainedCapacity < sumOfDemands)
             this.lowerBoundForVehicleCost = GlobalVars.INF;
         else
-            this.lowerBoundForVehicleCost = Greedy.minimumExtraVehicleUsageCostNeeded(
-                    unservicedCustomersDemands, remainedCapacity, vehicleCapacities);
+            this.lowerBoundForVehicleCost = Greedy.minimumExtraVehicleUsageCostNeeded(sumOfDemands, vehicleCapacities);
     }
 
     /**
@@ -312,6 +308,7 @@ public class BBNode {
      * @return lower bound for this node
      */
     public double getLowerBound() {
+//        return 0;
         return lowerBoundForVehicleCost + lowerBoundForTimeTaken + lowerBoundForPenaltyTaken;
     }
 
@@ -321,37 +318,37 @@ public class BBNode {
      * @return minimum number of extra vehicles needed to serve the remaining customers
      */
     public int getMinimumNumberOfExtraVehiclesNeeded() {
-            int numberOfUnservicedCustomers = GlobalVars.numberOfCustomers - this.numberOfServicedCustomers;
-            Integer[] unservicedCustomersDemands = new Integer[numberOfUnservicedCustomers];
+        List<CapacityCostPair> vehicleCapacities = new ArrayList<>();
 
-            int sumOfDemands = 0;
-            int sumOfCapacity = 0;
-            int maximumCapacity = 0;
-            for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
-                if (this.servicedNodes[i] == false) {
-                    Vertex v = GlobalVars.ppGraph.getVertexById(i);
-                    sumOfDemands += v.demand;
+        int sumOfDemands = 0;
+        int sumOfCapacity = 0;
+        int maximumCapacity = 0;
+        for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
+            if (this.servicedNodes[i] == false) {
+                Vertex v = GlobalVars.ppGraph.getVertexById(i);
+                sumOfDemands += v.demand;
 
-                    if (v.hasVehicle == 1) {
-                        sumOfCapacity += v.capacity;
-                        maximumCapacity = Math.max(v.capacity, maximumCapacity);
-                    }
+                if (v.hasVehicle == 1) {
+                    sumOfCapacity += v.capacity;
+                    vehicleCapacities.add(new CapacityCostPair(v.capacity, v.fixedCost));
+                    maximumCapacity = Math.max(v.capacity, maximumCapacity);
                 }
             }
-
-            if (sumOfCapacity + remainedCapacity < sumOfDemands)
-                return (int) GlobalVars.INF;
-
-            int extraVehiclesNeeded = Greedy.minimumExtraVehiclesNeeded(
-                    unservicedCustomersDemands, this.remainedCapacity, maximumCapacity
-            );
-
-            return extraVehiclesNeeded;
         }
 
-        /**
-         * @return minimum edge weight of a given vertex
-         */
+        vehicleCapacities.add(new CapacityCostPair(this.remainedCapacity, 0));
+
+        if (sumOfCapacity + remainedCapacity < sumOfDemands)
+            return (int) GlobalVars.INF;
+
+        int extraVehiclesNeeded = Greedy.minimumExtraVehiclesNeeded(sumOfDemands, vehicleCapacities);
+
+        return extraVehiclesNeeded;
+    }
+
+    /**
+     * @return minimum edge weight of a given vertex
+     */
     public double getMinimumEdgeWeightOfVertex(Vertex v) {
         double min = Integer.MAX_VALUE;
         for (Vertex u : v.neighbours.keySet()) {
@@ -399,7 +396,7 @@ public class BBNode {
                 + "Penalty Taken of all vehicles: " + String.format("%.2f", cumulativePenaltyTaken) + "\n"
                 + "Number of Vehicles Used: " + vehicleUsed + "\n"
                 + "Cumulative Vehicles Usage Cost: " + vehicleUsageCost + "\n"
-                + "Minimum Cost for the problem: " + String.format("%.8f", getCost());
+                + "Minimum Cost for the problem: " + String.format("%.2f", getCost());
     }
 
     /**

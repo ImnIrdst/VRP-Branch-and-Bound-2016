@@ -207,6 +207,13 @@ public class Graph {
         }
     }
 
+    public void printVertices(){
+        System.out.println("v.demand, v.hasVehicle, v.capacity, v.fixedCost");
+        for (Vertex v: getVertices()){
+            System.out.printf("%d\t%d\t%d\t%.2f\n", v.demand, v.hasVehicle, v.capacity, v.fixedCost);
+        }
+    }
+
     /**
      * @return the vertex with given name
      */
@@ -278,4 +285,5 @@ public class Graph {
 
         return "LINESTRING(" + u.getSpacedCoords() + ", " + v.getSpacedCoords() + ")";
     }
+
 }

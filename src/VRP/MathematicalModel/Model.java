@@ -40,7 +40,7 @@ public class Model {
 
     public static void ReadData() throws Exception {
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISF-09-03-Customers.csv",
+                "resources/ISF-10-05-Customers.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -258,10 +258,10 @@ public class Model {
 
                     if (i == depotId)
                         VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
-                                VRPD.ge(z[j][k], v.serviceTime + v.mdt)));
+                                VRPD.eq(z[j][k], v.serviceTime + v.mdt)));
                     else
                         VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
-                                VRPD.ge(VRPD.diff(z[j][k], z[i][k]), (t[i][j] + v.serviceTime))));
+                                VRPD.eq(VRPD.diff(z[j][k], z[i][k]), (t[i][j] + v.serviceTime))));
                 }
             }
         }
@@ -288,19 +288,20 @@ public class Model {
             System.out.println("yk, mdt, zk, dd, delta, penalty");
             for (int k = 0; k < vehiclesQty; k++) {
                 long yk = Math.round(VRPD.getValue(y[k]));
-                double zk = (VRPD.getValue(z[depotId][k])) + getVehicle(k).mdt;
+                double zk = (VRPD.getValue(z[depotId][k]));
                 double dk = (VRPD.getValue(delta[k]));
-                String zjkd = String.format("%.1f", zk);
+                String zjkd = String.format("%.2f", zk);
+                String dkd = String.format("%.2f", dk);
                 String pjkd = String.format("%.1f", VRPD.getValue(delta[k]) * depot.penalty);
 
                 System.out.print("Y" + k + " (" + yk + ", " + getVehicle(k).mdt
-                        + ", " + zjkd + ", " + depot.dueDate + ", " + dk + ", " + pjkd + ")" + ",");
+                        + ", " + zjkd + ", " + depot.dueDate + ", " + dkd + ", " + pjkd + ")" + ",");
                 if (yk == 0) System.out.println();
                 if (yk == 0) continue;
                 for (int i = nodesQty - 1; i >= 0; i--) {
                     for (int j = nodesQty - 1; j >= 0; j--) {
 //                        long xijk = Math.round(VRPD.getValue(x[i][j][k]));
-//                        long zjk = Math.round(VRPD.getValue(z[j][k]));
+                        double zjk = (VRPD.getValue(z[j][k]));
 //                        long djk = Math.round(VRPD.getValue(delta[j][k]))
                         double xijk = (VRPD.getValue(x[i][j][k]));
 
@@ -312,6 +313,7 @@ public class Model {
                                 + u
                                 + " -("
                                 + String.format("%.2f", ppGraph.getDistance(u, v))
+                                + String.format(", %.2f", zjk)
                                 + ")-> "
                                 + v + ","
                         );
@@ -321,6 +323,7 @@ public class Model {
             }
 
             System.out.println();
+            System.out.println("Number of Nodes: " + VRPD.getNnodes());
             System.out.println("Processing Time: " + (finishTime - startTime) / 1000. + " s");
         } else {
             System.out.println();
