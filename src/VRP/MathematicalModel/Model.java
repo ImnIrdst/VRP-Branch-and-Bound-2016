@@ -40,7 +40,7 @@ public class Model {
 
     public static void ReadData() throws Exception {
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISF-10-05-Customers.csv",
+                "resources/ISF-07-07-Customers.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -323,8 +323,9 @@ public class Model {
             }
 
             System.out.println();
-            System.out.println("Number of Nodes: " + VRPD.getNnodes());
-            System.out.println("Processing Time: " + (finishTime - startTime) / 1000. + " s");
+            VRPD.exportModel("Carpooling.lp");
+            System.out.println("Number of Nodes: " + VRPD.getNnodes64());
+            System.out.printf("Processing Time: %.2fs\n", (finishTime - startTime) / 1000.);
         } else {
             System.out.println();
             System.out.println("Can't be solved!!!!");
