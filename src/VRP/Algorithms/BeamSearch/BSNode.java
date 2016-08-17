@@ -1,4 +1,4 @@
-package VRP.Algorithms.BranchAndBound;
+package VRP.Algorithms.BeamSearch;
 
 import VRP.Algorithms.Other.CapacityCostPair;
 import VRP.Algorithms.Other.Greedy;
@@ -15,9 +15,9 @@ import java.util.List;
 /**
  * a node that used in branch and bound for VRP
  */
-public class BBNode {
+public class BSNode {
     public Vertex vertex;          // current vertex of the graph
-    public BBNode parent;          // parent of the node in the BBAutoTest tree
+    public BSNode parent;          // parent of the node in the BBAutoTest tree
 
     public int vehicleUsed;        // number of vehicle used in this node
     public double vehicleUsageCost;
@@ -40,7 +40,7 @@ public class BBNode {
     /**
      * constructor for the branch and bound node
      */
-    public BBNode(Vertex vertex, BBNode parent) {
+    public BSNode(Vertex vertex, BSNode parent) {
         this.vertex = vertex;
         this.parent = parent;
 
@@ -440,7 +440,7 @@ public class BBNode {
 //
 //        int vehiclesNeeded = getMinimumNumberOfExtraVehiclesNeeded();
 //        if (vehiclesNeeded * 2 > edgeWeightsFromDepotToUnservicedCustomers.size()) {
-//            System.out.println("There Is a Bug in BBNode.getMinimumAdditionalTimeNeededToTheEndThePath()!!!!!!!!!!!!!!!!!!!!!!!!");
+//            System.out.println("There Is a Bug in BSNode.getMinimumAdditionalTimeNeededToTheEndThePath()!!!!!!!!!!!!!!!!!!!!!!!!");
 //            return Integer.MAX_VALUE / 2;
 //        }
 //

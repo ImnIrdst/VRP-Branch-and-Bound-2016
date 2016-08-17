@@ -51,12 +51,10 @@ public class Vertex {
     /**
      * constructor for customer
      */
-    public Vertex(String name, VertexType type,
-                  int id, int demand, double serviceTime,
-                  int hasVehicle, int capacity, double fixedCost, double mdt) {
+    public Vertex(String name, VertexType type, int demand,
+                  double serviceTime, int hasVehicle, int capacity, double fixedCost, double mdt) {
         this.name = name;
         this.type = type;
-        this.id = id;
         this.demand = demand;
         this.hasVehicle = hasVehicle;
         this.capacity = capacity;
@@ -138,12 +136,6 @@ public class Vertex {
         if (V_Cap.length() > 0) vertex.capacity = Integer.parseInt(V_Cap);
         if (DueDate.length() > 0) vertex.dueDate = Double.parseDouble(DueDate);
         if (Penalty.length() > 0) vertex.penalty = Integer.parseInt(Penalty);
-        if (vertex.type == VertexType.CUSTOMER) vertex.id = GlobalVars.numberOfCustomers;
-
-        // set the global variables
-        if (vertex.type == VertexType.DEPOT) GlobalVars.depotName = vertex.name;
-        if (vertex.type == VertexType.CUSTOMER) GlobalVars.numberOfCustomers++;
-        if (vertex.type == VertexType.CUSTOMER && vertex.hasVehicle == 1) GlobalVars.numberOfVehicles++;
 
         return vertex;
     }

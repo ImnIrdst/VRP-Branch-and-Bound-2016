@@ -1,4 +1,4 @@
-package VRP.Algorithms.BranchAndBound;
+package VRP.Algorithms.BeamSearch;
 
 import VRP.Algorithms.Dijkstra.Dijkstra;
 import VRP.GlobalVars;
@@ -9,6 +9,8 @@ import VRP.Graph.VertexType;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
@@ -16,20 +18,25 @@ import java.util.PriorityQueue;
  * a branch and bound algorithm for
  * solving vehicle routing problem (VRP)
  */
-public class BranchAndBound {
+public class BeamSearch {
     private Graph graph;
 
     public double minimumCost;                // minimum cost we found
-    public BBNode bestNode;                   // best node we found
+    public BSNode bestNode;                   // best node we found
 
-    private PriorityQueue<BBNode> pq;         // use priority queue (min heap) for best first search
+    private PriorityQueue<BSNode> pq;         // use priority queue (min heap) for best first search
+    private ArrayList<BSNode> canBeAddedToPQ; // nodes that can be added to pq in each step
+
+    private double theta = 0.20;              // pruning probability
+    private double thetaStep = 0.1;           // step size for theta
+    private double updateTime = 1000;
 
     /**
      * constructor for a given graph
      *
      * @param graph a graph that has a Map<String, Vertex> adjacencyList
      */
-    public BranchAndBound(Graph graph, double upperBound) {
+    public BeamSearch(Graph graph, double upperBound) {
         this.graph = graph;
         this.minimumCost = upperBound;
 
@@ -37,9 +44,9 @@ public class BranchAndBound {
         GlobalVars.ppGraph = graph;
         GlobalVars.minimumValue = this.minimumCost;
 
-        this.pq = new PriorityQueue<>(10, new Comparator<BBNode>() {
+        this.pq = new PriorityQueue<>(10, new Comparator<BSNode>() {
             @Override
-            public int compare(BBNode u, BBNode v) {
+            public int compare(BSNode u, BSNode v) {
                 return Double.compare(u.getCost() + u.getLowerBound(), v.getCost() + v.getLowerBound());
             }
         });
@@ -58,18 +65,21 @@ public class BranchAndBound {
 
         // add initial node
         Vertex depotVertex = graph.getVertexByName(depotName);
-        pq.add(new BBNode(depotVertex, null));
+        pq.add(new BSNode(depotVertex, null));
+
+        long bsCheckPoint = System.currentTimeMillis();
 
         // go down the tree
         while (!pq.isEmpty()) {
-            BBNode u = pq.poll();
+            BSNode u = pq.poll();
             if (canBePruned(u)) continue;
-
+            canBeAddedToPQ = new ArrayList<>();
             for (Vertex v : u.vertex.neighbours.keySet()) {
 
                 if (v.id == u.vertex.id) continue;         // never go from node to itself
                 if (v.type == VertexType.DEPOT) {        // if you going to depot just go
-                    addNodeToPriorityQueue(new BBNode(v, u)); continue;
+                    addNodeToPriorityQueue(new BSNode(v, u));
+                    continue;
                 }
 
                 if (u.vertex.type == VertexType.DEPOT
@@ -80,10 +90,29 @@ public class BranchAndBound {
                     if (u.servicedNodes[v.getId()] == true) continue; // check if this node serviced before
 
                     // make new node
-                    BBNode newNode = new BBNode(v, u);
+                    BSNode newNode = new BSNode(v, u);
                     addNodeToPriorityQueue(newNode);
                 }
             }
+
+            Collections.sort(canBeAddedToPQ, new Comparator<BSNode>() {
+                @Override
+                public int compare(BSNode u, BSNode v) {
+                    return Double.compare(u.getCost() + u.getLowerBound(), v.getCost() + v.getLowerBound());
+                }
+            });
+
+            if (canBeAddedToPQ.size() < 1) continue;
+            for (int i = 0; i < Math.max(1, theta * (canBeAddedToPQ.size())); i++) {
+                pq.add(canBeAddedToPQ.get(i));
+            }
+
+            if (System.currentTimeMillis() - bsCheckPoint > updateTime) {
+                System.out.printf("Theta: %.2f, Minimum Cost: %.2f\n", theta, minimumCost);
+                theta -= (0.1) * thetaStep;
+                bsCheckPoint = System.currentTimeMillis();
+            }
+
         }
     }
 
@@ -92,7 +121,7 @@ public class BranchAndBound {
      *
      * @param newNode node that must be added to the pq.
      */
-    void addNodeToPriorityQueue(BBNode newNode) {
+    void addNodeToPriorityQueue(BSNode newNode) {
 
         // if this node is an answer
         if (newNode.vertex.type == VertexType.DEPOT
@@ -101,12 +130,14 @@ public class BranchAndBound {
             bestNode = newNode;
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;
+            theta -= thetaStep;
+            System.out.printf("Theta: %.2f, Minimum Cost: %.2f\n", theta, minimumCost);
             return;
         }
 
         // if this node is a intermediate node add it to the queue.
         if (!canBePruned(newNode)) {
-            pq.add(newNode);
+            canBeAddedToPQ.add(newNode);
             GlobalVars.numberOfBranchAndBoundNodes++;
         }
     }
@@ -115,7 +146,7 @@ public class BranchAndBound {
      * @param newNode: node that must be checked
      * @return true of node can be pruned from the tree
      */
-    boolean canBePruned(BBNode newNode) {
+    boolean canBePruned(BSNode newNode) {
 
         // if new node capacity is negative
         if (newNode.remainedCapacity < 0)
@@ -127,6 +158,10 @@ public class BranchAndBound {
 
         // check lower bound
         if (newNode.getCost() + newNode.getLowerBound() > minimumCost)
+            return true;
+
+        // check lower bound
+        if (newNode.getCost() + newNode.getLowerBound() > (theta * 10) * minimumCost)
             return true;
 
         // else

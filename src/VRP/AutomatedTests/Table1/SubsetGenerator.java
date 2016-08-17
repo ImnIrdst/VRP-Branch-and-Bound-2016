@@ -1,14 +1,13 @@
-package VRP;
+package VRP.AutomatedTests.Table1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.Random;
 
-public class InputSubsetGenerator {
-    private static int nTries = 10;
+public class SubsetGenerator {
+    private static int nTries = 20;
     private static int nNodes = 20;
     private static int nVehicles = 0;
 
@@ -66,7 +65,7 @@ public class InputSubsetGenerator {
             }
         }
 
-        out.println("nNodes,nCustomers,nVehicles,customers,vehicles");
+        out.println("Id,nNodes,nCustomers,nVehicles,customers,vehicles");
         int remainedTries = totalTries;
         while (remainedTries > 0) {
             int customersBitSet = getRand();
@@ -80,7 +79,7 @@ public class InputSubsetGenerator {
             needs[cc][vc]--;
             remainedTries--;
 
-            out.printf("%d,%d,%d,%d,%d\n", nNodes, cc, vc, customersBitSet, vehiclesBitSet);
+            out.printf("%d,%d,%d,%d,%d,%d\n", totalTries - remainedTries, nNodes, cc, vc, customersBitSet, vehiclesBitSet);
         }
 
         out.close();

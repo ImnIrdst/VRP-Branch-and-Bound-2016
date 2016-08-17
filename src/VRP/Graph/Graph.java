@@ -51,8 +51,7 @@ public class Graph {
 
             // read depot Info
             tokens = sc.nextLine().split(",");
-            GlobalVars.depotName = "Depot"; // fill the global variables
-            graph.addVertex(new Vertex(GlobalVars.depotName, VertexType.DEPOT,
+            graph.addVertex(new Vertex("Depot", VertexType.DEPOT,
                     Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1])));
 
 
@@ -60,20 +59,16 @@ public class Graph {
             int numberOfCustomers = Integer.parseInt(sc.nextLine().split(",")[1]);
             sc.nextLine(); // skip the line
 
-            int cId = 0;
-            GlobalVars.numberOfVehicles = 0;
             for (int i = 0; i < numberOfCustomers; i++) {
                 tokens = sc.nextLine().split(",");
                 Vertex newVertex = new Vertex(tokens[0],
-                        VertexType.CUSTOMER, cId++,
+                        VertexType.CUSTOMER,
                         Integer.parseInt(tokens[1]),
                         Double.parseDouble(tokens[2]),
                         Integer.parseInt(tokens[3]),
                         Integer.parseInt(tokens[4]),
                         Integer.parseInt(tokens[5]),
                         Double.parseDouble(tokens[6]));
-                if (newVertex.hasVehicle == 1)
-                    GlobalVars.numberOfVehicles++;
                 graph.addVertex(newVertex);
             }
 
@@ -99,6 +94,16 @@ public class Graph {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void setIds(){
+        int id = 0;
+        Vertex depotVertex = null;
+        for (Vertex v : getVertices()){
+            if (v.type == VertexType.CUSTOMER) v.id = id++;
+            if (v.type == VertexType.DEPOT) depotVertex = v;
+        }
+        depotVertex.id = id;
     }
 
     /**

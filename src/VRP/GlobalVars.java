@@ -2,6 +2,7 @@ package VRP;
 
 import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
+import VRP.Graph.VertexType;
 
 import java.io.FileNotFoundException;
 
@@ -23,14 +24,14 @@ public class GlobalVars {
     public static long startTime;
     public static long finishTime;
     public static long bbPrintTime;
-    public static long printTimeStepSize = 1000;
+    public static long printTimeStepSize = 1000000;
     public static double minimumValue;
 
     // finals
     public static final double INF = 1e9;
 
     // for reporting
-    public static int numberOfBranchAndBoundNodes = 1;
+    public static int numberOfBranchAndBoundNodes = 0;
 
 
     /**
@@ -39,13 +40,18 @@ public class GlobalVars {
      * @param bbGraph: the branch and bound graph
      */
     public static void setTheGlobalVariables(Graph bbGraph) throws FileNotFoundException {
-        Vertex depotVertex = bbGraph.getVertexByName(depotName);
+        GlobalVars.numberOfBranchAndBoundNodes = 0;
 
         GlobalVars.ppGraph = bbGraph;
         GlobalVars.numberOfNodes = bbGraph.getGraphSize();
         GlobalVars.numberOfCustomers = GlobalVars.numberOfNodes - 1;
-        depotVertex.id = GlobalVars.numberOfCustomers;
-        GlobalVars.depotId = depotVertex.getId();
+        GlobalVars.depotId = GlobalVars.numberOfCustomers;
+        Vertex depotVertex = bbGraph.getVertexById(depotId);
+        GlobalVars.depotName = depotVertex.name;
 
+        GlobalVars.numberOfVehicles = 0;
+        for (Vertex v : bbGraph.getVertices()) {
+            if (v.hasVehicle == 1) GlobalVars.numberOfVehicles++;
+        }
     }
 }

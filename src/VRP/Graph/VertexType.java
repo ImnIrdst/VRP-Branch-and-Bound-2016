@@ -6,5 +6,5 @@ package VRP.Graph;
 public enum VertexType {
     DEPOT,
     CUSTOMER,
-    ORDINARY
+    VertexType, ORDINARY
 }

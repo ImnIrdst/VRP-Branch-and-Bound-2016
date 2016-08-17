@@ -39,14 +39,16 @@ public class Model {
     }
 
     public static void ReadData() throws Exception {
-        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISF-20-Customers.csv",
-                "resources/ISFRoads.csv"
-        );
-//        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
+//        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+//                "resources/ISF-20-Customers.csv",
+//                "resources/ISFRoads.csv"
+//        );
+        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
 
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph preprocessedGraph = dijkstra.makeShortestPathGraph();
+
+        preprocessedGraph.setIds();
         GlobalVars.setTheGlobalVariables(preprocessedGraph); // fill the global variables
 //        preprocessedGraph.printGraph();
 
@@ -281,8 +283,6 @@ public class Model {
         long startTime = System.currentTimeMillis();
         if (VRPD.solve()) {
             long finishTime = System.currentTimeMillis();
-            System.out.println("--------------------------------------------------------");
-            System.out.println("--------------------------------------------------------");
             System.out.println("Status = " + VRPD.getStatus());
             System.out.println("Objective Value = " + String.format("%.2f", VRPD.getObjValue()));
             System.out.println("yk, mdt, zk, dd, delta, penalty");

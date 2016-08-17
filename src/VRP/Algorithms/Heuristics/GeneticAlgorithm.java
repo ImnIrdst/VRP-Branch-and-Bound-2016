@@ -23,7 +23,7 @@ public class GeneticAlgorithm {
     private Chromosome bestChromosome;
     private List<Chromosome> population;
 
-    private final boolean IS_VERBOSE = true;
+    private final boolean IS_VERBOSE = false;
     private final double MUTATION_PROBABILITY = 0.005;
 
     private int depotId;
