@@ -1,9 +1,15 @@
 # Todo
-- Add depot edges to lower bound
+- Correct input from attribute table
+- Implement Parallel GA
+- Add add demand greater capacity to can be prune
 - correct branch and bound exporting for carpooling
-- Use Vehicle needed to peek lowest time needed to go from depot and comeback.
 
 # Done
+- Add lower bounds.
+- Modify mathematical model for for new input and model
+- Modify branch and bound (without lower bounds)
+- Modify the Branch and bound algorithm for new input and model
+- Add depot edges to lower bound
 - correct GA algorithm for car pooling
 - correct input files for carpooling (remove customer penalty and due dates)
 - correct branch and bound for carpooling

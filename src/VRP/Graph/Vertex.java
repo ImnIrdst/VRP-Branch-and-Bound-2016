@@ -15,88 +15,52 @@ public class Vertex {
     public Map<Vertex, Double> neighbours = new HashMap<>(); // an hash map contains neighbors of the nodes, maps the vertex to it's weight (HashMap used for optimal access in O(1))
 
     // if node is customer
-    public int customerId;          // id of the customer for using in branch and bound (filling servicedNodes boolean array)
+    public int id;          // id of the customer for using in branch and bound (filling servicedNodes boolean array)
     public int demand;              // Dc: demand of the customer
-    public int penalty;             // Pc: penalty per minute of the customer for being late
-    public double dueDate;        // Ec: earliest time for delivery to the customer
+    public int capacity;            // Q: capacity of vehicle
+    public int hasVehicle;          // Binary variable
+    public double fixedCost;          // F: fix cost vehicle k
+    public double mdt;              // V: Minimum Departure Time
     public double serviceTime;         // Sc: time required for a car to service the customer
 
     // if node is depot
-    public int numberOfVehicles; // V: number of vehicles on the depot
-    public int capacity;  // Qv: capacity for the vehicle
-    public double fixedCost; // Fv: fixed cost for the vehicle
+    public int penalty;
+    public double dueDate;
 
     // these two attributes used for dijkstra algorithm
     public double distOnShortestPath; // distance from source node (in dijkstra)  to the this vertex (MAX_VALUE assumed to be infinity)
     public Vertex previousNodeOnShortestPath;     // previous node in shortest path to this node (in dijkstra)
 
     // constructors
-    public Vertex() {
-    }
+    public Vertex() {}
 
     public Vertex(String name) {
         this.name = name;
     }
 
     /**
-     * Copy constructor, not copies neighbors and dijkstra attributes
+     * constructor for depot
      */
-    public Vertex(Vertex vertex) {
-        this.name = vertex.name;
-        this.type = vertex.type;
-
-        this.customerId = vertex.customerId;
-        this.demand = vertex.demand;
-        this.penalty = vertex.penalty;
-        this.dueDate = vertex.dueDate;
-        this.serviceTime = vertex.serviceTime;
-
-        this.numberOfVehicles = vertex.numberOfVehicles;
-        this.fixedCost = vertex.fixedCost;
-        this.capacity = vertex.capacity;
-    }
-
-    public Vertex(String name, VertexType type, Map<Vertex, Double> neighbours, int customerId, int demand,
-                  int penalty, int dueDate, int serviceTime, int numberOfVehicles, int fixedCost, int capacity) {
+    public Vertex(String name, VertexType type, double dueDate, int penalty) {
         this.name = name;
-        this.type = type;
-        this.neighbours = neighbours;
-        this.customerId = customerId;
-        this.demand = demand;
-        this.penalty = penalty;
-        this.dueDate = dueDate;
-        this.serviceTime = serviceTime;
-        this.numberOfVehicles = numberOfVehicles;
-        this.fixedCost = fixedCost;
-        this.capacity = capacity;
-    }
-
-    /**
-     * constructor for customers for depot
-     */
-    public Vertex(String name, VertexType type, int numberOfVehicles,
-                  int fixedCost, int capacity, int dueDate, int penalty, boolean justForSeparatingConstructors) {
-        this.name = name;
-        this.fixedCost = fixedCost;
-        this.capacity = capacity;
-        this.numberOfVehicles = numberOfVehicles;
         this.type = type;
         this.dueDate = dueDate;
         this.penalty = penalty;
     }
 
     /**
-     * constructor for customers
+     * constructor for customer
      */
-    public Vertex(String name, VertexType type, int customerId,
-                  int demand, int penalty, int dueDate, int serviceTime) {
+    public Vertex(String name, VertexType type, int demand,
+                  double serviceTime, int hasVehicle, int capacity, double fixedCost, double mdt) {
         this.name = name;
         this.type = type;
         this.demand = demand;
-        this.penalty = penalty;
-        this.dueDate = dueDate;
+        this.hasVehicle = hasVehicle;
+        this.capacity = capacity;
+        this.fixedCost = fixedCost;
+        this.mdt = mdt;
         this.serviceTime = serviceTime;
-        this.customerId = customerId;
     }
 
     /**
@@ -108,12 +72,30 @@ public class Vertex {
     }
 
     /**
+     * Copy constructor, not copies neighbors and dijkstra attributes
+     */
+    public Vertex(Vertex vertex) {
+        this.name = vertex.name;
+        this.coords = vertex.coords;
+        this.type = vertex.type;
+        this.id = vertex.id;
+        this.hasVehicle = vertex.hasVehicle;
+        this.demand = vertex.demand;
+        this.capacity = vertex.capacity;
+        this.fixedCost = vertex.fixedCost;
+        this.mdt = vertex.mdt;
+        this.serviceTime = vertex.serviceTime;
+        this.penalty = vertex.penalty;
+        this.dueDate = vertex.dueDate;
+    }
+
+    /**
      * build a node from a attribute table row
      */
     public static Vertex buildAVertexFromAttributeTableRow(String attributeTableRow) throws Exception {
         String[] features = attributeTableRow.split(",");
 
-        if (features.length < 10)
+        if (features.length < 12)
             throw new Exception("Reads " + features[0] + " Nodes Successfully!");
 
         Vertex vertex = new Vertex();
@@ -122,31 +104,38 @@ public class Vertex {
         String X = features[1];
         String Y = features[2];
         String NodeType = features[3];
-        String C_Demand = features[4];
-        String DueDate = features[5];
-        String Penalty = features[6];
-        String V_QTY = features[7];
+        String Demand = features[4];
+        String MDT = features[5];
+        String ServiceTime = features[6];
+        String HasVehicle = features[7];
         String V_FixCost = features[8];
         String V_Cap = features[9];
+        String DueDate = features[10];
+        String Penalty = features[11];
 
         vertex.name = OBJECT_ID;
         vertex.coords = X + "," + Y;
 
-        if (NodeType.equals("Depot")) vertex.type = VertexType.DEPOT;
-        else if (NodeType.equals("Customer")) vertex.type = VertexType.CUSTOMER;
-        else vertex.type = VertexType.ORDINARY;
+        switch (NodeType) {
+            case "Depot":
+                vertex.type = VertexType.DEPOT;
+                break;
+            case "Customer":
+                vertex.type = VertexType.CUSTOMER;
+                break;
+            default:
+                vertex.type = VertexType.ORDINARY;
+                break;
+        }
 
-        if (C_Demand.length() > 0) vertex.demand = Integer.parseInt(C_Demand);
-        if (DueDate.length() > 0) vertex.dueDate = Double.parseDouble(DueDate);
-        if (Penalty.length() > 0) vertex.penalty = Integer.parseInt(Penalty);
-        if (V_QTY.length() > 0) vertex.numberOfVehicles = Integer.parseInt(V_QTY);
+        if (Demand.length() > 0) vertex.demand = Integer.parseInt(Demand);
+        if (MDT.length() > 0) vertex.mdt = Double.parseDouble(MDT);
+        if (ServiceTime.length() > 0) vertex.serviceTime = Double.parseDouble(ServiceTime);
+        if (HasVehicle.length() > 0) vertex.hasVehicle = Integer.parseInt(HasVehicle);
         if (V_FixCost.length() > 0) vertex.fixedCost = Double.parseDouble(V_FixCost);
         if (V_Cap.length() > 0) vertex.capacity = Integer.parseInt(V_Cap);
-        if (vertex.type == VertexType.CUSTOMER) vertex.customerId = GlobalVars.numberOfCustomers;
-
-        // set the global depot name
-        if (vertex.type == VertexType.DEPOT) GlobalVars.depotName = vertex.name;
-        if (vertex.type == VertexType.CUSTOMER) GlobalVars.numberOfCustomers ++;
+        if (DueDate.length() > 0) vertex.dueDate = Double.parseDouble(DueDate);
+        if (Penalty.length() > 0) vertex.penalty = Integer.parseInt(Penalty);
 
         return vertex;
     }
@@ -159,8 +148,8 @@ public class Vertex {
      * only must be used for Branch and Bound and after graph has been created.
      */
     public int getId() {
-        if (this.type == VertexType.CUSTOMER) return customerId;
-        if (this.type == VertexType.DEPOT) return GlobalVars.numberOfCustomers;
+        if (this.type == VertexType.CUSTOMER || this.type == VertexType.DEPOT)
+            return this.id;
         return -1;
     }
 
@@ -172,7 +161,6 @@ public class Vertex {
         String Y = coords.split(",")[1];
         return X + " " + Y;
     }
-
 
     /**
      * prints path recursively in the following format => vertexName(distance from source)
@@ -197,6 +185,6 @@ public class Vertex {
 
     @Override
     public String toString() {
-        return name;
+        return name + "[" + getId() + "]";
     }
 }

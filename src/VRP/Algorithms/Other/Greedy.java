@@ -1,9 +1,9 @@
 package VRP.Algorithms.Other;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Contains Greedy Algorithms
@@ -13,46 +13,56 @@ public class Greedy {
     /**
      * calculates how much extra vehicles needed to satisfy remained customers demand
      *
-     * @param customerDemands        array of remained customers demand
-     * @param currentVehicleCapacity current vehicle remained capacity
-     * @param otherVehiclesCapacity  other vehicles capacity
+     * @param sumOfCustomerDemands  summation of remained customers demand
+     * @param otherVehiclesCapacity current vehicle remained capacity
      * @return how much extra vehicles needed to satisfy remained customers demand
      */
-    public static int minimumExtraVehiclesNeeded(Integer[] customerDemands, int currentVehicleCapacity, int otherVehiclesCapacity) {
-        Arrays.sort(customerDemands, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                return o2.compareTo(o1);
-            }
-        });
+    public static double minimumExtraVehicleUsageCostNeeded(
+            int sumOfCustomerDemands, List<CapacityCostPair> otherVehiclesCapacity) {
 
-        int capacityUsed = 0;
-        int numberOfServiceCustomers = 0;
-        boolean[] isCustomerServiced = new boolean[customerDemands.length];
-        for (int i = 0; i < customerDemands.length; i++) {
-            if (isCustomerServiced[i] == true) continue;
-            if (capacityUsed >= currentVehicleCapacity) break;
-            if (capacityUsed + customerDemands[i] <= currentVehicleCapacity) {
-                capacityUsed += customerDemands[i];
-                numberOfServiceCustomers++;
-                isCustomerServiced[i] = true;
-            }
+
+        Collections.sort(otherVehiclesCapacity);
+
+        int i = 0;
+        double extraVehicleUsageCostNeeded = 0;
+        int remainedDemands = sumOfCustomerDemands;
+        while (i < otherVehiclesCapacity.size()) {
+            if (remainedDemands < otherVehiclesCapacity.get(i).capacity) break;
+
+            remainedDemands -= otherVehiclesCapacity.get(i).capacity;
+            extraVehicleUsageCostNeeded += otherVehiclesCapacity.get(i).fixedCost;
+            i++;
         }
+        if (i < otherVehiclesCapacity.size())
+            extraVehicleUsageCostNeeded += remainedDemands * otherVehiclesCapacity.get(i).unitCost();
 
-        int extraVehicleUsed = 0;
-        while (numberOfServiceCustomers < customerDemands.length) {
-            capacityUsed = 0;
+        return extraVehicleUsageCostNeeded;
+    }
+
+    /**
+     * calculates how much extra vehicles needed to satisfy remained customers demand
+     *
+     * @param sumOfCustomerDemands  summation of remained customers demand
+     * @param otherVehiclesCapacity current vehicle remained capacity
+     * @return how much extra vehicles needed to satisfy remained customers demand
+     */
+    public static int minimumExtraVehiclesNeeded(
+            int sumOfCustomerDemands, List<CapacityCostPair> otherVehiclesCapacity) {
+
+        Collections.sort(otherVehiclesCapacity);
+
+        int i = 0;
+        int extraVehicleUsed = -1;
+        int remainedDemands = sumOfCustomerDemands;
+        while (i < otherVehiclesCapacity.size()) {
+            if (remainedDemands < otherVehiclesCapacity.get(i).capacity) break;
+
+            remainedDemands -= otherVehiclesCapacity.get(i).capacity;
+            i++; extraVehicleUsed++;
+        }
+        if (i < otherVehiclesCapacity.size() && remainedDemands > 0)
             extraVehicleUsed++;
-            for (int i = 0; i < customerDemands.length; i++) {
-                if (isCustomerServiced[i] == true) continue;
-                if (capacityUsed >= otherVehiclesCapacity) break;
-                if (capacityUsed + customerDemands[i] <= otherVehiclesCapacity) {
-                    capacityUsed += customerDemands[i];
-                    numberOfServiceCustomers++;
-                    isCustomerServiced[i] = true;
-                }
-            }
-        }
+
 
         return extraVehicleUsed;
     }

@@ -44,34 +44,31 @@ public class Graph {
             // read file
             FileInputStream file = new FileInputStream(new File(path));
             Scanner sc = new Scanner(file);
+            sc.nextLine();
+            sc.nextLine();
+
+            String[] tokens;
 
             // read depot Info
-            int numberOfVehicles = Integer.parseInt(sc.nextLine().split(",")[1]);
-            int fixedCostOfVehicle = Integer.parseInt(sc.nextLine().split(",")[1]);
-            int capacityOfVehicle = Integer.parseInt(sc.nextLine().split(",")[1]);
-            int depotDueDate = Integer.parseInt(sc.nextLine().split(",")[1]);
-            int depotPenalty = Integer.parseInt(sc.nextLine().split(",")[1]);
+            tokens = sc.nextLine().split(",");
+            graph.addVertex(new Vertex("Depot", VertexType.DEPOT,
+                    Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1])));
 
-            // fill the global variables
-            GlobalVars.depotName = "Depot";
-
-            graph.addVertex(new Vertex(GlobalVars.depotName, VertexType.DEPOT,
-                    numberOfVehicles, fixedCostOfVehicle, capacityOfVehicle, depotDueDate, depotPenalty, true));
 
             // read customers info
             int numberOfCustomers = Integer.parseInt(sc.nextLine().split(",")[1]);
             sc.nextLine(); // skip the line
 
-            int cId = 0;
             for (int i = 0; i < numberOfCustomers; i++) {
-                String[] tokens = sc.nextLine().split(",");
+                tokens = sc.nextLine().split(",");
                 Vertex newVertex = new Vertex(tokens[0],
-                        VertexType.CUSTOMER, cId++,
+                        VertexType.CUSTOMER,
                         Integer.parseInt(tokens[1]),
-                        Integer.parseInt(tokens[2]),
+                        Double.parseDouble(tokens[2]),
                         Integer.parseInt(tokens[3]),
-                        Integer.parseInt(tokens[4]));
-
+                        Integer.parseInt(tokens[4]),
+                        Integer.parseInt(tokens[5]),
+                        Double.parseDouble(tokens[6]));
                 graph.addVertex(newVertex);
             }
 
@@ -88,7 +85,7 @@ public class Graph {
             sc.nextLine(); // skip the line
 
             for (int i = 0; i < numberOfEdges; i++) {
-                String[] tokens = sc.nextLine().split(",");
+                tokens = sc.nextLine().split(",");
                 graph.addEdge(new Edge(tokens[0], tokens[1], Integer.parseInt(tokens[2])));
             }
 
@@ -97,6 +94,16 @@ public class Graph {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void setIds(){
+        int id = 0;
+        Vertex depotVertex = null;
+        for (Vertex v : getVertices()){
+            if (v.type == VertexType.CUSTOMER) v.id = id++;
+            if (v.type == VertexType.DEPOT) depotVertex = v;
+        }
+        depotVertex.id = id;
     }
 
     /**
@@ -180,7 +187,7 @@ public class Graph {
     /**
      * @return adjacencyMatrix of the graph
      */
-    public double[][] getTheAdjacencyMatrix() {
+    public double[][] getAdjacencyMatrix() {
         int numberOfNodes = this.getGraphSize();
         double[][] adjacencyMatrix = new double[numberOfNodes][numberOfNodes];
 
@@ -202,6 +209,13 @@ public class Graph {
             for (Vertex v : u.neighbours.keySet()) {
                 System.out.println(u + " -(" + u.neighbours.get(v) + ")-> " + v);
             }
+        }
+    }
+
+    public void printVertices(){
+        System.out.println("v.demand, v.hasVehicle, v.capacity, v.fixedCost");
+        for (Vertex v: getVertices()){
+            System.out.printf("%d\t%d\t%d\t%.2f\n", v.demand, v.hasVehicle, v.capacity, v.fixedCost);
         }
     }
 
@@ -255,6 +269,18 @@ public class Graph {
         return u.neighbours.get(v);
     }
 
+    public Graph getCopy() {
+        Graph newGraph = new Graph();
+        for (Vertex u : this.getVertices()) {
+            for (Vertex v : this.getVertices()) {
+                newGraph.addVertex(new Vertex(u));
+                newGraph.addVertex(new Vertex(v));
+                newGraph.addEdge(new Edge(u.name, v.name, getDistance(u, v)));
+            }
+        }
+        return newGraph;
+    }
+
     /**
      * @return a wtk string for the edge between to nodes in the graph
      */
@@ -264,4 +290,5 @@ public class Graph {
 
         return "LINESTRING(" + u.getSpacedCoords() + ", " + v.getSpacedCoords() + ")";
     }
+
 }

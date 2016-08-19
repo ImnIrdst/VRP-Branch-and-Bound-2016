@@ -1,8 +1,9 @@
-package VRP;
+package VRP.Algorithms.BeamSearch;
 
 import VRP.Algorithms.BranchAndBound.BranchAndBound;
 import VRP.Algorithms.Dijkstra.Dijkstra;
 import VRP.Algorithms.Heuristics.GeneticAlgorithm;
+import VRP.GlobalVars;
 import VRP.Graph.Graph;
 
 import java.io.FileNotFoundException;
@@ -10,11 +11,11 @@ import java.io.FileNotFoundException;
 /**
  * for running the algorithm
  */
-public class Main {
+public class BSMain {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-10-Customers.csv",
+                "C:\\Users\\IMN\\Desktop\\Projects\\VRP-Branch-and-Bound-2016\\resources\\Old\\ISF-20-Customers.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -34,7 +35,7 @@ public class Main {
         System.out.println("Number of Vehicles: " + GlobalVars.numberOfVehicles);
         // run the genetic algorithm
 
-        int geneticTime = 100;
+        int geneticTime = 0;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
         geneticAlgorithm.run(geneticTime);
@@ -42,13 +43,13 @@ public class Main {
 
         // run the branch and bound algorithm
         GlobalVars.startTime = System.currentTimeMillis();
-        BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
-        branchAndBound.run(GlobalVars.depotName);
+        BeamSearch beamSearch = new BeamSearch(preprocessedGraph, GlobalVars.INF); // geneticAlgorithm.getMinimumCost()
+        beamSearch.run(GlobalVars.depotName);
         GlobalVars.finishTime = System.currentTimeMillis();
-        branchAndBound.printTheAnswer();
+        beamSearch.printTheAnswer();
         
         // export the result
-        // branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
+        // beamSearch.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
 
         // print stats
         System.out.println();
