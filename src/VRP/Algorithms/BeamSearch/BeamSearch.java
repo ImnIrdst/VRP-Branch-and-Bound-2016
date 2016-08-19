@@ -27,9 +27,9 @@ public class BeamSearch {
     private PriorityQueue<BSNode> pq;         // use priority queue (min heap) for best first search
     private ArrayList<BSNode> canBeAddedToPQ; // nodes that can be added to pq in each step
 
-    private double theta = 0.20;              // pruning probability
+    private double theta = 0.10;              // pruning probability
     private double thetaStep = 0.1;           // step size for theta
-    private double updateTime = 1000;
+    private double updateTime = 500;
 
     /**
      * constructor for a given graph
@@ -109,7 +109,7 @@ public class BeamSearch {
 
             if (System.currentTimeMillis() - bsCheckPoint > updateTime) {
                 System.out.printf("Theta: %.2f, Minimum Cost: %.2f\n", theta, minimumCost);
-                theta -= (0.1) * thetaStep;
+                theta -= (0.1 * thetaStep) * theta;
                 bsCheckPoint = System.currentTimeMillis();
             }
 
@@ -130,7 +130,7 @@ public class BeamSearch {
             bestNode = newNode;
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;
-            theta -= thetaStep;
+            theta -= (thetaStep * theta);
             System.out.printf("Theta: %.2f, Minimum Cost: %.2f\n", theta, minimumCost);
             return;
         }
