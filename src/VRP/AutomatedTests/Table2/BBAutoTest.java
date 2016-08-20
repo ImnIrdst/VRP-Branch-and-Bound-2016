@@ -16,7 +16,7 @@ public class BBAutoTest {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-20-20-Customers.csv",
+                "/home/iman/Workspace/QGIS/Expriment2/ISFNodes-10-09-Ex2.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -26,6 +26,7 @@ public class BBAutoTest {
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph reducedGraph = dijkstra.makeShortestPathGraph();
         reducedGraph.setIds();
+//        reducedGraph.printGraph();
 
         FileInputStream fileInputStream = new FileInputStream(new File("resources/t2-input-subset.csv"));
         Scanner sc = new Scanner(fileInputStream);
@@ -41,6 +42,7 @@ public class BBAutoTest {
             Graph preprocessedGraph = reducedGraph.getCopy();
             Utils.modifyGraphByAutomatedInput(preprocessedGraph, autoTestRow);
 
+            int id = Integer.parseInt(autoTestRow.split(",")[0]);
             int fixCost = Integer.parseInt(autoTestRow.split(",")[6]);
             int penaltyCost = Integer.parseInt(autoTestRow.split(",")[7]);
 
@@ -50,21 +52,21 @@ public class BBAutoTest {
             // fill the global variables
             preprocessedGraph.setIds();
             GlobalVars.setTheGlobalVariables(preprocessedGraph);
-            preprocessedGraph.printVertices();
+//            preprocessedGraph.printVertices();
 //            preprocessedGraph.printGraph();
 
             System.out.println("Number of Customers, Vehicles: " +
                     GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
-            int geneticTime = 0;
+            int geneticTime = 1000;
 //            if (GlobalVars.numberOfCustomers == 11) geneticTime = 1000;
-            if (GlobalVars.numberOfCustomers == 12) geneticTime = 10000;
+//            if (GlobalVars.numberOfCustomers == 12) geneticTime = 10000;
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                     preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
             geneticAlgorithm.run(geneticTime);
-//            geneticAlgorithm.printBestChromosome();
+            geneticAlgorithm.printBestChromosome();
 
 
             String expandedNodes = "?";
@@ -80,8 +82,11 @@ public class BBAutoTest {
                 BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
                 branchAndBound.run(GlobalVars.depotName);
                 GlobalVars.finishTime = System.currentTimeMillis();
-                System.out.printf("Optimal Cost: %.2f\n", branchAndBound.bestNode.getCost());
+                branchAndBound.printTheAnswer();
+                branchAndBound.exportTheResultWTK(
+                        "/home/iman/Workspace/QGIS/IsfahanVRPResults/"+autoTestRow+",", dijkstra);
 
+                System.out.printf("Optimal Cost: %.2f\n", branchAndBound.bestNode.getCost());
                 optimalValue = String.format("%.2f", branchAndBound.minimumCost);
                 vehicleUsageCost = String.format("%.2f", branchAndBound.bestNode.cumulativePenaltyTaken);
                 totalVehicleDelays = String.format("%.2f", branchAndBound.bestNode.vehicleUsageCost);

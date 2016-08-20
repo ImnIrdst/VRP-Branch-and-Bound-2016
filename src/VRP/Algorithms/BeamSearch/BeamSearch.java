@@ -28,7 +28,8 @@ public class BeamSearch {
     private ArrayList<BSNode> canBeAddedToPQ; // nodes that can be added to pq in each step
 
     private double theta = 0.10;              // pruning probability
-    private double thetaStep = 0.1;           // step size for theta
+    private double delta2 = 0.1;           // step size for theta
+    private double delta1 = 0.01;
     private double updateTime = 500;
 
     /**
@@ -109,7 +110,8 @@ public class BeamSearch {
 
             if (System.currentTimeMillis() - bsCheckPoint > updateTime) {
                 System.out.printf("Theta: %.2f, Minimum Cost: %.2f\n", theta, minimumCost);
-                theta -= (0.1 * thetaStep) * theta;
+
+                theta -= delta2 * theta;
                 bsCheckPoint = System.currentTimeMillis();
             }
 
@@ -130,7 +132,7 @@ public class BeamSearch {
             bestNode = newNode;
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;
-            theta -= (thetaStep * theta);
+            theta -= (delta1 * theta);
             System.out.printf("Theta: %.2f, Minimum Cost: %.2f\n", theta, minimumCost);
             return;
         }

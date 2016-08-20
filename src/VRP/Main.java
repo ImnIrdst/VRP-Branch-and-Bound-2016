@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-10-Customers.csv",
+                "/home/iman/Workspace/QGIS/Expriment2/ISFNodes-10-09-Ex2.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -28,7 +28,7 @@ public class Main {
         preprocessedGraph.setIds();
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
 //        preprocessedGraph.printVertices();
-//        preprocessedGraph.printGraph();
+        preprocessedGraph.printGraph();
 
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);
         System.out.println("Number of Vehicles: " + GlobalVars.numberOfVehicles);
@@ -48,7 +48,7 @@ public class Main {
         branchAndBound.printTheAnswer();
         
         // export the result
-        // branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
+         branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
 
         // print stats
         System.out.println();

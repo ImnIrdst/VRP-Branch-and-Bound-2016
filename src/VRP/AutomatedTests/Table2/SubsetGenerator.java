@@ -7,8 +7,8 @@ import java.io.PrintWriter;
 import java.util.Random;
 
 public class SubsetGenerator {
-    private static int nTries = 20;
-    private static int nNodes = 20;
+    private static int nTries = 2;
+    private static int nNodes = 11;
     private static int nVehicles = 0;
 
     public static void main(String[] args) throws FileNotFoundException {
@@ -19,7 +19,6 @@ public class SubsetGenerator {
         int[][] needs = new int[nNodes][nNodes];
 
         needs[10][9] = nTries;
-        needs[12][10] = nTries;
 
 
         int totalTries = 0;
@@ -51,7 +50,7 @@ public class SubsetGenerator {
             for (int fixCost:fixCosts) {
                 for (int penaltyCost: penaltyCosts) {
                     out.printf("%d,%d,%d,%d,%d,%d,%d,%d\n",
-                            totalTries - remainedTries, nNodes, cc, vc, customersBitSet, vehiclesBitSet, fixCost, penaltyCost);
+                            totalTries - remainedTries, nNodes-1, cc, vc, customersBitSet, vehiclesBitSet, fixCost, penaltyCost);
                 }
             }
 
@@ -88,7 +87,7 @@ public class SubsetGenerator {
 
     public static int getRand() {
         Random random = new Random();
-        return random.nextInt(1 << nNodes);
+        return random.nextInt(1 << (nNodes-1));
     }
 
 }

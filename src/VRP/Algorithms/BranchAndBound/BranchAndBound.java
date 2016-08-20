@@ -149,7 +149,7 @@ public class BranchAndBound {
 
             printWriter.println("OBJECTID;wrk");
             String[] routeNodes = routes[j].split("->");
-            for (int i = 0; i < routeNodes.length - 1; i++) {
+            for (int i = 1; i < routeNodes.length - 1; i++) {
                 String[] edgesWTKs = dijkstra.getTheShortestPathEdgesWTKStringBetweenTwoNodes(
                         routeNodes[i].trim().split(" ")[0], routeNodes[i + 1].trim().split(" ")[0]
                 ).split("\n");

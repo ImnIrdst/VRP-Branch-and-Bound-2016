@@ -1,6 +1,7 @@
-package VRP.AutomatedTests.Table1;
+package VRP.AutomatedTests.Table1.Cpex;
 
 import VRP.Algorithms.Dijkstra.Dijkstra;
+import VRP.AutomatedTests.Table1.Utils;
 import VRP.GlobalVars;
 import VRP.Graph.Graph;
 import VRP.Graph.Vertex;
@@ -46,7 +47,7 @@ public class CplexAutoTest {
 
     public static void ReadData() throws Exception {
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-20-20-Customers.csv",
+                "/home/iman/Workspace/QGIS/Expriment2/ISFNodes-10-09-Ex2.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");

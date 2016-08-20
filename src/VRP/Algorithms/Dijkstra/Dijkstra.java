@@ -112,8 +112,8 @@ public class Dijkstra {
     }
 
     public String getTheShortestPathEdgesWTKStringBetweenTwoNodes(String u, String v) {
-        this.run(u);
-        return getTheShortestPathEdgesWTKStringBetweenSourceAndTheNode(v);
+        this.run(u.split("\\p{Ps}")[0]);
+        return getTheShortestPathEdgesWTKStringBetweenSourceAndTheNode(v.split("\\p{Ps}")[0]);
     }
 
     /**

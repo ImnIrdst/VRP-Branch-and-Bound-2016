@@ -17,13 +17,14 @@ public class Utils {
         int fixCost = Integer.parseInt(subSetRow.split(",")[6]);
         int penaltyCost = Integer.parseInt(subSetRow.split(",")[7]);
 
-        graph.getVertexByName("764").penalty = penaltyCost; // depot vertex
+        Vertex depotVertex = graph.getVertexByName("1932");
+        depotVertex.penalty = penaltyCost; // depot vertex
 
         for (int i = 0; i < nNodes; i++) {
             Vertex v = graph.getVertexById(i);
-            System.out.print("Fix Cost " + v.fixedCost);
+//            System.out.print("Fix Cost " + v.fixedCost);
             v.fixedCost = fixCost;
-            System.out.println(" " + v.fixedCost);
+//            System.out.println(" " + v.fixedCost);
 
             if ((customers & (1 << i)) != 0)
                 v.type = VertexType.CUSTOMER;
