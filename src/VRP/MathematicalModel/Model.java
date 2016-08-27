@@ -321,9 +321,7 @@ public class Model {
                 }
                 System.out.println();
             }
-
             System.out.println();
-            VRPD.exportModel("Carpooling.lp");
             System.out.println("Number of Nodes: " + VRPD.getNnodes64());
             System.out.printf("Processing Time: %.2fs\n", (finishTime - startTime) / 1000.);
         } else {
@@ -335,21 +333,5 @@ public class Model {
     public static Vertex getVehicle(int id) {
         return ppGraph.getVertexById(vehicleIds.get(id));
     }
-//    public static void WriteData() throws Exception {
-//
-////            FileOutputStream object = new FileOutputStream("Output_Crew_Phase3_Crew Assignment_Depot.csv");
-////            PrintWriter DepotAssignment = new PrintWriter(object);
-////            DepotAssignment.println("Phase 3:"+ ","+ "Assignment of Pairings to Crew");
-////            DepotAssignment.println("Depot: " + ","+Pairings_SelectedDepot.get(0).Depot);
-////            DepotAssignment.println("Number of Pairings in the Depot: " + "," + Pairings_SelectedDepot.size());
-////            DepotAssignment.println("Number of Employees: "+ "," + Number_Employees);
-////            DepotAssignment.println("Computation Time: " + ","+ (End_ProcessTime - Start_ProcessTime) / 1000 + " Sec");
-////            DepotAssignment.println("," +"Pairing"+","+ "Depot" + "," + "Lable of Crew" +","+ "StartTime" + ","+"EndTime");
-////            for (int p = 0; p < Pairings_SelectedDepot.size(); p++) {
-////                DepotAssignment.println((p+1)+","+"Pairing "+Pairings_SelectedDepot.get(p).idOfPairing+","+Pairings_SelectedDepot.get(p).Depot+
-////                        ","+Pairings_SelectedDepot.get(p).Crew_AssignedPerson+","+Pairings_SelectedDepot.get(p).Starttime+","+Pairings_SelectedDepot.get(p).Endtime);
-////            }
-////            DepotAssignment.close();
-//    }
 }
 

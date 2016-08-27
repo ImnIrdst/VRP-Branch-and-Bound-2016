@@ -1,2 +1,2 @@
 # About
-A solution to Car Pooling Problem using Branch and Bound, Mathematical Model, Genetic Algorithm
+A solution to Supply Chain Scheduling Problem using Branch and Bound, Beam Search, Mathematical Model, Genetic Algorithm
