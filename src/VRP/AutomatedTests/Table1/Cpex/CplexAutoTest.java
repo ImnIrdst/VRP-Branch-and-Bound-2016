@@ -47,7 +47,7 @@ public class CplexAutoTest {
 
     public static void ReadData() throws Exception {
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "/home/iman/Workspace/QGIS/Expriment2/ISFNodes-10-09-Ex2.csv",
+                "resources/ISFNodes-10-09-Ex2.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -56,10 +56,10 @@ public class CplexAutoTest {
         Graph reducedGraph = dijkstra.makeShortestPathGraph();
         reducedGraph.setIds();
 
-        FileInputStream fileInputStream = new FileInputStream(new File("resources/automated-test-results-BB.csv"));
+        FileInputStream fileInputStream = new FileInputStream(new File("resources/t1-input-subset-01.csv"));
         Scanner sc = new Scanner(fileInputStream);
 
-        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/automated-test-results.csv"));
+        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/t1-automated-test-results-cplex-tmp.csv"));
         out = new PrintWriter(fileOutputStream);
         out.println(sc.nextLine() + ",CPLEXValue,CPLEXTime,CPLEXNodes,CPLEXStatus");
         out.flush();

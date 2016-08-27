@@ -24,7 +24,7 @@ public class GlobalVars {
     public static long startTime;
     public static long finishTime;
     public static long bbPrintTime;
-    public static long printTimeStepSize = 1000000;
+    public static long printTimeStepSize = 2000;
     public static double minimumValue;
 
     // finals

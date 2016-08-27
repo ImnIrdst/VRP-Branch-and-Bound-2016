@@ -60,14 +60,14 @@ public class BBNode {
         this.calculateLowerBoundForMinimumVehicleUsageCost();
         this.calculateLowerBoundForCumulativeTimeNeededForAllVehicles();
 
-//        long elapsedTime = System.currentTimeMillis() - GlobalVars.startTime;
-//
-//        if (elapsedTime > GlobalVars.bbPrintTime) {
-//            GlobalVars.bbPrintTime += GlobalVars.printTimeStepSize;
-//            System.out.printf("Time: %.1fs,\t\t", GlobalVars.bbPrintTime / 1000.);
-//            System.out.printf("Minimum value: %.2f,\t\t", GlobalVars.minimumValue);
-//            System.out.print("Nodes: " + GlobalVars.numberOfBranchAndBoundNodes + "\n");
-//        }
+        long elapsedTime = System.currentTimeMillis() - GlobalVars.startTime;
+
+        if (elapsedTime > GlobalVars.bbPrintTime) {
+            GlobalVars.bbPrintTime += GlobalVars.printTimeStepSize;
+            System.out.printf("Time: %.1fs,\t\t", GlobalVars.bbPrintTime / 1000.);
+            System.out.printf("Minimum value: %.2f,\t\t", GlobalVars.minimumValue);
+            System.out.print("Nodes: " + GlobalVars.numberOfBranchAndBoundNodes + "\n");
+        }
 
     }
 

@@ -9,10 +9,7 @@ import VRP.Graph.VertexType;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /**
  * a branch and bound algorithm for
@@ -24,31 +21,49 @@ public class BeamSearch {
     public double minimumCost;                // minimum cost we found
     public BSNode bestNode;                   // best node we found
 
+    //    private Stack<BSNode> stack;
     private PriorityQueue<BSNode> pq;         // use priority queue (min heap) for best first search
     private ArrayList<BSNode> canBeAddedToPQ; // nodes that can be added to pq in each step
 
     private double theta = 0.10;              // pruning probability
-    private double delta2 = 0.1;           // step size for theta
-    private double delta1 = 0.01;
-    private double updateTime = 500;
+//    private double delta1 = 0.01;              // for time
+    private double delta2 = 0.005;               // step size for theta
+    private double updateTime = 1000;
+
+    private double timeLimit;
+    private long lastUpdateCheckpoint = (long) 1e18;
+    private long startTime = 0;
 
     /**
      * constructor for a given graph
      *
      * @param graph a graph that has a Map<String, Vertex> adjacencyList
      */
-    public BeamSearch(Graph graph, double upperBound) {
+    public BeamSearch(Graph graph, double theta0, double upperBound) {
         this.graph = graph;
+        this.theta = theta0;
         this.minimumCost = upperBound;
+        this.startTime = System.currentTimeMillis();
+        this.timeLimit = Math.exp(theta*graph.getVertices().size()/8.) * 1000;
 
+        System.out.printf("%.2f", timeLimit/1000.);
+
+        System.out.println("Theta0: " + theta0);
         // fill the Global variables
         GlobalVars.ppGraph = graph;
         GlobalVars.minimumValue = this.minimumCost;
 
+
+//        this.stack = new Stack<>();
         this.pq = new PriorityQueue<>(10, new Comparator<BSNode>() {
             @Override
             public int compare(BSNode u, BSNode v) {
+                if (v.numberOfServicedCustomers != u.numberOfServicedCustomers)
+                    return Double.compare(v.numberOfServicedCustomers, u.numberOfServicedCustomers);
+//                if (u.cumulativePenaltyTaken != v.cumulativePenaltyTaken)
+//                    return Double.compare(u.cumulativePenaltyTaken, v.cumulativePenaltyTaken);
                 return Double.compare(u.getCost() + u.getLowerBound(), v.getCost() + v.getLowerBound());
+
             }
         });
     }
@@ -67,7 +82,6 @@ public class BeamSearch {
         // add initial node
         Vertex depotVertex = graph.getVertexByName(depotName);
         pq.add(new BSNode(depotVertex, null));
-
         long bsCheckPoint = System.currentTimeMillis();
 
         // go down the tree
@@ -99,20 +113,36 @@ public class BeamSearch {
             Collections.sort(canBeAddedToPQ, new Comparator<BSNode>() {
                 @Override
                 public int compare(BSNode u, BSNode v) {
-                    return Double.compare(u.getCost() + u.getLowerBound(), v.getCost() + v.getLowerBound());
+                    if (v.availableCapacity != u.availableCapacity)
+                        return Integer.compare(v.availableCapacity, u.availableCapacity);
+                    else if (v.remainedCapacity != u.remainedCapacity)
+                        return Integer.compare(v.remainedCapacity, u.remainedCapacity);
+                    else
+                        return Double.compare(u.getCost() + u.getLowerBound(), v.getCost() + v.getLowerBound());
                 }
             });
 
             if (canBeAddedToPQ.size() < 1) continue;
-            for (int i = 0; i < Math.max(1, theta * (canBeAddedToPQ.size())); i++) {
+
+            if (pq.size() > (int) 1e6)
+                pq.add(canBeAddedToPQ.get(0));
+            else for (int i = 0; i < Math.max(1, theta * (canBeAddedToPQ.size())); i++)
                 pq.add(canBeAddedToPQ.get(i));
-            }
 
             if (System.currentTimeMillis() - bsCheckPoint > updateTime) {
-                System.out.printf("Theta: %.2f, Minimum Cost: %.2f\n", theta, minimumCost);
-
-                theta -= delta2 * theta;
+//                theta = Math.min(1.0, theta + delta2);
                 bsCheckPoint = System.currentTimeMillis();
+                System.out.printf("Time: %.1fs, Theta: %.2f, Minimum Cost: %.2f, PQSize: %d, Nodes: %d ",
+                        (System.currentTimeMillis() - startTime) / 1000.0, theta, minimumCost, pq.size(), GlobalVars.numberOfBranchAndBoundNodes);
+                System.out.printf("Time Since Last Update: %.1f, Limit: %.1f\n",
+                        (System.currentTimeMillis() - lastUpdateCheckpoint) / 1000., timeLimit);
+                System.out.println(u.numberOfServicedCustomers / (double) u.servicedNodes.length);
+            }
+
+            if (System.currentTimeMillis() - lastUpdateCheckpoint > timeLimit) {
+                System.out.printf("Time Since Last Update: %.1f, Limit: %.1f",
+                        (System.currentTimeMillis() - lastUpdateCheckpoint) / 1000., timeLimit);
+                break;
             }
 
         }
@@ -132,8 +162,11 @@ public class BeamSearch {
             bestNode = newNode;
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;
-            theta -= (delta1 * theta);
-            System.out.printf("Theta: %.2f, Minimum Cost: %.2f\n", theta, minimumCost);
+            theta = Math.min(1.0, theta + delta2);
+            lastUpdateCheckpoint = System.currentTimeMillis();
+            System.out.printf("^^ Time: %.0fs, Theta: %.2f, Minimum Cost: %.2f, PQSize: %d, Nodes: %d\n",
+                    (System.currentTimeMillis() - startTime) / 1000.0, theta, minimumCost, pq.size(), GlobalVars.numberOfBranchAndBoundNodes);
+
             return;
         }
 
@@ -149,6 +182,11 @@ public class BeamSearch {
      * @return true of node can be pruned from the tree
      */
     boolean canBePruned(BSNode newNode) {
+//        Random random = new Random();
+//
+//        if (lastUpdateCheckpoint < (long)1e17 &&
+//                random.nextInt(100)/100. < newNode.numberOfServicedCustomers / (double)newNode.servicedNodes.length + 0.5)
+//            return true;
 
         // if new node capacity is negative
         if (newNode.remainedCapacity < 0)
@@ -163,7 +201,7 @@ public class BeamSearch {
             return true;
 
         // check lower bound
-        if (newNode.getCost() + newNode.getLowerBound() > (theta * 10) * minimumCost)
+        if (newNode.getCost() + newNode.getLowerBound() > Math.log10(2 + 10 * theta) * minimumCost)
             return true;
 
         // else

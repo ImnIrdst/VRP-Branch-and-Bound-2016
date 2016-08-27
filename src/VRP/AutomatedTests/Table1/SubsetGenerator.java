@@ -7,16 +7,23 @@ import java.io.PrintWriter;
 import java.util.Random;
 
 public class SubsetGenerator {
-    private static int nTries = 20;
-    private static int nNodes = 20;
+    private static int nTries = 10;
+    private static int nNodes = 10;
     private static int nVehicles = 0;
 
     public static void main(String[] args) throws FileNotFoundException {
-        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/input-subset.csv"));
+        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/t1-input-subset-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
 
 
-        int[][] needs = new int[nNodes][nNodes];
+        int[][] needs = new int[nNodes+1][nNodes+1];
+
+        needs[7][2] = nTries;
+        needs[7][3] = nTries;
+        needs[7][4] = nTries;
+        needs[7][5] = nTries;
+        needs[7][6] = nTries;
+        needs[7][7] = nTries;
 
         needs[8][2] = nTries;
         needs[8][3] = nTries;
@@ -33,6 +40,7 @@ public class SubsetGenerator {
         needs[9][6] = nTries;
         needs[9][7] = nTries;
         needs[9][8] = nTries;
+        needs[9][9] = nTries;
 
         needs[10][2] = nTries;
         needs[10][3] = nTries;
@@ -41,22 +49,9 @@ public class SubsetGenerator {
         needs[10][6] = nTries;
         needs[10][7] = nTries;
         needs[10][8] = nTries;
+        needs[10][9] = nTries;
+        needs[10][10] = 2;
 
-        needs[11][2] = nTries;
-        needs[11][3] = nTries;
-        needs[11][4] = nTries;
-        needs[11][5] = nTries;
-        needs[11][6] = nTries;
-        needs[11][7] = nTries;
-        needs[11][8] = nTries;
-
-        needs[12][2] = nTries;
-        needs[12][3] = nTries;
-        needs[12][4] = nTries;
-        needs[12][5] = nTries;
-        needs[12][6] = nTries;
-        needs[12][7] = nTries;
-        needs[12][8] = nTries;
 
         int totalTries = 0;
         for (int i = 0; i < nNodes; i++) {

@@ -15,7 +15,7 @@ public class BSMain {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "C:\\Users\\IMN\\Desktop\\Projects\\VRP-Branch-and-Bound-2016\\resources\\Old\\ISF-20-Customers.csv",
+                "resources/ISFNodes-20-20-Customers.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -43,7 +43,7 @@ public class BSMain {
 
         // run the branch and bound algorithm
         GlobalVars.startTime = System.currentTimeMillis();
-        BeamSearch beamSearch = new BeamSearch(preprocessedGraph, GlobalVars.INF); // geneticAlgorithm.getMinimumCost()
+        BeamSearch beamSearch = new BeamSearch(preprocessedGraph, 0.15, GlobalVars.INF); // geneticAlgorithm.getMinimumCost()
         beamSearch.run(GlobalVars.depotName);
         GlobalVars.finishTime = System.currentTimeMillis();
         beamSearch.printTheAnswer();

@@ -25,9 +25,11 @@ public class BSNode {
     public double maxTimeElapsed;     // the maximum time elapsed in all paths
     public double cumulativePenaltyTaken; // cumulative penalty taken in all nodes
     public double cumulativeTimeTaken; // cumulative time that all vehicles spend to serve the customers
-    public int remainedCapacity;   // remained goods in the car
     public boolean[] servicedNodes; // nodes that are serviced
     public int numberOfServicedCustomers; // for easily terminate the algorithm
+    public int remainedCapacity;   // remained goods in the car
+    public int availableCapacity;   // all unserviced customers vehicle capacity
+
 
     public double startTime;          // it's the time when vehicle starts moving
     public double arrivalTime;        // the moment that the vehicle reached to the node
@@ -48,12 +50,14 @@ public class BSNode {
         this.calculateVehicleUsageCost();
         this.calculateCurTimeElapsed();
         this.calculateMaxTimeElapsed();
+        this.calculateServicedNodes();
         this.calculateRemainedCapacity();
+        this.calculateAvailableVehiclesCapacity();
         this.calculateArrivalTime();
         this.calculateThisVertexPenalty();
         this.calculateCumulativePenaltyTaken();
         this.calculateCumulativeTimeTaken();
-        this.calculateServicedNodes();
+
         this.calculateParentStartTime();
 
         this.calculateLowerBoundForPenaltyTaken();
@@ -70,6 +74,7 @@ public class BSNode {
 //        }
 
     }
+
 
     /**
      * calculateVehicleUsed
@@ -121,10 +126,32 @@ public class BSNode {
     }
 
     /**
+     * calculateServicedNodes
+     */
+    public void calculateServicedNodes() {
+        if (parent == null) {
+            this.numberOfServicedCustomers = 0;
+            this.servicedNodes = new boolean[GlobalVars.numberOfCustomers];
+
+        } else {
+            this.servicedNodes = Arrays.copyOf(parent.servicedNodes, parent.servicedNodes.length);
+            this.numberOfServicedCustomers = parent.numberOfServicedCustomers;
+
+            if (this.vertex.type == VertexType.CUSTOMER) {
+                this.numberOfServicedCustomers++;
+                this.servicedNodes[this.vertex.id] = true;
+            }
+        }
+
+    }
+
+    /**
      * calculateRemainedCapacity
      */
     public void calculateRemainedCapacity() {
         if (parent == null)
+            this.remainedCapacity = 0;
+        else if (this.vertex.type == VertexType.DEPOT)
             this.remainedCapacity = 0;
         else if (this.vertex.type == VertexType.CUSTOMER
                 && this.parent.vertex.type == VertexType.DEPOT)
@@ -135,6 +162,19 @@ public class BSNode {
 
         else
             this.remainedCapacity = parent.remainedCapacity;
+    }
+
+    /**
+     * calculateAvailableVehiclesCapacity
+     */
+    private void calculateAvailableVehiclesCapacity() {
+        this.availableCapacity = this.remainedCapacity;
+        for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
+            if (this.servicedNodes[i] == false) {
+                Vertex v = GlobalVars.ppGraph.getVertexById(i);
+                if (v.hasVehicle == 1) this.availableCapacity += v.capacity;
+            }
+        }
     }
 
     /**
@@ -183,25 +223,7 @@ public class BSNode {
             this.cumulativeTimeTaken = parent.cumulativeTimeTaken + GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
     }
 
-    /**
-     * calculateServicedNodes
-     */
-    public void calculateServicedNodes() {
-        if (parent == null) {
-            this.numberOfServicedCustomers = 0;
-            this.servicedNodes = new boolean[GlobalVars.numberOfCustomers];
 
-        } else {
-            this.servicedNodes = Arrays.copyOf(parent.servicedNodes, parent.servicedNodes.length);
-            this.numberOfServicedCustomers = parent.numberOfServicedCustomers;
-
-            if (this.vertex.type == VertexType.CUSTOMER) {
-                this.numberOfServicedCustomers++;
-                this.servicedNodes[this.vertex.id] = true;
-            }
-        }
-
-    }
 
     /**
      * calculateParentStartTime
@@ -222,7 +244,6 @@ public class BSNode {
      */
     public void calculateLowerBoundForMinimumVehicleUsageCost() {
         List<CapacityCostPair> vehicleCapacities = new ArrayList<>();
-
         int sumOfDemands = 0;
         int sumOfCapacity = 0;
         for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {

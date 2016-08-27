@@ -1,5 +1,6 @@
-package VRP.AutomatedTests.Table1;
+package VRP.AutomatedTests.Table3;
 
+import VRP.Algorithms.BeamSearch.BeamSearch;
 import VRP.Algorithms.BranchAndBound.BranchAndBound;
 import VRP.Algorithms.Dijkstra.Dijkstra;
 import VRP.Algorithms.Heuristics.GeneticAlgorithm;
@@ -12,11 +13,11 @@ import java.util.Scanner;
 /**
  * for running the algorithm
  */
-public class BBAutoTest {
+public class BSAutoTest {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-10-09-Ex2.csv",
+                "resources/ISFNodes-52-Customers.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -27,16 +28,19 @@ public class BBAutoTest {
         Graph reducedGraph = dijkstra.makeShortestPathGraph();
         reducedGraph.setIds();
 
-        FileInputStream fileInputStream = new FileInputStream(new File("resources/t1-automated-test-results-cplex-01.csv"));
+        FileInputStream fileInputStream = new FileInputStream(new File("resources/Table3/t3-input-subset-03.csv"));
         Scanner sc = new Scanner(fileInputStream);
 
-        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/t1-automated-test-results-cplex-bb-tmp.csv"));
+        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/Table3/t3-automated-test-results-bs-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
         out.println(sc.nextLine() + ",BBValue,BBTime,BBNodes");
         out.flush();
 
         while (sc.hasNextLine()) {
             String autoTestRow = sc.nextLine();
+            System.out.println(autoTestRow);
+            String testType = autoTestRow.split(",")[4];
+            if (testType.equals("Exact")) continue;
 //            if (!autoTestRow.split(",")[9].equals("Optimal")){
 //                out.println(autoTestRow); continue;
 //            }
@@ -58,7 +62,7 @@ public class BBAutoTest {
 
             int geneticTime = 0;
 //            if (GlobalVars.numberOfCustomers == 11) geneticTime = 1000;
-            if (GlobalVars.numberOfCustomers == 12) geneticTime = 10000;
+//            if (GlobalVars.numberOfCustomers == 12) geneticTime = 10000;
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
@@ -74,22 +78,25 @@ public class BBAutoTest {
             GlobalVars.startTime = System.currentTimeMillis();
             try {
                 // run the branch and bound algorithm
-                BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
-                branchAndBound.run(GlobalVars.depotName);
+                GlobalVars.startTime = System.currentTimeMillis();
+                BeamSearch beamSearch = new BeamSearch(preprocessedGraph, Double.parseDouble(testType), GlobalVars.INF); // geneticAlgorithm.getMinimumCost()
+                beamSearch.run(GlobalVars.depotName);
                 GlobalVars.finishTime = System.currentTimeMillis();
-                System.out.printf("Optimal Cost: %.2f\n", branchAndBound.bestNode.getCost());
+                beamSearch.printTheAnswer();
 
-                optimalValue = String.format("%.2f", branchAndBound.minimumCost);
+                optimalValue = String.format("%.2f", beamSearch.minimumCost);
             } catch (NullPointerException e) {
                 optimalValue = "NA";
+                e.printStackTrace();
             } catch (OutOfMemoryError e) {
                 optimalValue = "ML";
+                e.printStackTrace();
             }
             GlobalVars.finishTime = System.currentTimeMillis();
             expandedNodes = "" + GlobalVars.numberOfBranchAndBoundNodes;
             elapsedTime = String.format("%.2f", (geneticTime + GlobalVars.finishTime - GlobalVars.startTime) / 1000.);
 
-            System.out.println(autoTestRow);
+
             System.out.println("Optimal Value: " + optimalValue);
             System.out.println("Total Calculation time: " + elapsedTime + "s");
             System.out.println("Number of Branch and Bound Tree Nodes: " + expandedNodes);

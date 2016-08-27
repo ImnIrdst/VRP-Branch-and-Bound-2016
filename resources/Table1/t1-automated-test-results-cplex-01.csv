@@ -1,0 +1,3 @@
+Id,nNodes,nCustomers,nVehicles,customers,vehicles,CPLEXValue,CPLEXTime,CPLEXNodes,CPLEXStatus
+1,10,9,4,1019,837,NA,0.06,?,?
+2,10,8,4,863,558,31.00,36.66,385962,Optimal
