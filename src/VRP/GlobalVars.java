@@ -13,6 +13,7 @@ public class GlobalVars {
 
     public static int depotId;
     public static String depotName;
+    public static Vertex depot;
 
     public static int numberOfVehicles = 0;
     public static int numberOfNodes = 0;
@@ -46,8 +47,8 @@ public class GlobalVars {
         GlobalVars.numberOfNodes = bbGraph.getGraphSize();
         GlobalVars.numberOfCustomers = GlobalVars.numberOfNodes - 1;
         GlobalVars.depotId = GlobalVars.numberOfCustomers;
-        Vertex depotVertex = bbGraph.getVertexById(depotId);
-        GlobalVars.depotName = depotVertex.name;
+        depot = bbGraph.getVertexById(depotId);
+        GlobalVars.depotName = depot.name;
 
         GlobalVars.numberOfVehicles = 0;
         for (Vertex v : bbGraph.getVertices()) {

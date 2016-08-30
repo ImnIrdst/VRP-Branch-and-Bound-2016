@@ -83,6 +83,9 @@ public class BBNode {
             this.vehicleUsed = parent.vehicleUsed;
     }
 
+    /**
+     * calculateVehicleUsageCost
+     */
     public void calculateVehicleUsageCost() {
         if (parent == null)
             vehicleUsageCost = 0;
