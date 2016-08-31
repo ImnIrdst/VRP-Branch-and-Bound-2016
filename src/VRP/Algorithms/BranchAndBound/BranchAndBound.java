@@ -73,7 +73,7 @@ public class BranchAndBound {
                 }
 
                 if (u.vertex.type == VertexType.DEPOT
-                        && v.type == VertexType.CUSTOMER && v.hasVehicle == 0) continue;
+                        && v.type == VertexType.CUSTOMER) continue;
 
                 if (v.type == VertexType.CUSTOMER) {
                     // pruning criteria

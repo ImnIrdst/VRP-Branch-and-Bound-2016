@@ -91,12 +91,11 @@ public class CplexAutoTest {
 
             nodesQty = GlobalVars.numberOfNodes;
             customersQty = GlobalVars.numberOfCustomers;
-            vehiclesQty = GlobalVars.numberOfVehicles;
 
-            vehicleIds = new ArrayList<>();
-            for (Vertex v : ppGraph.getVertices()) {
-                if (v.hasVehicle == 1) vehicleIds.add(v.getId());
-            }
+//            vehicleIds = new ArrayList<>();
+//            for (Vertex v : ppGraph.getVertices()) {
+//                if (v.hasVehicle == 1) vehicleIds.add(v.getId());
+//            }
             Create_Model();
             Solve_Model();
             VRPD.clearModel();
@@ -234,7 +233,7 @@ public class CplexAutoTest {
                 for (int j = 0; j < nodesQty; j++) {
                     if (j == depotId) continue;
                     Vertex vj = ppGraph.getVertexById(j);
-                    expr3.addTerm(vj.demand, x[i][j][k]);
+//                    expr3.addTerm(vj.demand, x[i][j][k]);
                 }
             }
 
@@ -292,12 +291,12 @@ public class CplexAutoTest {
                     if (i == j) continue;
                     Vertex v = ppGraph.getVertexById(j);
 
-                    if (i == depotId)
-                        VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
-                                VRPD.eq(z[j][k], v.serviceTime + v.mdt)));
-                    else
-                        VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
-                                VRPD.eq(VRPD.diff(z[j][k], z[i][k]), (t[i][j] + v.serviceTime))));
+//                    if (i == depotId)
+//                        VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
+//                                VRPD.eq(z[j][k], v.serviceTime + v.mdt)));
+//                    else
+//                        VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
+//                                VRPD.eq(VRPD.diff(z[j][k], z[i][k]), (t[i][j] + v.serviceTime))));
                 }
             }
         }

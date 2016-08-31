@@ -310,24 +310,24 @@ public class GeneticAlgorithm {
                     cumulativeTimeTaken += graph.getDistance(u, v);
                     timeElapsedOnThisPath += graph.getDistance(u, v);
                 }
-
-                if (u.type == VertexType.DEPOT && v.hasVehicle == 0)
-                    return INF;
-
-                if (u.type == VertexType.DEPOT && v.hasVehicle == 1) {
-                    remainedCapacity = v.capacity;
-                    vehiclesUsageCost += v.fixedCost;
-                    timeElapsedOnThisPath = v.mdt;
-                }
+//
+//                if (u.type == VertexType.DEPOT && v.hasVehicle == 0)
+//                    return INF;
+//
+//                if (u.type == VertexType.DEPOT && v.hasVehicle == 1) {
+//                    remainedCapacity = v.capacity;
+//                    vehiclesUsageCost += v.fixedCost;
+////                    timeElapsedOnThisPath = v.mdt;
+//                }
 
                 if (v.type == VertexType.DEPOT && timeElapsedOnThisPath > v.dueDate) {
                     cumulativePenaltyTaken += (timeElapsedOnThisPath - v.dueDate) * v.penalty;
                 }
 
-                if (v.type == VertexType.CUSTOMER) {
-                    servicedCustomersQty++;
-                    remainedCapacity -= v.demand;
-                }
+//                if (v.type == VertexType.CUSTOMER) {
+//                    servicedCustomersQty++;
+//                    remainedCapacity -= v.demand;
+//                }
 
                 if (v.type == VertexType.DEPOT) {
                     if (servicedCustomersQty == customerQty)

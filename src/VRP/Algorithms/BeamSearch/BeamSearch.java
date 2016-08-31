@@ -1,5 +1,6 @@
 package VRP.Algorithms.BeamSearch;
 
+import VRP.Algorithms.BranchAndBound.BSNode;
 import VRP.Algorithms.Dijkstra.Dijkstra;
 import VRP.GlobalVars;
 import VRP.Graph.Graph;
@@ -98,7 +99,7 @@ public class BeamSearch {
                 }
 
                 if (u.vertex.type == VertexType.DEPOT
-                        && v.type == VertexType.CUSTOMER && v.hasVehicle == 0) continue;
+                        && v.type == VertexType.CUSTOMER) continue;
 
                 if (v.type == VertexType.CUSTOMER) {
                     // pruning criteria
@@ -113,9 +114,10 @@ public class BeamSearch {
             Collections.sort(canBeAddedToPQ, new Comparator<BSNode>() {
                 @Override
                 public int compare(BSNode u, BSNode v) {
-                    if (v.availableCapacity != u.availableCapacity)
-                        return Integer.compare(v.availableCapacity, u.availableCapacity);
-                    else if (v.remainedCapacity != u.remainedCapacity)
+//                    if (v.availableCapacity != u.availableCapacity)
+//                        return Integer.compare(v.availableCapacity, u.availableCapacity);
+//                    else
+                    if (v.remainedCapacity != u.remainedCapacity)
                         return Integer.compare(v.remainedCapacity, u.remainedCapacity);
                     else
                         return Double.compare(u.getCost() + u.getLowerBound(), v.getCost() + v.getLowerBound());

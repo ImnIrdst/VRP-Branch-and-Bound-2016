@@ -16,20 +16,20 @@ public class Vertex {
 
     // if node is customer
     public int id;          // id of the customer for using in branch and bound (filling servicedNodes boolean array)
-    public int demand;              // Dc: demand of the customer
-    public int capacity;            // Q: capacity of vehicle
-    public int hasVehicle;          // Binary variable
-    public double fixedCost;          // F: fix cost vehicle k
-    public double mdt;              // V: Minimum Departure Time
-    public double serviceTime;         // Sc: time required for a car to service the customer
-
-    // if node is depot
     public int penalty;
     public double dueDate;
+    public double processTime;
+
+    // if node is depot
+    public int vehicleQty;          // number of vehicles
+    public int capacity;            // Q: capacity of vehicle
+    public double fixedCost;          // F: fix cost vehicle k
+
 
     // these two attributes used for dijkstra algorithm
     public double distOnShortestPath; // distance from source node (in dijkstra)  to the this vertex (MAX_VALUE assumed to be infinity)
     public Vertex previousNodeOnShortestPath;     // previous node in shortest path to this node (in dijkstra)
+
 
     // constructors
     public Vertex() {}
@@ -41,26 +41,23 @@ public class Vertex {
     /**
      * constructor for depot
      */
-    public Vertex(String name, VertexType type, double dueDate, int penalty) {
+    public Vertex(String name, VertexType type, double processTime, double dueDate, int penalty) {
         this.name = name;
         this.type = type;
         this.dueDate = dueDate;
         this.penalty = penalty;
+        this.processTime = processTime;
     }
 
     /**
-     * constructor for customer
+     * constructor for depot
      */
-    public Vertex(String name, VertexType type, int demand,
-                  double serviceTime, int hasVehicle, int capacity, double fixedCost, double mdt) {
+    public Vertex(String name, VertexType type, int vehicleQty, int capacity, double fixedCost) {
         this.name = name;
         this.type = type;
-        this.demand = demand;
-        this.hasVehicle = hasVehicle;
+        this.vehicleQty = vehicleQty;
         this.capacity = capacity;
         this.fixedCost = fixedCost;
-        this.mdt = mdt;
-        this.serviceTime = serviceTime;
     }
 
     /**
@@ -79,14 +76,12 @@ public class Vertex {
         this.coords = vertex.coords;
         this.type = vertex.type;
         this.id = vertex.id;
-        this.hasVehicle = vertex.hasVehicle;
-        this.demand = vertex.demand;
         this.capacity = vertex.capacity;
         this.fixedCost = vertex.fixedCost;
-        this.mdt = vertex.mdt;
-        this.serviceTime = vertex.serviceTime;
         this.penalty = vertex.penalty;
         this.dueDate = vertex.dueDate;
+        this.vehicleQty = vertex.vehicleQty;
+        this.processTime = vertex.processTime;
     }
 
     /**
@@ -95,7 +90,7 @@ public class Vertex {
     public static Vertex buildAVertexFromAttributeTableRow(String attributeTableRow) throws Exception {
         String[] features = attributeTableRow.split(",");
 
-        if (features.length < 12)
+        if (features.length < 11)
             throw new Exception("Reads " + features[0] + " Nodes Successfully!");
 
         Vertex vertex = new Vertex();
@@ -104,14 +99,12 @@ public class Vertex {
         String X = features[1];
         String Y = features[2];
         String NodeType = features[3];
-        String Demand = features[4];
-        String MDT = features[5];
-        String ServiceTime = features[6];
-        String HasVehicle = features[7];
-        String V_FixCost = features[8];
-        String V_Cap = features[9];
-        String DueDate = features[10];
-        String Penalty = features[11];
+        String V_Qty = features[4];
+        String V_FixCost = features[5];
+        String V_Cap = features[6];
+        String DueDate = features[7];
+        String Penalty = features[8];
+        String P_Time = features[9];
 
         vertex.name = OBJECT_ID;
         vertex.coords = X + "," + Y;
@@ -128,14 +121,12 @@ public class Vertex {
                 break;
         }
 
-        if (Demand.length() > 0) vertex.demand = Integer.parseInt(Demand);
-        if (MDT.length() > 0) vertex.mdt = Double.parseDouble(MDT);
-        if (ServiceTime.length() > 0) vertex.serviceTime = Double.parseDouble(ServiceTime);
-        if (HasVehicle.length() > 0) vertex.hasVehicle = Integer.parseInt(HasVehicle);
+        if (V_Qty.length() > 0 ) vertex.vehicleQty = Integer.parseInt(V_Qty);
         if (V_FixCost.length() > 0) vertex.fixedCost = Double.parseDouble(V_FixCost);
         if (V_Cap.length() > 0) vertex.capacity = Integer.parseInt(V_Cap);
         if (DueDate.length() > 0) vertex.dueDate = Double.parseDouble(DueDate);
         if (Penalty.length() > 0) vertex.penalty = Integer.parseInt(Penalty);
+        if (P_Time.length() > 0) vertex.processTime = Double.parseDouble(P_Time);
 
         return vertex;
     }

@@ -54,7 +54,7 @@ public class BBAutoTest {
 //            preprocessedGraph.printGraph();
 
             System.out.println("Number of Customers, Vehicles: " +
-                    GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
+                    GlobalVars.numberOfCustomers + " " + "-1");
 
             int geneticTime = 0;
 //            if (GlobalVars.numberOfCustomers == 11) geneticTime = 1000;
@@ -62,7 +62,7 @@ public class BBAutoTest {
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                    preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
+                    preprocessedGraph, GlobalVars.numberOfCustomers, 2, 40);
             geneticAlgorithm.run(geneticTime);
 //            geneticAlgorithm.printBestChromosome();
 

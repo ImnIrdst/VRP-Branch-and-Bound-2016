@@ -32,12 +32,11 @@ public class BSMain {
 //        preprocessedGraph.printGraph();
 
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);
-        System.out.println("Number of Vehicles: " + GlobalVars.numberOfVehicles);
         // run the genetic algorithm
 
         int geneticTime = 0;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
+                preprocessedGraph, GlobalVars.numberOfCustomers, 2, 40);
         geneticAlgorithm.run(geneticTime);
         geneticAlgorithm.printBestChromosome();
 

@@ -15,9 +15,9 @@ public class GlobalVars {
     public static String depotName;
     public static Vertex depot;
 
-    public static int numberOfVehicles = 0;
-    public static int numberOfNodes = 0;
-    public static int numberOfCustomers = 0;
+    public static int numberOfNodes;
+    public static int numberOfCustomers;
+    public static int numberOfVehicles;
 
     public static Graph ppGraph; // preprocessed graph
 
@@ -49,10 +49,6 @@ public class GlobalVars {
         GlobalVars.depotId = GlobalVars.numberOfCustomers;
         depot = bbGraph.getVertexById(depotId);
         GlobalVars.depotName = depot.name;
-
-        GlobalVars.numberOfVehicles = 0;
-        for (Vertex v : bbGraph.getVertices()) {
-            if (v.hasVehicle == 1) GlobalVars.numberOfVehicles++;
-        }
+        GlobalVars.numberOfVehicles = depot.vehicleQty;
     }
 }

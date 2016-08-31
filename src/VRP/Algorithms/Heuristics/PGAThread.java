@@ -13,7 +13,7 @@ public class PGAThread extends Thread {
         this.threadName = threadName;
         this.computeDuration = computeDuration;
         this.geneticAlgorithm = new GeneticAlgorithm(graph,
-                GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, populationSize);
+                GlobalVars.numberOfCustomers, 2, populationSize);
     }
 
     @Override

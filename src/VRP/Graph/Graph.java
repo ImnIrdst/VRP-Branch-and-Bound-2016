@@ -33,68 +33,68 @@ public class Graph {
         }
     }
 
-    /**
-     * builds a Graph from a csv file
-     *
-     * @param path: path to the csv file
-     */
-    public static Graph buildAGraphFromCSVFile(String path) {
-        Graph graph = new Graph();
-        try {
-            // read file
-            FileInputStream file = new FileInputStream(new File(path));
-            Scanner sc = new Scanner(file);
-            sc.nextLine();
-            sc.nextLine();
-
-            String[] tokens;
-
-            // read depot Info
-            tokens = sc.nextLine().split(",");
-            graph.addVertex(new Vertex("Depot", VertexType.DEPOT,
-                    Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1])));
-
-
-            // read customers info
-            int numberOfCustomers = Integer.parseInt(sc.nextLine().split(",")[1]);
-            sc.nextLine(); // skip the line
-
-            for (int i = 0; i < numberOfCustomers; i++) {
-                tokens = sc.nextLine().split(",");
-                Vertex newVertex = new Vertex(tokens[0],
-                        VertexType.CUSTOMER,
-                        Integer.parseInt(tokens[1]),
-                        Double.parseDouble(tokens[2]),
-                        Integer.parseInt(tokens[3]),
-                        Integer.parseInt(tokens[4]),
-                        Integer.parseInt(tokens[5]),
-                        Double.parseDouble(tokens[6]));
-                graph.addVertex(newVertex);
-            }
-
-            // read ordinary vertices
-            int numberOfOrdinaryVertices = Integer.parseInt(sc.nextLine().split(",")[1]);
-            sc.nextLine(); // skip the line
-
-            for (int i = 0; i < numberOfOrdinaryVertices; i++) {
-                graph.addVertex(new Vertex(sc.nextLine(), VertexType.ORDINARY));
-            }
-
-            // read edges
-            int numberOfEdges = Integer.parseInt(sc.nextLine().split(",")[1]);
-            sc.nextLine(); // skip the line
-
-            for (int i = 0; i < numberOfEdges; i++) {
-                tokens = sc.nextLine().split(",");
-                graph.addEdge(new Edge(tokens[0], tokens[1], Integer.parseInt(tokens[2])));
-            }
-
-            return graph;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+//    /**
+//     * builds a Graph from a csv file
+//     *
+//     * @param path: path to the csv file
+//     */
+//    public static Graph buildAGraphFromCSVFile(String path) {
+//        Graph graph = new Graph();
+//        try {
+//            // read file
+//            FileInputStream file = new FileInputStream(new File(path));
+//            Scanner sc = new Scanner(file);
+//            sc.nextLine();
+//            sc.nextLine();
+//
+//            String[] tokens;
+//
+//            // read depot Info
+//            tokens = sc.nextLine().split(",");
+//            graph.addVertex(new Vertex("Depot", VertexType.DEPOT,
+//                    Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1])));
+//
+//
+//            // read customers info
+//            int numberOfCustomers = Integer.parseInt(sc.nextLine().split(",")[1]);
+//            sc.nextLine(); // skip the line
+//
+//            for (int i = 0; i < numberOfCustomers; i++) {
+//                tokens = sc.nextLine().split(",");
+//                Vertex newVertex = new Vertex(tokens[0],
+//                        VertexType.CUSTOMER,
+//                        Integer.parseInt(tokens[1]),
+//                        Double.parseDouble(tokens[2]),
+//                        Integer.parseInt(tokens[3]),
+//                        Integer.parseInt(tokens[4]),
+//                        Integer.parseInt(tokens[5]),
+//                        Double.parseDouble(tokens[6]));
+//                graph.addVertex(newVertex);
+//            }
+//
+//            // read ordinary vertices
+//            int numberOfOrdinaryVertices = Integer.parseInt(sc.nextLine().split(",")[1]);
+//            sc.nextLine(); // skip the line
+//
+//            for (int i = 0; i < numberOfOrdinaryVertices; i++) {
+//                graph.addVertex(new Vertex(sc.nextLine(), VertexType.ORDINARY));
+//            }
+//
+//            // read edges
+//            int numberOfEdges = Integer.parseInt(sc.nextLine().split(",")[1]);
+//            sc.nextLine(); // skip the line
+//
+//            for (int i = 0; i < numberOfEdges; i++) {
+//                tokens = sc.nextLine().split(",");
+//                graph.addEdge(new Edge(tokens[0], tokens[1], Integer.parseInt(tokens[2])));
+//            }
+//
+//            return graph;
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 
     public void setIds(){
         int id = 0;
@@ -144,7 +144,7 @@ public class Graph {
 
             while (sc.hasNextLine()) {
                 Edge edge = Edge.buildEdgeFromAttributeTableRow(sc.nextLine(), coordsToVertexMap);
-                graph.addEdge(edge);
+                if (edge != null) graph.addEdge(edge);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -207,15 +207,16 @@ public class Graph {
     public void printGraph() {
         for (Vertex u : adjacencyList.values()) {
             for (Vertex v : u.neighbours.keySet()) {
-                System.out.println(u + " -(" + u.neighbours.get(v) + ")-> " + v);
+                System.out.printf("%s -[%.1f]-> %s\n", u, u.neighbours.get(v), v);
             }
         }
     }
 
     public void printVertices(){
-        System.out.println("v.demand, v.hasVehicle, v.capacity, v.fixedCost");
+        System.out.println("v.id\tv.name\tv.type\tv.dueDate\tv.penalty\tv.capacity\tv.fixedCost");
         for (Vertex v: getVertices()){
-            System.out.printf("%d\t%d\t%d\t%.2f\n", v.demand, v.hasVehicle, v.capacity, v.fixedCost);
+            System.out.printf("%d\t\t%s\t\t%s\t%.1f\t\t\t%d\t\t\t%d\t\t\t%.1f\n",
+                    v.id, v.name, v.type, v.dueDate, v.penalty, v.capacity, v.fixedCost);
         }
     }
 

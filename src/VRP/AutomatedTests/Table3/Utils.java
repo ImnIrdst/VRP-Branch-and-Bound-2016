@@ -23,10 +23,10 @@ public class Utils {
             else
                 v.type = VertexType.ORDINARY;
 
-            if ((customers & (1L << i)) != 0 && (vehicles & (1L << i)) != 0)
-                v.hasVehicle = 1;
-            else
-                v.hasVehicle = 0;
+//            if ((customers & (1L << i)) != 0 && (vehicles & (1L << i)) != 0)
+//                v.hasVehicle = 1;
+//            else
+//                v.hasVehicle = 0;
         }
     }
 }

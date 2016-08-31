@@ -1,8 +1,9 @@
-package VRP;
+package VRP.Algorithms.BranchAndBound;
 
 import VRP.Algorithms.BranchAndBound.BranchAndBound;
 import VRP.Algorithms.Dijkstra.Dijkstra;
 import VRP.Algorithms.Heuristics.GeneticAlgorithm;
+import VRP.GlobalVars;
 import VRP.Graph.Graph;
 
 import java.io.FileNotFoundException;
@@ -10,11 +11,11 @@ import java.io.FileNotFoundException;
 /**
  * for running the algorithm
  */
-public class Main {
+public class BBTest {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "/home/iman/Workspace/QGIS/Expriment2/ISFNodes-10-09-Ex2.csv",
+                "resources/ISFNodes-06-Customers.csv",
                 "resources/ISFRoads.csv"
         );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -27,16 +28,15 @@ public class Main {
         // fill the global variables
         preprocessedGraph.setIds();
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
-//        preprocessedGraph.printVertices();
+        preprocessedGraph.printVertices();
         preprocessedGraph.printGraph();
 
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);
-        System.out.println("Number of Vehicles: " + GlobalVars.numberOfVehicles);
         // run the genetic algorithm
 
         int geneticTime = 100;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
+                preprocessedGraph, GlobalVars.numberOfCustomers, 2, 40);
         geneticAlgorithm.run(geneticTime);
         geneticAlgorithm.printBestChromosome();
 

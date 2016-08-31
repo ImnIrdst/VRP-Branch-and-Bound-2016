@@ -102,7 +102,7 @@ public class BBNode {
         if (parent == null) curTimeElapsed = 0;
 
         else if (parent.vertex.type == VertexType.DEPOT)
-            this.curTimeElapsed = this.vertex.mdt;
+            this.curTimeElapsed = 0; //TODO: ???
 
         else if (parent.vertex.type == VertexType.CUSTOMER)
             this.curTimeElapsed = parent.curTimeElapsed + GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
@@ -131,10 +131,10 @@ public class BBNode {
             this.remainedCapacity = 0;
         else if (this.vertex.type == VertexType.CUSTOMER
                 && this.parent.vertex.type == VertexType.DEPOT)
-            this.remainedCapacity = this.vertex.capacity - this.vertex.demand;
+            this.remainedCapacity = this.vertex.capacity - 1;
 
         else if (this.vertex.type == VertexType.CUSTOMER)
-            this.remainedCapacity = parent.remainedCapacity - this.vertex.demand;
+            this.remainedCapacity = parent.remainedCapacity - 1;
 
         else
             this.remainedCapacity = parent.remainedCapacity;
@@ -147,7 +147,7 @@ public class BBNode {
         if (parent == null)
             this.arrivalTime = -1;
         else if (parent.vertex.type == VertexType.DEPOT)
-            this.arrivalTime = this.vertex.mdt;
+            this.arrivalTime = 0; // TODO
         else
             this.arrivalTime = parent.arrivalTime + GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
     }
@@ -224,27 +224,7 @@ public class BBNode {
      * calculates Lower Bound For Minimum Vehicle Usage Cost
      */
     public void calculateLowerBoundForMinimumVehicleUsageCost() {
-        List<CapacityCostPair> vehicleCapacities = new ArrayList<>();
 
-        int sumOfDemands = 0;
-        int sumOfCapacity = 0;
-        for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
-            if (this.servicedNodes[i] == false) {
-                Vertex v = GlobalVars.ppGraph.getVertexById(i);
-                sumOfDemands += v.demand;
-
-                if (v.hasVehicle == 1) {
-                    vehicleCapacities.add(new CapacityCostPair(v.capacity, v.fixedCost));
-                    sumOfCapacity += v.capacity;
-                }
-            }
-        }
-        vehicleCapacities.add(new CapacityCostPair(this.remainedCapacity, 0));
-
-        if (sumOfCapacity + remainedCapacity < sumOfDemands)
-            this.lowerBoundForVehicleCost = GlobalVars.INF;
-        else
-            this.lowerBoundForVehicleCost = Greedy.minimumExtraVehicleUsageCostNeeded(sumOfDemands, vehicleCapacities);
     }
 
     /**
@@ -321,32 +301,7 @@ public class BBNode {
      * @return minimum number of extra vehicles needed to serve the remaining customers
      */
     public int getMinimumNumberOfExtraVehiclesNeeded() {
-        List<CapacityCostPair> vehicleCapacities = new ArrayList<>();
-
-        int sumOfDemands = 0;
-        int sumOfCapacity = 0;
-        int maximumCapacity = 0;
-        for (int i = 0, j = 0; i < GlobalVars.numberOfCustomers; i++) {
-            if (this.servicedNodes[i] == false) {
-                Vertex v = GlobalVars.ppGraph.getVertexById(i);
-                sumOfDemands += v.demand;
-
-                if (v.hasVehicle == 1) {
-                    sumOfCapacity += v.capacity;
-                    vehicleCapacities.add(new CapacityCostPair(v.capacity, v.fixedCost));
-                    maximumCapacity = Math.max(v.capacity, maximumCapacity);
-                }
-            }
-        }
-
-        vehicleCapacities.add(new CapacityCostPair(this.remainedCapacity, 0));
-
-        if (sumOfCapacity + remainedCapacity < sumOfDemands)
-            return (int) GlobalVars.INF;
-
-        int extraVehiclesNeeded = Greedy.minimumExtraVehiclesNeeded(sumOfDemands, vehicleCapacities);
-
-        return extraVehiclesNeeded;
+        return 0;
     }
 
     /**
@@ -406,8 +361,8 @@ public class BBNode {
      * details of the node stat for the to string function
      */
     public String detailsForToString() {
-        return String.format(", %.2f, %.2f, %d, %d, %d",
-                thisVertexPenalty, vertex.dueDate, vertex.demand, vertex.capacity, vertex.hasVehicle);
+        return String.format(", %.2f, %.2f, %d",
+                thisVertexPenalty, vertex.dueDate, vertex.penalty);
     }
 
     @Override

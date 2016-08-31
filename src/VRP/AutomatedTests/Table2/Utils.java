@@ -30,11 +30,6 @@ public class Utils {
                 v.type = VertexType.CUSTOMER;
             else
                 v.type = VertexType.ORDINARY;
-
-            if ((customers & (1 << i)) != 0 && (vehicles & (1 << i)) != 0)
-                v.hasVehicle = 1;
-            else
-                v.hasVehicle = 0;
         }
     }
 }

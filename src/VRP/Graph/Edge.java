@@ -37,6 +37,7 @@ public class Edge implements Comparable<Edge> {
 
         Vertex u = coordsToVertexMap.get(fromX + "," + fromY);
         Vertex v = coordsToVertexMap.get(toX + "," + toY);
+        if (u == null || v == null) return null;
 
         return new Edge(u.name, v.name, Double.parseDouble(Time));
     }
