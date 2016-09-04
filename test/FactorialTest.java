@@ -1,5 +1,4 @@
-import VRP.Algorithms.Other.Factorial;
-import VRP.Algorithms.Other.NthPermutation;
+import Main.Algorithms.Other.Factorial;
 
 /**
  * Created by iman on 7/27/16.

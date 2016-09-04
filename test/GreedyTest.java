@@ -1,11 +1,11 @@
-import VRP.Algorithms.Other.CapacityCostPair;
-import VRP.Algorithms.Other.Greedy;
+import Main.Algorithms.Other.CapacityCostPair;
+import Main.Algorithms.Other.Greedy;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Tests Greedy Algorithms
+ * Tests Greedy Main.Algorithms
  */
 public class GreedyTest {
     public static void main(String[] args) {

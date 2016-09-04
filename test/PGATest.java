@@ -1,8 +1,8 @@
-import VRP.Algorithms.Dijkstra.Dijkstra;
-import VRP.Algorithms.Heuristics.GeneticAlgorithm;
-import VRP.Algorithms.Heuristics.PGAThread;
-import VRP.GlobalVars;
-import VRP.Graph.Graph;
+import Main.Algorithms.Dijkstra.Dijkstra;
+import Main.Algorithms.Heuristics.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.PGAThread;
+import Main.Graph.Graph;
+import Main.GlobalVars;
 
 import java.io.FileNotFoundException;
 
@@ -58,7 +58,7 @@ public class PGATest {
                 "resources/ISF-12-Customers.csv",
                 "resources/ISFRoads.csv"
         );
-//        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
+//        Main.Graph originalGraph = Main.Graph.buildAGraphFromCSVFile("resources/input.csv");
 //        originalGraph.printGraph();
 
         Dijkstra dijkstra = new Dijkstra(originalGraph);

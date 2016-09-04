@@ -1,6 +1,6 @@
-import VRP.Algorithms.Dijkstra.Dijkstra;
-import VRP.Graph.Edge;
-import VRP.Graph.Graph;
+import Main.Algorithms.Dijkstra.Dijkstra;
+import Main.Graph.Edge;
+import Main.Graph.Graph;
 
 /**
  *  Tests a dijkstra for a simple graph

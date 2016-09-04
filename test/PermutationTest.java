@@ -1,4 +1,4 @@
-import VRP.Algorithms.Other.NthPermutation;
+import Main.Algorithms.Other.NthPermutation;
 
 import java.util.ArrayList;
 import java.util.List;
