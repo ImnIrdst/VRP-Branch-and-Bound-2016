@@ -253,8 +253,8 @@ public class Model {
      * before that job
      */
     public static void addConstraint7() throws IloException {
-        for (int i = 0; i < nodesQty; i++) {
-            for (int j = 0; j < nodesQty; j++) {
+        for (int i = 0; i < customersQty; i++) {
+            for (int j = 0; j < customersQty; j++) {
                 if (i == j) continue;
                 IloLinearNumExpr expr = VRPD.linearNumExpr();
                 expr.addTerm(1.0, A[i][j]);
@@ -272,9 +272,9 @@ public class Model {
      * before that job
      */
     public static void addConstraint8() throws IloException {
-        for (int i = 0; i < nodesQty; i++) {
-            for (int j = 0; j < nodesQty; j++) {
-                for (int r = 0; r < nodesQty; r++) {
+        for (int i = 0; i < customersQty; i++) {
+            for (int j = 0; j < customersQty; j++) {
+                for (int r = 0; r < customersQty; r++) {
                     if (i == j || j == r || r == i) continue;
                     IloLinearNumExpr expr = VRPD.linearNumExpr();
                     expr.addTerm(1.0, A[i][j]);
@@ -385,21 +385,14 @@ public class Model {
             System.out.println("yk, mdt, zk, dd, T, penalty");
             for (int k = 0; k < vehiclesQty; k++) {
                 long yk = Math.round(VRPD.getValue(y[k]));
-                double zk = (VRPD.getValue(D[depotId]));
-                double dk = (VRPD.getValue(T[k]));
-                String zjkd = String.format("%.2f", zk);
-                String dkd = String.format("%.2f", dk);
-                String pjkd = String.format("%.1f", VRPD.getValue(T[k]) * depot.penalty);
-
-                System.out.print("Y" + k + " (" + yk + ", "
-                        + ", " + zjkd + ", " + depot.dueDate + ", " + dkd + ", " + pjkd + ")" + ",");
+                System.out.printf("Y%d(%d, %.1f) ", k, yk, VRPD.getValue(S[k]));
                 if (yk == 0) System.out.println();
                 if (yk == 0) continue;
                 for (int i = nodesQty - 1; i >= 0; i--) {
                     for (int j = nodesQty - 1; j >= 0; j--) {
 //                        long xijk = Math.round(VRPD.getValue(x[i][j][k]));
                         double zjk = (VRPD.getValue(D[j]));
-//                        long djk = Math.round(VRPD.getValue(T[j][k]))
+                        double djk = (VRPD.getValue(T[j]));
                         double xijk = (VRPD.getValue(x[i][j][k]));
 
                         if (xijk == 0) continue;
@@ -410,11 +403,18 @@ public class Model {
                                 + u
                                 + " -("
                                 + String.format("%.2f", ppGraph.getDistance(u, v))
-                                + String.format(", %.2f", zjk)
+                                + String.format(", %.2f", zjk) + String.format(", %.2f", djk * v.penalty)
                                 + ")-> "
                                 + v + ","
                         );
                     }
+                }
+                System.out.println();
+            }
+            for (int i = 0; i < nodesQty; i++) {
+                for (int j = 0; j < nodesQty; j++) {
+                    if (i == j || i == depotId || j == depotId) System.out.print("0 ");
+                    else System.out.print(Math.round(VRPD.getValue(A[i][j])) + " ");
                 }
                 System.out.println();
             }

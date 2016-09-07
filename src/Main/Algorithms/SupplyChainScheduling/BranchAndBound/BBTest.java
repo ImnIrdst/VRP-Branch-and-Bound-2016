@@ -47,7 +47,7 @@ public class BBTest {
         branchAndBound.printTheAnswer();
         
         // export the result
-         branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
+//         branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
 
         // print stats
         System.out.println();

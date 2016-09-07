@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.PriorityQueue;
 
 /**
@@ -65,10 +66,9 @@ public class BranchAndBound {
             BBNode u = pq.poll();
             if (canBePruned(u)) continue;
 
-            for (int i = u.vertex.getId() + 1; i < graph.getVertices().size(); i++) {
-                Vertex v = graph.getVertexById(i);
-
+            for (Vertex v : u.vertex.neighbours.keySet()) {
                 if (v.type == VertexType.DEPOT && u.waitingList.size() == 0) continue;
+                if (v.type != VertexType.DEPOT && u.servicedNodes[v.id] == true) continue;
 
                 BBNode newNode = new BBNode(v, u);
                 addNodeToPriorityQueue(newNode);
@@ -82,11 +82,14 @@ public class BranchAndBound {
      * @param newNode node that must be added to the pq.
      */
     void addNodeToPriorityQueue(BBNode newNode) {
+        if (getHierarchy(newNode).equals("764 -> 453 -> 764 -> 652 -> 764 -> 771 -> 764 -> 556 -> 493 -> 10 -> 764"))
+            System.out.println(newNode.getStringPath());
 
         // if this node is an answer
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == graph.getCustomersQty()
                 && newNode.getCost() <= minimumCost) {
+            System.out.println(getHierarchy(newNode));
             bestNode = newNode;
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;
@@ -159,5 +162,14 @@ public class BranchAndBound {
         System.out.println("Format -> VertexName (arrivalTime, thisVertexPenalty, vertex.dueDate, vertex.demand, vertex.capacity, vertex.hasVehicle)");
         System.out.println(bestNode.getStringPath() + "\n");
         System.out.println(bestNode.getPrintCostDetailsString());
+    }
+
+    public String getHierarchy(BBNode bbNode) {
+        String string = bbNode.vertex.name; // String.format("%s(%.2f)", bbNode.vertex.name, bbNode.getCost());
+        for (BBNode node = bbNode.parent ; node != null ; node = node.parent){
+            string = node.vertex.name + " -> " + string;
+        }
+
+        return string;
     }
 }
