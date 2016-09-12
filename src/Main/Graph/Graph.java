@@ -213,7 +213,7 @@ public class Graph {
     public void printVertices() {
         System.out.println("v.id\tv.name\tv.type\tv.processTime\tv.dueDate\tv.penalty\tv.capacity\tv.fixedCost");
         for (Vertex v : getVertices()) {
-            System.out.printf("%d\t\t%s\t\t%s\t%.1f\t\t\t%.1f\t\t\t%d\t\t\t%d\t\t\t%.1f\n",
+            System.out.printf("%d\t\t%s\t\t%s\t%.1f\t\t\t%.1f\t\t\t%.1f\t\t\t%d\t\t\t%.1f\n",
                     v.id, v.name, v.type, v.processTime, v.dueDate, v.penalty, v.capacity, v.fixedCost);
         }
     }

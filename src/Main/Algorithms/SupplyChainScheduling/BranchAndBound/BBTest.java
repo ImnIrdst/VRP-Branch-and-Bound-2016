@@ -14,8 +14,8 @@ public class BBTest {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-06-Customers.csv",
-                "resources/ISFRoads.csv"
+                "resources/InputData/ISFNodes-06-Customers.csv",
+                "resources/InputData/ISFRoads.csv"
         );
 //        Main.Graph originalGraph = Main.Graph.buildAGraphFromCSVFile("resources/input.csv");
 //        originalGraph.printGraph();
@@ -27,10 +27,11 @@ public class BBTest {
         // fill the global variables
         preprocessedGraph.setIds();
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
-        preprocessedGraph.printVertices();
-        preprocessedGraph.printGraph();
+//        preprocessedGraph.printVertices();
+//        preprocessedGraph.printGraph();
 
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);
+        System.out.println("Number of Vehicles: " + GlobalVars.numberOfVehicles);
         // run the genetic algorithm
 
         int geneticTime = 100;

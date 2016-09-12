@@ -11,7 +11,7 @@ import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 
 public class Model {
-    static IloCplex VRPD;                            // crew rostering problem
+    static IloCplex SCS;                            // crew rostering problem
     static IloNumVar[][][] x;
     static IloNumVar[] y;
     static IloNumVar[][] A;
@@ -27,7 +27,7 @@ public class Model {
 
     static int depotId;
     static double vehicleFixCost;
-    static double vehicleCapacity;
+    static int vehicleCapacity;
     static Vertex depot;
     static Graph ppGraph;                    // preprocessed graph
 
@@ -41,8 +41,8 @@ public class Model {
 
     public static void ReadData() throws Exception {
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-06-Customers.csv",
-                "resources/ISFRoads.csv"
+                "resources/InputData/ISFNodes-06-Customers.csv",
+                "resources/InputData/ISFRoads.csv"
         );
 //        Main.Graph originalGraph = Main.Graph.buildAGraphFromCSVFile("resources/input.csv");
 
@@ -51,7 +51,7 @@ public class Model {
 
         preprocessedGraph.setIds();
         GlobalVars.setTheGlobalVariables(preprocessedGraph); // fill the global variables
-//        preprocessedGraph.printVertices();
+        preprocessedGraph.printVertices();
 //        preprocessedGraph.printGraph();
 
         t = preprocessedGraph.getAdjacencyMatrix();
@@ -66,10 +66,11 @@ public class Model {
 
         System.out.println("customersQty " + customersQty);
         System.out.println("vehicleQty: " + vehiclesQty);
+        System.out.println("Vehicle Capacity: " + vehicleCapacity);
     }
 
     public static void Create_Model() throws Exception {
-        VRPD = new IloCplex();
+        SCS = new IloCplex();
 
         createDecisionVariables();
         createObjectiveFunctions();
@@ -95,44 +96,43 @@ public class Model {
         for (int i = 0; i < nodesQty; i++) {
             for (int j = 0; j < nodesQty; j++) {
                 for (int k = 0; k < vehiclesQty; k++) {
-                    x[i][j][k] = VRPD.boolVar();
+                    x[i][j][k] = SCS.boolVar();
                 }
             }
         }
 
         y = new IloNumVar[vehiclesQty];
         for (int k = 0; k < vehiclesQty; k++) {
-            y[k] = VRPD.boolVar();
+            y[k] = SCS.boolVar();
         }
 
         A = new IloNumVar[nodesQty][nodesQty];
         for (int i = 0; i < nodesQty; i++) {
             for (int j = 0; j < nodesQty; j++) {
-                A[i][j] = VRPD.boolVar();
+                A[i][j] = SCS.boolVar();
             }
         }
 
         D = new IloNumVar[nodesQty];
         for (int i = 0; i < nodesQty; i++) {
-            D[i] = VRPD.numVar(0, Double.MAX_VALUE);
+            D[i] = SCS.numVar(0, Double.MAX_VALUE);
         }
 
         T = new IloNumVar[nodesQty];
         for (int i = 0; i < nodesQty; i++) {
-            T[i] = VRPD.numVar(0, Double.MAX_VALUE);
+            T[i] = SCS.numVar(0, Double.MAX_VALUE);
         }
 
         S = new IloNumVar[vehiclesQty];
         for (int i = 0; i < vehiclesQty; i++) {
-            S[i] = VRPD.numVar(0, Double.MAX_VALUE);
+            S[i] = SCS.numVar(0, Double.MAX_VALUE);
         }
     }
 
     public static void createObjectiveFunctions() throws IloException {
         //-------------Objective Function-------------------
-        IloLinearNumExpr obj = VRPD.linearNumExpr();
+        IloLinearNumExpr obj = SCS.linearNumExpr();
         for (int i = 0; i < nodesQty; i++) {
-            if (i == depotId) continue;
             for (int j = 0; j < nodesQty; j++) {
                 for (int k = 0; k < vehiclesQty; k++) {
                     obj.addTerm(t[i][j], x[i][j][k]);
@@ -148,13 +148,15 @@ public class Model {
             obj.addTerm(vertexi(i).penalty, T[i]);
         }
 
-        VRPD.addMinimize(obj);
+        SCS.addMinimize(obj);
+
+        obj.clear();
     }
 
     public static void addConstraint1() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
             for (int i = 0; i < nodesQty; i++) {
-                VRPD.addEq(x[i][i][k], 0.0);
+                SCS.addEq(x[i][i][k], 0.0);
             }
         }
     }
@@ -166,13 +168,14 @@ public class Model {
         for (int i = 0; i < nodesQty; i++) {
             if (i == depotId) continue; // (Except Depot)
 
-            IloLinearNumExpr expr1 = VRPD.linearNumExpr();
+            IloLinearNumExpr expr1 = SCS.linearNumExpr();
             for (int j = 0; j < nodesQty; j++) {
                 for (int k = 0; k < vehiclesQty; k++) {
                     expr1.addTerm(1.0, x[j][i][k]);
                 }
             }
-            VRPD.addEq(expr1, 1.0);
+            SCS.addEq(expr1, 1.0);
+            expr1.clear();
         }
     }
 
@@ -183,13 +186,14 @@ public class Model {
     public static void addConstraint3() throws IloException {
         //3: If not using vehicle k...
         for (int k = 0; k < vehiclesQty; k++) {
-            IloLinearNumExpr expr2 = VRPD.linearNumExpr();
+            IloLinearNumExpr expr2 = SCS.linearNumExpr();
             for (int i = 0; i < nodesQty; i++) {
                 for (int j = 0; j < nodesQty; j++) {
                     expr2.addTerm(1.0, x[i][j][k]);
                 }
             }
-            VRPD.add(VRPD.ifThen(VRPD.eq(y[k], 0), VRPD.le(expr2, 0.0)));
+            SCS.add(SCS.ifThen(SCS.eq(y[k], 0), SCS.le(expr2, 0.0)));
+            expr2.clear();
         }
     }
 
@@ -199,13 +203,15 @@ public class Model {
      */
     public static void addConstraint4() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
-            IloLinearNumExpr expr2 = VRPD.linearNumExpr();
+            IloLinearNumExpr expr2 = SCS.linearNumExpr();
             for (int i = 0; i < nodesQty; i++) {
                 for (int j = 0; j < nodesQty; j++) {
+                    if (j == depotId) continue;
                     expr2.addTerm(1.0, x[i][j][k]);
                 }
             }
-            VRPD.le(expr2, vehicleCapacity); // TODO: +1
+            SCS.addLe(expr2, vehicleCapacity);
+            expr2.clear();
         }
     }
 
@@ -215,11 +221,12 @@ public class Model {
      */
     public static void addConstraint5() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
-            IloLinearNumExpr expr7 = VRPD.linearNumExpr();
+            IloLinearNumExpr expr7 = SCS.linearNumExpr();
             for (int j = 0; j < nodesQty; j++) {
                 expr7.addTerm(1.0, x[depotId][j][k]);
             }
-            VRPD.addEq(expr7, y[k]);
+            SCS.addEq(expr7, y[k]);
+            expr7.clear();
         }
     }
 
@@ -230,8 +237,8 @@ public class Model {
     public static void addConstraint6() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
             for (int h = 0; h < nodesQty; h++) {
-                IloLinearNumExpr expr5 = VRPD.linearNumExpr();
-                IloLinearNumExpr expr6 = VRPD.linearNumExpr();
+                IloLinearNumExpr expr5 = SCS.linearNumExpr();
+                IloLinearNumExpr expr6 = SCS.linearNumExpr();
                 if (h != depotId) {
                     for (int i = 0; i < nodesQty; i++) {
                         expr5.addTerm(1.0, x[i][h][k]);
@@ -240,7 +247,9 @@ public class Model {
                         expr6.addTerm(1.0, x[h][j][k]);
                     }
                 }
-                VRPD.addEq(expr5, expr6);
+                SCS.addEq(expr5, expr6);
+                expr5.clear();
+                expr6.clear();
             }
         }
     }
@@ -256,10 +265,11 @@ public class Model {
         for (int i = 0; i < customersQty; i++) {
             for (int j = 0; j < customersQty; j++) {
                 if (i == j) continue;
-                IloLinearNumExpr expr = VRPD.linearNumExpr();
+                IloLinearNumExpr expr = SCS.linearNumExpr();
                 expr.addTerm(1.0, A[i][j]);
                 expr.addTerm(1.0, A[j][i]);
-                VRPD.addLe(expr, 1.0);
+                SCS.addEq(expr, 1.0);
+                expr.clear();
             }
         }
     }
@@ -276,11 +286,12 @@ public class Model {
             for (int j = 0; j < customersQty; j++) {
                 for (int r = 0; r < customersQty; r++) {
                     if (i == j || j == r || r == i) continue;
-                    IloLinearNumExpr expr = VRPD.linearNumExpr();
+                    IloLinearNumExpr expr = SCS.linearNumExpr();
                     expr.addTerm(1.0, A[i][j]);
                     expr.addTerm(1.0, A[j][r]);
                     expr.addTerm(1.0, A[r][i]);
-                    VRPD.addGe(expr, 1.0);
+                    SCS.addGe(expr, 1.0);
+                    expr.clear();
                 }
             }
         }
@@ -294,18 +305,20 @@ public class Model {
     public static void addConstraint9() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
             for (int j = 0; j < nodesQty; j++) {
-                IloLinearNumExpr expr1 = VRPD.linearNumExpr();
+                IloLinearNumExpr expr1 = SCS.linearNumExpr();
                 for (int i = 0; i < nodesQty; i++) {
                     if (i == j) continue;
                     expr1.addTerm(1.0, x[i][j][k]);
                 }
-                IloLinearNumExpr expr2 = VRPD.linearNumExpr();
+                IloLinearNumExpr expr2 = SCS.linearNumExpr();
                 for (int i = 0; i < nodesQty; i++) {
                     if (i == j) continue;
                     expr2.addTerm(vertexi(i).processTime, A[i][j]);
                 }
-                VRPD.add(VRPD.ifThen(VRPD.eq(expr1, 1),
-                        VRPD.ge(VRPD.diff(S[k], vertexi(j).processTime), expr2)));
+                SCS.add(SCS.ifThen(SCS.eq(expr1, 1),
+                        SCS.ge(SCS.diff(S[k], vertexi(j).processTime), expr2)));
+                expr1.clear();
+                expr2.clear();
             }
         }
     }
@@ -326,8 +339,8 @@ public class Model {
             for (int j = 0; j < nodesQty; j++) {
                 int i = depotId;
                 if (i == j) continue;
-                VRPD.add(VRPD.ifThen(VRPD.eq(x[i][j][k], 1),
-                        VRPD.ge(VRPD.diff(D[j], S[k]), t[i][j])));
+                SCS.add(SCS.ifThen(SCS.eq(x[i][j][k], 1),
+                        SCS.ge(SCS.diff(D[j], S[k]), t[i][j])));
             }
         }
     }
@@ -349,82 +362,103 @@ public class Model {
                 if (i == j) continue;
                 if (i == depotId) continue;
                 if (j == depotId) continue;
-                IloLinearNumExpr expr = VRPD.linearNumExpr();
+                IloLinearNumExpr expr = SCS.linearNumExpr();
                 for (int k = 0; k < vehiclesQty; k++) {
                     expr.addTerm(x[i][j][k], 1.0);
                 }
-                VRPD.add(VRPD.ifThen(VRPD.eq(expr, 1),
-                        VRPD.ge(VRPD.diff(D[j], D[i]), (t[i][j]))));
+                SCS.add(SCS.ifThen(SCS.eq(expr, 1),
+                        SCS.ge(SCS.diff(D[j], D[i]), (t[i][j]))));
+                expr.clear();
             }
         }
     }
 
     public static void addConstraint12() throws IloException {
         for (int i = 0; i < customersQty; i++) {
-            VRPD.addGe(T[i], VRPD.diff(D[i], vertexi(i).dueDate));
+            SCS.addGe(T[i], SCS.diff(D[i], vertexi(i).dueDate));
         }
     }
 
     public static void addConstraint16_18() throws IloException {
         for (int i = 0; i < nodesQty; i++) {
-            VRPD.addGe(D[i], 0);
-            VRPD.addGe(T[i], 0);
+            SCS.addGe(D[i], 0);
+            SCS.addGe(T[i], 0);
         }
         for (int k = 0; k < vehiclesQty; k++) {
-            VRPD.addGe(S[k], 0);
+            SCS.addGe(S[k], 0);
         }
     }
 
     public static void Solve_Model() throws Exception {
-//        VRPD.setParam(IloCplex.IntParam.Simplex.Display, 0);
+//        SCS.setParam(IloCplex.IntParam.Simplex.Display, 0);
         long startTime = System.currentTimeMillis();
-        if (VRPD.solve()) {
+        if (SCS.solve()) {
             long finishTime = System.currentTimeMillis();
-            System.out.println("Status = " + VRPD.getStatus());
-            System.out.println("Objective Value = " + String.format("%.2f", VRPD.getObjValue()));
+            System.out.println("Status = " + SCS.getStatus());
+            System.out.println("Objective Value = " + String.format("%.2f", SCS.getObjValue()));
             System.out.println("yk, mdt, zk, dd, T, penalty");
             for (int k = 0; k < vehiclesQty; k++) {
-                long yk = Math.round(VRPD.getValue(y[k]));
-                System.out.printf("Y%d(%d, %.1f) ", k, yk, VRPD.getValue(S[k]));
+                long yk = Math.round(SCS.getValue(y[k]));
+                System.out.printf("Y%d(%d, %.1f) ", k, yk, SCS.getValue(S[k]));
                 if (yk == 0) System.out.println();
                 if (yk == 0) continue;
                 for (int i = nodesQty - 1; i >= 0; i--) {
                     for (int j = nodesQty - 1; j >= 0; j--) {
-//                        long xijk = Math.round(VRPD.getValue(x[i][j][k]));
-                        double zjk = (VRPD.getValue(D[j]));
-                        double djk = (VRPD.getValue(T[j]));
-                        double xijk = (VRPD.getValue(x[i][j][k]));
+//                        long xijk = Math.round(SCS.getValue(x[i][j][k]));
+                        double zjk = (SCS.getValue(D[j]));
+                        double djk = (SCS.getValue(T[j]));
+                        double xijk = (SCS.getValue(x[i][j][k]));
 
                         if (xijk == 0) continue;
                         Vertex u = ppGraph.getVertexById(i);
                         Vertex v = ppGraph.getVertexById(j);
 
                         System.out.print(" "
-                                + u
-                                + " -("
-                                + String.format("%.2f", ppGraph.getDistance(u, v))
-                                + String.format(", %.2f", zjk) + String.format(", %.2f", djk * v.penalty)
-                                + ")-> "
-                                + v + ","
+                                        + u
+                                        + " -("
+                                        + String.format("%.2f", ppGraph.getDistance(u, v))
+                                        + String.format(", %.2f", zjk) + String.format(", %.2f", djk * v.penalty)
+                                        + ")-> "
+                                        + v + ","
                         );
                     }
                 }
                 System.out.println();
             }
-            for (int i = 0; i < nodesQty; i++) {
-                for (int j = 0; j < nodesQty; j++) {
-                    if (i == j || i == depotId || j == depotId) System.out.print("0 ");
-                    else System.out.print(Math.round(VRPD.getValue(A[i][j])) + " ");
+
+//            for (int i = 0; i < customersQty; i++) {
+//                for (int j = 0; j < customersQty; j++) {
+//                    if (i == j || i == depotId || j == depotId) System.out.print("0 ");
+//                    else System.out.print(Math.round(SCS.getValue(A[i][j])) + " ");
+//                }
+//                System.out.println();
+//            }
+
+            for (int k = 0; k < vehiclesQty; k++) {
+                double cap = 0;
+                for (int i = 0; i < nodesQty; i++) {
+                    for (int j = 0; j < nodesQty; j++) {
+                        if (j == depotId) continue;
+                        cap += SCS.getValue(x[i][j][k]);
+                    }
                 }
-                System.out.println();
+                System.out.println("Cap " + cap);
             }
+
+
             System.out.println();
-            System.out.println("Number of Nodes: " + VRPD.getNnodes64());
+            System.out.println("Number of Nodes: " + SCS.getNnodes64());
+            System.out.println("Objective Value = " + String.format("%.2f", SCS.getObjValue()));
             System.out.printf("Processing Time: %.2fs\n", (finishTime - startTime) / 1000.);
         } else {
             System.out.println();
             System.out.println("Can't be solved!!!!");
         }
+        SCS.clearUserCuts();
+        SCS.clearCallbacks();
+        SCS.clearLazyConstraints();
+        SCS.clearCuts();
+        SCS.clearModel();
     }
 
     public static Vertex vertexi(int i) {

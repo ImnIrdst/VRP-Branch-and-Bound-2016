@@ -14,7 +14,7 @@ public class Vertex {
 
     // if node is customer
     public int id;          // id of the customer for using in branch and bound (filling servicedNodes boolean array)
-    public int penalty;
+    public double penalty;
     public double dueDate;
     public double processTime;
 
@@ -100,9 +100,9 @@ public class Vertex {
         String V_Qty = features[4];
         String V_FixCost = features[5];
         String V_Cap = features[6];
-        String DueDate = features[7];
-        String Penalty = features[8];
-        String P_Time = features[9];
+        String P_Time = features[7];
+        String DueDate = features[8];
+        String Penalty = features[9];
 
         vertex.name = OBJECT_ID;
         vertex.coords = X + "," + Y;
@@ -123,7 +123,7 @@ public class Vertex {
         if (V_FixCost.length() > 0) vertex.fixedCost = Double.parseDouble(V_FixCost);
         if (V_Cap.length() > 0) vertex.capacity = Integer.parseInt(V_Cap);
         if (DueDate.length() > 0) vertex.dueDate = Double.parseDouble(DueDate);
-        if (Penalty.length() > 0) vertex.penalty = Integer.parseInt(Penalty);
+        if (Penalty.length() > 0) vertex.penalty = Double.parseDouble(Penalty);
         if (P_Time.length() > 0) vertex.processTime = Double.parseDouble(P_Time);
 
         return vertex;

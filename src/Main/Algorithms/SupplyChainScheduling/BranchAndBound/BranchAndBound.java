@@ -82,25 +82,26 @@ public class BranchAndBound {
      * @param newNode node that must be added to the pq.
      */
     void addNodeToPriorityQueue(BBNode newNode) {
-        if (getHierarchy(newNode).equals("764 -> 453 -> 764 -> 652 -> 764 -> 771 -> 764 -> 556 -> 493 -> 10 -> 764"))
-            System.out.println(newNode.getStringPath());
+        if (getHierarchy(newNode).equals("764 -> 771 -> 556 -> 764 -> 453 -> 652 -> 10 -> 493 -> 764"))
+            System.out.println(newNode.getStringPath() + "\n" + newNode.getPrintCostDetailsString());
 
+        if (canBePruned(newNode)) return;
+
+
+        System.out.println(getHierarchy(newNode));
         // if this node is an answer
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == graph.getCustomersQty()
                 && newNode.getCost() <= minimumCost) {
-            System.out.println(getHierarchy(newNode));
+//            System.out.println(getHierarchy(newNode));
             bestNode = newNode;
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;
             return;
         }
 
-        // if this node is a intermediate node add it to the queue.
-        if (!canBePruned(newNode)) {
-            pq.add(newNode);
-            GlobalVars.numberOfBranchAndBoundNodes++;
-        }
+        pq.add(newNode);
+        GlobalVars.numberOfBranchAndBoundNodes++;
     }
 
     /**
@@ -108,7 +109,8 @@ public class BranchAndBound {
      * @return true of node can be pruned from the tree
      */
     boolean canBePruned(BBNode newNode) {
-
+        if (newNode.vehicleUsed > GlobalVars.numberOfVehicles)
+            return true; // TODO: Check This
         // if new node capacity is negative
         if (newNode.remainedCapacity < 0)
             return true;
