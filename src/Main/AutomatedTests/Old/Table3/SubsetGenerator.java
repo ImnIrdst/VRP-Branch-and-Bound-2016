@@ -1,4 +1,4 @@
-package Main.AutomatedTests.Table3;
+package Main.AutomatedTests.Old.Table3;
 
 import java.io.File;
 import java.io.FileNotFoundException;

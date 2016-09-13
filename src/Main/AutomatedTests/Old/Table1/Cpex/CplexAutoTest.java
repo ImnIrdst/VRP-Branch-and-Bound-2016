@@ -1,7 +1,7 @@
-package Main.AutomatedTests.Table1.Cpex;
+package Main.AutomatedTests.Old.Table1.Cpex;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.AutomatedTests.Table1.Utils;
+import Main.AutomatedTests.Old.Table1.Utils;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;

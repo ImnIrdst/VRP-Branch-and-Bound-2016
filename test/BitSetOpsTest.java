@@ -1,4 +1,4 @@
-import Main.AutomatedTests.Table1.SubsetGenerator;
+import Main.AutomatedTests.Old.Table1.SubsetGenerator;
 
 public class BitSetOpsTest {
     public static void main(String[] args) {

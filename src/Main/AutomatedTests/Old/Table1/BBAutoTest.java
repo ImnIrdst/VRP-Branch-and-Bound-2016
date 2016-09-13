@@ -1,4 +1,4 @@
-package Main.AutomatedTests.Table2;
+package Main.AutomatedTests.Old.Table1;
 
 import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.Algorithms.Dijkstra.Dijkstra;
@@ -16,7 +16,7 @@ public class BBAutoTest {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "/home/iman/Workspace/QGIS/Expriment2/ISFNodes-10-09-Ex2.csv",
+                "resources/ISFNodes-10-09-Ex2.csv",
                 "resources/ISFRoads.csv"
         );
 //        Main.Graph originalGraph = Main.Graph.buildAGraphFromCSVFile("resources/input.csv");
@@ -26,25 +26,23 @@ public class BBAutoTest {
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph reducedGraph = dijkstra.makeShortestPathGraph();
         reducedGraph.setIds();
-//        reducedGraph.printGraph();
 
-        FileInputStream fileInputStream = new FileInputStream(new File("resources/t2-input-subset.csv"));
+        FileInputStream fileInputStream = new FileInputStream(new File("resources/t1-automated-test-results-cplex-01.csv"));
         Scanner sc = new Scanner(fileInputStream);
 
-        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/t2-automated-test-results-tmp.csv"));
+        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/t1-automated-test-results-cplex-bb-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
-        out.println(sc.nextLine() + ",BBValue,BBTime,BBNodes,VehicleUsed,TotalDelay");
+        out.println(sc.nextLine() + ",BBValue,BBTime,BBNodes");
         out.flush();
 
         while (sc.hasNextLine()) {
             String autoTestRow = sc.nextLine();
+//            if (!autoTestRow.split(",")[9].equals("Optimal")){
+//                out.println(autoTestRow); continue;
+//            }
 //            if (!Objects.equals(autoTestRow.split(",")[0], "203")) continue;
             Graph preprocessedGraph = reducedGraph.getCopy();
             Utils.modifyGraphByAutomatedInput(preprocessedGraph, autoTestRow);
-
-            int id = Integer.parseInt(autoTestRow.split(",")[0]);
-            int fixCost = Integer.parseInt(autoTestRow.split(",")[6]);
-            int penaltyCost = Integer.parseInt(autoTestRow.split(",")[7]);
 
             Dijkstra dijkstra2 = new Dijkstra(preprocessedGraph);
             preprocessedGraph = dijkstra2.makeShortestPathGraph();
@@ -56,25 +54,22 @@ public class BBAutoTest {
 //            preprocessedGraph.printGraph();
 
             System.out.println("Number of Customers, Vehicles: " +
-                    GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
+                    GlobalVars.numberOfCustomers + " " + "-1");
 
-            int geneticTime = 1000;
+            int geneticTime = 0;
 //            if (Main.GlobalVars.numberOfCustomers == 11) geneticTime = 1000;
-//            if (Main.GlobalVars.numberOfCustomers == 12) geneticTime = 10000;
+            if (GlobalVars.numberOfCustomers == 12) geneticTime = 10000;
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                    preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
+                    preprocessedGraph, GlobalVars.numberOfCustomers, 2, 40);
             geneticAlgorithm.run(geneticTime);
-            geneticAlgorithm.printBestChromosome();
+//            geneticAlgorithm.printBestChromosome();
 
 
-            String expandedNodes = "?";
-            String elapsedTime = "?";
-            String optimalValue = "?";
-            String numberOfUsedVehicles = "?";
-            String totalVehicleDelays = "?";
-            String vehicleUsageCost = "?";
+            String expandedNodes = "";
+            String elapsedTime = "";
+            String optimalValue = "";
 
             GlobalVars.startTime = System.currentTimeMillis();
             try {
@@ -82,15 +77,9 @@ public class BBAutoTest {
                 BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
                 branchAndBound.run(GlobalVars.depotName);
                 GlobalVars.finishTime = System.currentTimeMillis();
-                branchAndBound.printTheAnswer();
-                branchAndBound.exportTheResultWTK(
-                        "/home/iman/Workspace/QGIS/IsfahanVRPResults/"+autoTestRow+",", dijkstra);
-
                 System.out.printf("Optimal Cost: %.2f\n", branchAndBound.bestNode.getCost());
+
                 optimalValue = String.format("%.2f", branchAndBound.minimumCost);
-                vehicleUsageCost = String.format("%.2f", branchAndBound.bestNode.cumulativePenaltyTaken);
-                totalVehicleDelays = String.format("%.2f", branchAndBound.bestNode.vehicleUsageCost);
-                numberOfUsedVehicles = String.format("%d", branchAndBound.bestNode.vehicleUsed);
             } catch (NullPointerException e) {
                 optimalValue = "NA";
             } catch (OutOfMemoryError e) {
@@ -105,7 +94,7 @@ public class BBAutoTest {
             System.out.println("Total Calculation time: " + elapsedTime + "s");
             System.out.println("Number of Branch and Bound Tree Nodes: " + expandedNodes);
             System.out.println("-------------------------------------");
-            out.println(autoTestRow + "," + optimalValue + "," + elapsedTime + "," + expandedNodes + "," + numberOfUsedVehicles + "," + totalVehicleDelays + "," + vehicleUsageCost);
+            out.println(autoTestRow + "," + optimalValue + "," + elapsedTime + "," + expandedNodes);
             out.flush();
         }
         out.close();

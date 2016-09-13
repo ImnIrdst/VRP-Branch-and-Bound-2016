@@ -1,4 +1,4 @@
-package Main.Algorithms.SupplyChainScheduling.BranchAndBound;
+package Main.Algorithms.SupplyChainScheduling.BeamSearch;
 
 import Main.GlobalVars;
 import Main.Graph.Edge;

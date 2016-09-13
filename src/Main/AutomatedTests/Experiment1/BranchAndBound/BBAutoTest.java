@@ -1,8 +1,9 @@
-package Main.AutomatedTests.Table1;
+package Main.AutomatedTests.Experiment1.BranchAndBound;
 
-import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.Algorithms.Dijkstra.Dijkstra;
 import Main.Algorithms.Heuristics.GeneticAlgorithm;
+import Main.Algorithms.Other.Random;
+import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 
@@ -15,41 +16,30 @@ import java.util.Scanner;
 public class BBAutoTest {
     public static void main(String[] args) throws FileNotFoundException {
 
-        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/ISFNodes-10-09-Ex2.csv",
-                "resources/ISFRoads.csv"
-        );
-//        Main.Graph originalGraph = Main.Graph.buildAGraphFromCSVFile("resources/input.csv");
-//        originalGraph.printGraph();
-
-        // build the preprocessed graph
-        Dijkstra dijkstra = new Dijkstra(originalGraph);
-        Graph reducedGraph = dijkstra.makeShortestPathGraph();
-        reducedGraph.setIds();
-
-        FileInputStream fileInputStream = new FileInputStream(new File("resources/t1-automated-test-results-cplex-01.csv"));
-        Scanner sc = new Scanner(fileInputStream);
-
         FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/t1-automated-test-results-cplex-bb-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
-        out.println(sc.nextLine() + ",BBValue,BBTime,BBNodes");
+//        out.println(sc.nextLine() + ",BBValue,BBTime,BBNodes");
         out.flush();
 
-        while (sc.hasNextLine()) {
-            String autoTestRow = sc.nextLine();
-//            if (!autoTestRow.split(",")[9].equals("Optimal")){
-//                out.println(autoTestRow); continue;
-//            }
-//            if (!Objects.equals(autoTestRow.split(",")[0], "203")) continue;
-            Graph preprocessedGraph = reducedGraph.getCopy();
-            Utils.modifyGraphByAutomatedInput(preprocessedGraph, autoTestRow);
+        for (int testId=0 ; testId<100 ; testId++){
+            Random.setSeed(testId);
+            Random.IRange customerQtyRange = new Random.IRange(5, 6);
+            Random.IRange capacityRange = new Random.IRange(1, 5);
+            Random.IRange vehicleQtyRange = new Random.IRange(2, 5);
+            Random.DRange fixCostRange = new Random.DRange(10, 10);
+            Random.DRange processTimeRange = new Random.DRange(1, 5);
+            Random.DRange dueDateRange = new Random.DRange(5, 20);
+            Random.DRange penaltyRange = new Random.DRange(0, 1);
+            Random.DRange edgeWeightRange = new Random.DRange(5 ,10);
 
-            Dijkstra dijkstra2 = new Dijkstra(preprocessedGraph);
-            preprocessedGraph = dijkstra2.makeShortestPathGraph();
+            Graph originalGraph = Graph.buildRandomGraph(
+                    customerQtyRange, vehicleQtyRange, capacityRange, fixCostRange,
+                    processTimeRange, dueDateRange, penaltyRange, edgeWeightRange
+            );
 
             // fill the global variables
-            preprocessedGraph.setIds();
-            GlobalVars.setTheGlobalVariables(preprocessedGraph);
+            originalGraph.setIds();
+            GlobalVars.setTheGlobalVariables(originalGraph);
 //            preprocessedGraph.printVertices();
 //            preprocessedGraph.printGraph();
 
@@ -62,7 +52,7 @@ public class BBAutoTest {
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                    preprocessedGraph, GlobalVars.numberOfCustomers, 2, 40);
+                    originalGraph, GlobalVars.numberOfCustomers, 2, 40);
             geneticAlgorithm.run(geneticTime);
 //            geneticAlgorithm.printBestChromosome();
 
@@ -74,7 +64,7 @@ public class BBAutoTest {
             GlobalVars.startTime = System.currentTimeMillis();
             try {
                 // run the branch and bound algorithm
-                BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
+                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
                 branchAndBound.run(GlobalVars.depotName);
                 GlobalVars.finishTime = System.currentTimeMillis();
                 System.out.printf("Optimal Cost: %.2f\n", branchAndBound.bestNode.getCost());
@@ -89,12 +79,12 @@ public class BBAutoTest {
             expandedNodes = "" + GlobalVars.numberOfBranchAndBoundNodes;
             elapsedTime = String.format("%.2f", (geneticTime + GlobalVars.finishTime - GlobalVars.startTime) / 1000.);
 
-            System.out.println(autoTestRow);
+//            System.out.println(testInfo);
             System.out.println("Optimal Value: " + optimalValue);
             System.out.println("Total Calculation time: " + elapsedTime + "s");
             System.out.println("Number of Branch and Bound Tree Nodes: " + expandedNodes);
             System.out.println("-------------------------------------");
-            out.println(autoTestRow + "," + optimalValue + "," + elapsedTime + "," + expandedNodes);
+//            out.println(autoTestRow + "," + optimalValue + "," + elapsedTime + "," + expandedNodes);
             out.flush();
         }
         out.close();

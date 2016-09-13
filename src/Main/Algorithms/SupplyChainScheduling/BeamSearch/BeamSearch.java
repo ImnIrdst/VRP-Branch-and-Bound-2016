@@ -1,6 +1,5 @@
 package Main.Algorithms.SupplyChainScheduling.BeamSearch;
 
-import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BSNode;
 import Main.Algorithms.Dijkstra.Dijkstra;
 import Main.GlobalVars;
 import Main.Graph.Graph;

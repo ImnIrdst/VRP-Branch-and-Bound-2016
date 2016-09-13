@@ -82,13 +82,13 @@ public class BranchAndBound {
      * @param newNode node that must be added to the pq.
      */
     void addNodeToPriorityQueue(BBNode newNode) {
-        if (getHierarchy(newNode).equals("764 -> 771 -> 556 -> 764 -> 453 -> 652 -> 10 -> 493 -> 764"))
-            System.out.println(newNode.getStringPath() + "\n" + newNode.getPrintCostDetailsString());
+//        if (getHierarchy(newNode).equals("764 -> 771 -> 556 -> 764 -> 453 -> 652 -> 10 -> 493 -> 764"))
+//            System.out.println(newNode.getStringPath() + "\n" + newNode.getPrintCostDetailsString());
 
         if (canBePruned(newNode)) return;
 
 
-        System.out.println(getHierarchy(newNode));
+//        System.out.println(getHierarchy(newNode));
         // if this node is an answer
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == graph.getCustomersQty()

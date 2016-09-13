@@ -1,4 +1,4 @@
-package Main.AutomatedTests.Table2;
+package Main.AutomatedTests.Old.Table2;
 
 import Main.Graph.Graph;
 import Main.Graph.Vertex;

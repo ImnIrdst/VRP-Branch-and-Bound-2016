@@ -1,10 +1,12 @@
 package Main.MathematicalModel;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
+import Main.Algorithms.Other.Random;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
 import ilog.concert.*;
+import Main.Algorithms.Other.Random.*;
 
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
@@ -40,10 +42,24 @@ public class Model {
     }
 
     public static void ReadData() throws Exception {
-        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/InputData/ISFNodes-06-Customers.csv",
-                "resources/InputData/ISFRoads.csv"
+        Random.setSeed(1);
+        IRange customerQtyRange = new IRange(5, 6);
+        IRange capacityRange = new IRange(1, 5);
+        IRange vehicleQtyRange = new IRange(2, 5);
+        DRange fixCostRange = new DRange(10, 10);
+        DRange processTimeRange = new DRange(1, 5);
+        DRange dueDateRange = new DRange(5, 20);
+        DRange penaltyRange = new DRange(0, 1);
+        DRange edgeWeightRange = new DRange(5 ,10);
+
+        Graph originalGraph = Graph.buildRandomGraph(
+                customerQtyRange, vehicleQtyRange, capacityRange, fixCostRange,
+                processTimeRange, dueDateRange, penaltyRange, edgeWeightRange
         );
+//        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+//                "resources/InputData/ISFNodes-06-Customers.csv",
+//                "resources/InputData/ISFRoads.csv"
+//        );
 //        Main.Graph originalGraph = Main.Graph.buildAGraphFromCSVFile("resources/input.csv");
 
         Dijkstra dijkstra = new Dijkstra(originalGraph);

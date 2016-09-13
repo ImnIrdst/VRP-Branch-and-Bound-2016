@@ -39,7 +39,7 @@ public class Vertex {
     /**
      * constructor for depot
      */
-    public Vertex(String name, VertexType type, double processTime, double dueDate, int penalty) {
+    public Vertex(String name, VertexType type, double processTime, double dueDate, double penalty) {
         this.name = name;
         this.type = type;
         this.dueDate = dueDate;
@@ -176,4 +176,6 @@ public class Vertex {
     public String toString() {
         return name + "[" + getId() + "]";
     }
+
+
 }

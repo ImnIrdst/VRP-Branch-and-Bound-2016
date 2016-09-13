@@ -22,6 +22,9 @@ public class Edge implements Comparable<Edge> {
         this.u = u;
         this.v = v;
         this.weight = weight;
+
+        this.uName = u.name;
+        this.vName = v.name;
     }
 
     public static Edge buildEdgeFromAttributeTableRow(String attributeTableRow, HashMap<String, Vertex> coordsToVertexMap) {

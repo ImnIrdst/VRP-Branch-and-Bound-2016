@@ -1,5 +1,9 @@
 package Main.Graph;
 
+import Main.Algorithms.Other.Random;
+import Main.Algorithms.Other.Random.IRange;
+import Main.Algorithms.Other.Random.DRange;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -151,6 +155,37 @@ public class Graph {
         return graph;
     }
 
+    public static Graph buildRandomGraph(IRange customerQtyRange, IRange vehicleQtyRange, IRange capacityRange, DRange fixCostRange,
+                                         DRange processTimeRange, DRange dueDateRange, DRange penaltyRange, DRange edgeWeightsRange) {
+        Graph graph = new Graph();
+        // Add Depot Vertex
+        int vehicleQty = Random.getRandomIntInRange(vehicleQtyRange);
+        int capacity = Random.getRandomIntInRange(capacityRange);
+        double fixCost = Random.getRandomDoubleInRange(fixCostRange);
+        graph.addVertex(new Vertex("Dp", VertexType.DEPOT, vehicleQty, capacity, fixCost));
+
+        // Build the Customer Vertices
+        int customerQty = Random.getRandomIntInRange(customerQtyRange);
+        for (int i = 0; i < customerQty; i++) {
+            String name = "" + (char)('A' + i);
+            double processTime = Random.getRandomDoubleInRange(processTimeRange);
+            double dueDate = Random.getRandomDoubleInRange(dueDateRange);
+            double penalty = Random.getRandomDoubleInRange(penaltyRange);
+            graph.addVertex(new Vertex(name, VertexType.CUSTOMER, processTime, dueDate, penalty));
+        }
+
+        // Add The Edges
+        for (Vertex u: graph.getVertices()){
+            for (Vertex v : graph.getVertices()){
+                if (u.name.equals(v.name)) continue;
+                Edge e = new Edge(u, v, Random.getRandomDoubleInRange(edgeWeightsRange));
+                graph.addEdge(e);
+            }
+        }
+
+        return graph;
+    }
+
     /**
      * adds a vertex to the adjacency list
      */
@@ -213,7 +248,7 @@ public class Graph {
     public void printVertices() {
         System.out.println("v.id\tv.name\tv.type\tv.processTime\tv.dueDate\tv.penalty\tv.capacity\tv.fixedCost");
         for (Vertex v : getVertices()) {
-            System.out.printf("%d\t\t%s\t\t%s\t%.1f\t\t\t%.1f\t\t\t%.1f\t\t\t%d\t\t\t%.1f\n",
+            System.out.printf("%d\t\t%s\t\t%8s\t%4.1f\t\t\t%4.1f\t\t%4.1f\t\t%4d\t\t%4.1f\n",
                     v.id, v.name, v.type, v.processTime, v.dueDate, v.penalty, v.capacity, v.fixedCost);
         }
     }
@@ -251,9 +286,17 @@ public class Graph {
     }
 
 
-    public int getDepotId(){ return getCustomersQty(); }
-    public Vertex getDepot() { return getVertexById(getDepotId()); }
-    public int getCustomersQty() { return getVertices().size() - 1; }
+    public int getDepotId() {
+        return getCustomersQty();
+    }
+
+    public Vertex getDepot() {
+        return getVertexById(getDepotId());
+    }
+
+    public int getCustomersQty() {
+        return getVertices().size() - 1;
+    }
 
     /**
      * @return distance between to nodes (by name)
@@ -294,7 +337,4 @@ public class Graph {
 
         return "LINESTRING(" + u.getSpacedCoords() + ", " + v.getSpacedCoords() + ")";
     }
-
-
-
 }

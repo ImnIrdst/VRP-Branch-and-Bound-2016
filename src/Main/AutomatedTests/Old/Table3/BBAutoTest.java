@@ -1,6 +1,6 @@
-package Main.AutomatedTests.Table3;
+package Main.AutomatedTests.Old.Table3;
 
-import Main.Algorithms.SupplyChainScheduling.BeamSearch.BeamSearch;
+import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.Algorithms.Dijkstra.Dijkstra;
 import Main.Algorithms.Heuristics.GeneticAlgorithm;
 import Main.GlobalVars;
@@ -12,7 +12,7 @@ import java.util.Scanner;
 /**
  * for running the algorithm
  */
-public class BSAutoTest {
+public class BBAutoTest {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
@@ -30,16 +30,16 @@ public class BSAutoTest {
         FileInputStream fileInputStream = new FileInputStream(new File("resources/Table3/t3-input-subset-03.csv"));
         Scanner sc = new Scanner(fileInputStream);
 
-        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/Table3/t3-automated-test-results-bs-tmp.csv"));
+        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/Table3/t3-automated-test-results-bb-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
         out.println(sc.nextLine() + ",BBValue,BBTime,BBNodes");
         out.flush();
 
         while (sc.hasNextLine()) {
             String autoTestRow = sc.nextLine();
-            System.out.println(autoTestRow);
             String testType = autoTestRow.split(",")[4];
-            if (testType.equals("Exact")) continue;
+            System.out.println(autoTestRow);
+            if (!testType.equals("Exact")) continue;
 //            if (!autoTestRow.split(",")[9].equals("Optimal")){
 //                out.println(autoTestRow); continue;
 //            }
@@ -77,19 +77,16 @@ public class BSAutoTest {
             GlobalVars.startTime = System.currentTimeMillis();
             try {
                 // run the branch and bound algorithm
-                GlobalVars.startTime = System.currentTimeMillis();
-                BeamSearch beamSearch = new BeamSearch(preprocessedGraph, Double.parseDouble(testType), GlobalVars.INF); // geneticAlgorithm.getMinimumCost()
-                beamSearch.run(GlobalVars.depotName);
+                BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
+                branchAndBound.run(GlobalVars.depotName);
                 GlobalVars.finishTime = System.currentTimeMillis();
-                beamSearch.printTheAnswer();
+                System.out.printf("Optimal Cost: %.2f\n", branchAndBound.bestNode.getCost());
 
-                optimalValue = String.format("%.2f", beamSearch.minimumCost);
+                optimalValue = String.format("%.2f", branchAndBound.minimumCost);
             } catch (NullPointerException e) {
                 optimalValue = "NA";
-                e.printStackTrace();
             } catch (OutOfMemoryError e) {
                 optimalValue = "ML";
-                e.printStackTrace();
             }
             GlobalVars.finishTime = System.currentTimeMillis();
             expandedNodes = "" + GlobalVars.numberOfBranchAndBoundNodes;

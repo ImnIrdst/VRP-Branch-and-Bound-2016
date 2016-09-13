@@ -2,6 +2,9 @@ package Main.Algorithms.SupplyChainScheduling.BranchAndBound;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
 import Main.Algorithms.Heuristics.GeneticAlgorithm;
+import Main.Algorithms.Other.Random;
+import Main.Algorithms.Other.Random.IRange;
+import Main.Algorithms.Other.Random.DRange;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 
@@ -13,11 +16,21 @@ import java.io.FileNotFoundException;
 public class BBTest {
     public static void main(String[] args) throws FileNotFoundException {
 
-        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/InputData/ISFNodes-06-Customers.csv",
-                "resources/InputData/ISFRoads.csv"
+        Random.setSeed(1);
+        IRange customerQtyRange = new IRange(5, 6);
+        IRange capacityRange = new IRange(1, 5);
+        IRange vehicleQtyRange = new IRange(2, 5);
+        DRange fixCostRange = new DRange(10, 10);
+        DRange processTimeRange = new DRange(1, 5);
+        DRange dueDateRange = new DRange(5, 20);
+        DRange penaltyRange = new DRange(0, 1);
+        DRange edgeWeightRange = new DRange(5 ,10);
+
+        Graph originalGraph = Graph.buildRandomGraph(
+                customerQtyRange, vehicleQtyRange, capacityRange, fixCostRange,
+                processTimeRange, dueDateRange, penaltyRange, edgeWeightRange
         );
-//        Main.Graph originalGraph = Main.Graph.buildAGraphFromCSVFile("resources/input.csv");
+//        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
 //        originalGraph.printGraph();
 
         // build the preprocessed graph
@@ -27,7 +40,7 @@ public class BBTest {
         // fill the global variables
         preprocessedGraph.setIds();
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
-//        preprocessedGraph.printVertices();
+        preprocessedGraph.printVertices();
 //        preprocessedGraph.printGraph();
 
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);
