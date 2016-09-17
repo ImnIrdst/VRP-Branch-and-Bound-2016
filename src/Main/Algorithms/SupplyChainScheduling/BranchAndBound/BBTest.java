@@ -15,21 +15,24 @@ import java.io.FileNotFoundException;
  */
 public class BBTest {
     public static void main(String[] args) throws FileNotFoundException {
-
         Random.setSeed(1);
-        IRange customerQtyRange = new IRange(5, 6);
+        IRange customerQtyRange = new IRange(8, 8);
         IRange capacityRange = new IRange(1, 5);
         IRange vehicleQtyRange = new IRange(2, 5);
         DRange fixCostRange = new DRange(10, 10);
         DRange processTimeRange = new DRange(1, 5);
-        DRange dueDateRange = new DRange(5, 20);
-        DRange penaltyRange = new DRange(0, 1);
-        DRange edgeWeightRange = new DRange(5 ,10);
+        DRange dueDateRange = new DRange(5, 12);
+        DRange penaltyRange = new DRange(0.1, 1.0);
+        DRange edgeWeightRange = new DRange(5, 12);
 
         Graph originalGraph = Graph.buildRandomGraph(
                 customerQtyRange, vehicleQtyRange, capacityRange, fixCostRange,
                 processTimeRange, dueDateRange, penaltyRange, edgeWeightRange
         );
+//        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+//                "resources/InputData/ISFNodes-06-Customers.csv",
+//                "resources/InputData/ISFRoads.csv"
+//        );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
 //        originalGraph.printGraph();
 
@@ -59,14 +62,14 @@ public class BBTest {
         branchAndBound.run(GlobalVars.depotName);
         GlobalVars.finishTime = System.currentTimeMillis();
         branchAndBound.printTheAnswer();
-        
+
         // export the result
 //         branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
 
         // print stats
         System.out.println();
         System.out.println("Total Calculation time: "
-                + String.format("%.2f", (geneticTime + GlobalVars.finishTime - GlobalVars.startTime)/1000.) + "s");
+                + String.format("%.2f", (geneticTime + GlobalVars.finishTime - GlobalVars.startTime) / 1000.) + "s");
         System.out.println("Number of Branch and Bound Tree Nodes: " + GlobalVars.numberOfBranchAndBoundNodes);
     }
 }

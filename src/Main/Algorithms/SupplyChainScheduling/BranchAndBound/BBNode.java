@@ -40,7 +40,7 @@ public class BBNode {
     public double lowerBoundForVehicleCost;
     public double lowerBoundForPenaltyTaken;
     public double lowerBoundForTimeTaken;
-
+    
     /**
      * constructor for the branch and bound node
      */
@@ -63,14 +63,6 @@ public class BBNode {
         this.calculateLowerBoundForMinimumVehicleUsageCost();
         this.calculateLowerBoundForCumulativeTimeNeededForAllVehicles();
 
-        long elapsedTime = System.currentTimeMillis() - GlobalVars.startTime;
-
-        if (elapsedTime > GlobalVars.bbPrintTime) {
-            GlobalVars.bbPrintTime += GlobalVars.printTimeStepSize;
-            System.out.printf("Time: %.1fs,\t\t", GlobalVars.bbPrintTime / 1000.);
-            System.out.printf("Minimum value: %.2f,\t\t", GlobalVars.minimumValue);
-            System.out.print("Nodes: " + GlobalVars.numberOfBranchAndBoundNodes + "\n");
-        }
 
     }
 
@@ -263,12 +255,21 @@ public class BBNode {
      * calculates the lower bound for additional penalty taken
      */
     public void calculateLowerBoundForPenaltyTaken() {
-//        if (!this.waitingList.isEmpty()){
-//            this.tsp = new SimpleTSP(GlobalVars.ppGraph, this.waitingList, this.cumulativeProcessTime);
-//            this.tsp.run();
-//
-//            lowerBoundForPenaltyTaken += this.tsp.penaltyTaken;
-//        }
+        if (parent == null){
+            lowerBoundForPenaltyTaken = 0;
+            for (Vertex v: GlobalVars.ppGraph.getVertices()){
+                double minimumArrivalTime = getMinimumEdgeWeightOfVertex(v) + v.processTime;
+                lowerBoundForPenaltyTaken += Math.max(0, minimumArrivalTime - v.dueDate) * v.penalty;
+            }
+        }
+        else
+            lowerBoundForPenaltyTaken = parent.lowerBoundForPenaltyTaken;
+
+        if (vertex.type == VertexType.CUSTOMER){
+            double minimumArrivalTime = getMinimumEdgeWeightOfVertex(vertex) + vertex.processTime;
+            lowerBoundForPenaltyTaken -= Math.max(0, minimumArrivalTime - vertex.dueDate) * vertex.penalty;
+        }
+        lowerBoundForPenaltyTaken = lowerBoundForPenaltyTaken;
     }
 
 
@@ -303,6 +304,25 @@ public class BBNode {
      * @return minimum edge weight of a given vertex
      */
     public double getSecondMinimumEdgeWeightOfVertex(Vertex v) {
+        double min = Integer.MAX_VALUE;
+
+        for (Vertex u : v.neighbours.keySet()) {
+            if (u.id == v.id) continue;
+            if (u.id != this.vertex.id
+                    && u.type == VertexType.CUSTOMER
+                    && this.servicedNodes[u.id] == true) continue;
+
+            if (min > GlobalVars.ppGraph.getDistance(u, v)){
+                min = GlobalVars.ppGraph.getDistance(u, v);
+            }
+        }
+        return min;
+    }
+
+    /**
+     * @return minimum edge weight of a given vertex
+     */
+    public double getMinimumEdgeWeightOfVertex(Vertex v) {
         double min = Integer.MAX_VALUE;
 
         int minId = -1;

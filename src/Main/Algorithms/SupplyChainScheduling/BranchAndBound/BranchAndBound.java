@@ -73,6 +73,20 @@ public class BranchAndBound {
                 BBNode newNode = new BBNode(v, u);
                 addNodeToPriorityQueue(newNode);
             }
+
+            printProgress();
+        }
+    }
+
+    private void printProgress() {
+        long elapsedTime = System.currentTimeMillis() - GlobalVars.startTime;
+
+        if (elapsedTime > GlobalVars.bbPrintTime) {
+            GlobalVars.bbPrintTime += GlobalVars.printTimeStepSize;
+            System.out.printf("Time: %5.1fs,\t\t", GlobalVars.bbPrintTime / 1000.);
+            System.out.printf("Minimum value: %5.2f,\t\t", GlobalVars.minimumValue);
+            System.out.printf("Node in PQ: %7d,\t\t", pq.size());
+            System.out.print("Nodes: " + GlobalVars.numberOfBranchAndBoundNodes + "\n");
         }
     }
 
