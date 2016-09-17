@@ -6,10 +6,7 @@ import Main.Graph.Edge;
 import Main.Graph.Vertex;
 import Main.Graph.VertexType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * a node that used in branch and bound for VRP
@@ -20,6 +17,7 @@ public class BBNode {
 
     public List<Integer> waitingList; // customers that must be served
     public double cumulativeProcessTime; // process time of served customers
+    public double cumulativeWLTravelTime; // cumulative travel time of waiting list customers
 
     public int vehicleUsed;        // number of vehicle used in this node
     public double vehicleUsageCost;
@@ -27,6 +25,7 @@ public class BBNode {
     public double maxTimeElapsed;     // the maximum time elapsed in all paths
     public double cumulativePenaltyTaken; // cumulative penalty taken in all nodes
     public double cumulativeTimeTaken; // cumulative time that all vehicles spend to serve the customers
+    public double cumulativeWLMinimum2ndEdges; // cumulative waiting list minimum second edges
     public int remainedCapacity;   // remained goods in the car
     public boolean[] servicedNodes; // nodes that are serviced
     public int numberOfServicedCustomers; // for easily terminate the algorithm
@@ -55,21 +54,25 @@ public class BBNode {
         this.vertex = vertex;
         this.parent = parent;
 
+        this.calculateServicedNodes();
         this.calculateWaitingList();
         this.calculateCumulativeProcessTime();
+        this.calculateCumulativeWLTravelTime();
+        this.calculateCumulativeWLMinimumSecondEdges();
         this.calculateTsp();
+
         this.calculateVehicleUsed();
         this.calculateVehicleUsageCost();
         this.calculateCurTimeElapsed();
         this.calculateRemainedCapacity();
         this.calculateCumulativePenaltyTaken();
         this.calculateCumulativeTimeTaken();
-        this.calculateServicedNodes();
+
 
         this.calculateLowerBoundForPenaltyTaken();
         this.calculateLowerBoundForMinimumVehicleUsageCost();
         this.calculateLowerBoundForTravelTime();
-
+        this.calculateLowerBoundForDeeperLevels();
 
     }
 
@@ -92,6 +95,9 @@ public class BBNode {
         }
     }
 
+    /**
+     * calculateCumulativeProcessTime
+     */
     public void calculateCumulativeProcessTime() {
         if (parent == null)
             cumulativeProcessTime = 0;
@@ -99,6 +105,25 @@ public class BBNode {
             cumulativeProcessTime += parent.cumulativeProcessTime + this.vertex.processTime;
         else
             cumulativeProcessTime += parent.cumulativeProcessTime;
+    }
+
+    /**
+     * calculateCumulativeWLTravelTime
+     */
+    public void calculateCumulativeWLTravelTime() {
+        if (parent != null && parent.vertex.type == VertexType.DEPOT)
+            this.cumulativeWLTravelTime += GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
+        if (parent != null && parent.vertex.type != VertexType.DEPOT)
+            this.cumulativeWLTravelTime += parent.cumulativeWLTravelTime
+                    + GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
+    }
+
+    public void calculateCumulativeWLMinimumSecondEdges() {
+        if (parent != null && parent.vertex.type == VertexType.DEPOT)
+            this.cumulativeWLMinimum2ndEdges += getSecondMinimumEdgeWeightOfVertex(this.vertex);
+        if (parent != null && parent.vertex.type != VertexType.DEPOT)
+            this.cumulativeWLMinimum2ndEdges += parent.cumulativeWLMinimum2ndEdges
+                    + getSecondMinimumEdgeWeightOfVertex(this.vertex);
     }
 
     /**
@@ -222,7 +247,8 @@ public class BBNode {
     }
 
     /**
-     * calculates a lower bound for cumulative time needed for all the vehicles to serve all customers
+     * first pick depot second minimum edges,
+     * then pick remained customers second minimum edges
      */
     public void calculateLowerBoundForTravelTime() {
 
@@ -278,13 +304,37 @@ public class BBNode {
     /**
      * First Consider only level 1
      */
-    public void calculateLowerboundForDeeperLevels() {
-        List<BBNode> childs = new ArrayList<>();
+    public void calculateLowerBoundForDeeperLevels() {
+        List<BBNode> children = new ArrayList<>();
         for (Vertex v : vertex.neighbours.keySet()) {
-            if (this.servicedNodes[v.id] == true) continue;
+            if (v.type != VertexType.DEPOT && this.servicedNodes[v.id] == true) continue;
 
             BBNode child = new BBNode();
+
+            child.vertex = v;
+            child.lowerBoundForTravelTime = GlobalVars.ppGraph.getDistance(vertex, v)
+                    - getSecondMinimumEdgeWeightOfVertex(v);
+
+            double minimumArrivalTime = this.cumulativeProcessTime
+                    + this.cumulativeWLTravelTime
+                    + this.cumulativeWLMinimum2ndEdges
+                    + GlobalVars.ppGraph.getDistance(vertex, v);
+            child.lowerBoundForPenaltyTaken = Math.max(0, (minimumArrivalTime - vertex.dueDate)) * vertex.penalty;
+
+            if (v.type == VertexType.DEPOT && this.numberOfServicedCustomers != GlobalVars.numberOfCustomers)
+                child.lowerBoundForVehicleCost = GlobalVars.ppGraph.getDepot().fixedCost;
+            children.add(child);
         }
+
+        Collections.sort(children, new Comparator<BBNode>() {
+            @Override
+            public int compare(BBNode o1, BBNode o2) {
+                return Double.compare(o1.getLowerBound(), o2.getLowerBound());
+            }
+        });
+
+        if (children.size() > 0) this.lowerBoundForDeeperLevels = children.get(0).getLowerBound();
+        this.lowerBoundForDeeperLevels = this.lowerBoundForDeeperLevels;
     }
 
 
@@ -312,7 +362,7 @@ public class BBNode {
      */
     public int getMinimumNumberOfExtraVehiclesNeeded() {
         int remainedCustomers = GlobalVars.numberOfCustomers - this.numberOfServicedCustomers;
-        return (remainedCustomers - this.remainedCapacity) / GlobalVars.depot.capacity;
+        return (int) (Math.ceil((remainedCustomers - this.remainedCapacity) / (double) GlobalVars.depot.capacity) + 1e-6);
     }
 
     /**
@@ -323,8 +373,7 @@ public class BBNode {
 
         for (Vertex u : v.neighbours.keySet()) {
             if (u.id == v.id) continue;
-            if (u.id != this.vertex.id
-                    && u.type == VertexType.CUSTOMER
+            if (u.type == VertexType.CUSTOMER
                     && this.servicedNodes[u.id] == true) continue;
 
             if (min > GlobalVars.ppGraph.getDistance(u, v)) {
