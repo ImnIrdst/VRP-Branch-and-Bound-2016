@@ -305,36 +305,36 @@ public class BBNode {
      * First Consider only level 1
      */
     public void calculateLowerBoundForDeeperLevels() {
-        List<BBNode> children = new ArrayList<>();
-        for (Vertex v : vertex.neighbours.keySet()) {
-            if (v.type != VertexType.DEPOT && this.servicedNodes[v.id] == true) continue;
-
-            BBNode child = new BBNode();
-
-            child.vertex = v;
-            child.lowerBoundForTravelTime = GlobalVars.ppGraph.getDistance(vertex, v)
-                    - getSecondMinimumEdgeWeightOfVertex(v);
-
-            double minimumArrivalTime = this.cumulativeProcessTime
-                    + this.cumulativeWLTravelTime
-                    + this.cumulativeWLMinimum2ndEdges
-                    + GlobalVars.ppGraph.getDistance(vertex, v);
-            child.lowerBoundForPenaltyTaken = Math.max(0, (minimumArrivalTime - vertex.dueDate)) * vertex.penalty;
-
-            if (v.type == VertexType.DEPOT && this.numberOfServicedCustomers != GlobalVars.numberOfCustomers)
-                child.lowerBoundForVehicleCost = GlobalVars.ppGraph.getDepot().fixedCost;
-            children.add(child);
-        }
-
-        Collections.sort(children, new Comparator<BBNode>() {
-            @Override
-            public int compare(BBNode o1, BBNode o2) {
-                return Double.compare(o1.getLowerBound(), o2.getLowerBound());
-            }
-        });
-
-        if (children.size() > 0) this.lowerBoundForDeeperLevels = children.get(0).getLowerBound();
-        this.lowerBoundForDeeperLevels = this.lowerBoundForDeeperLevels;
+//        List<BBNode> children = new ArrayList<>();
+//        for (Vertex v : vertex.neighbours.keySet()) {
+//            if (v.type != VertexType.DEPOT && this.servicedNodes[v.id] == true) continue;
+//
+//            BBNode child = new BBNode();
+//
+//            child.vertex = v;
+//            child.lowerBoundForTravelTime = GlobalVars.ppGraph.getDistance(vertex, v)
+//                    - getSecondMinimumEdgeWeightOfVertex(v);
+//
+//            double minimumArrivalTime = this.cumulativeProcessTime
+//                    + this.cumulativeWLTravelTime
+//                    + this.cumulativeWLMinimum2ndEdges
+//                    + GlobalVars.ppGraph.getDistance(vertex, v);
+//            child.lowerBoundForPenaltyTaken = Math.max(0, (minimumArrivalTime - vertex.dueDate)) * vertex.penalty;
+//
+//            if (v.type == VertexType.DEPOT && this.numberOfServicedCustomers != GlobalVars.numberOfCustomers)
+//                child.lowerBoundForVehicleCost = GlobalVars.ppGraph.getDepot().fixedCost;
+//            children.add(child);
+//        }
+//
+//        Collections.sort(children, new Comparator<BBNode>() {
+//            @Override
+//            public int compare(BBNode o1, BBNode o2) {
+//                return Double.compare(o1.getLowerBound(), o2.getLowerBound());
+//            }
+//        });
+//
+//        if (children.size() > 0) this.lowerBoundForDeeperLevels = children.get(0).getLowerBound();
+//        this.lowerBoundForDeeperLevels = this.lowerBoundForDeeperLevels;
     }
 
 

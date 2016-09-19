@@ -18,7 +18,7 @@ public class BBTest {
         Random.setSeed(1);
         IRange customerQtyRange = new IRange(8, 8);
         IRange capacityRange = new IRange(1, 5);
-        IRange vehicleQtyRange = new IRange(2, 5);
+        IRange vehicleQtyRange = new IRange(5, 5);
         DRange fixCostRange = new DRange(10, 10);
         DRange processTimeRange = new DRange(1, 5);
         DRange dueDateRange = new DRange(5, 12);

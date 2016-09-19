@@ -16,16 +16,20 @@ import java.util.Scanner;
 public class BBAutoTest {
     public static void main(String[] args) throws FileNotFoundException {
 
-        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/t1-automated-test-results-cplex-bb-tmp.csv"));
+        FileOutputStream fileOutputStream = new FileOutputStream(
+                new File("resources/Experiments/ex1-automated-test-results-bb-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
 //        out.println(sc.nextLine() + ",BBValue,BBTime,BBNodes");
         out.flush();
 
+        String tableHeader = "Test_ID,C_QTY,V_QTY,CPU_TIME,COST,BB_NODES,";
+        out.println(tableHeader);
+        System.out.println(tableHeader);
         for (int testId=0 ; testId<100 ; testId++){
             Random.setSeed(testId);
             Random.IRange customerQtyRange = new Random.IRange(5, 6);
             Random.IRange capacityRange = new Random.IRange(1, 5);
-            Random.IRange vehicleQtyRange = new Random.IRange(2, 5);
+            Random.IRange vehicleQtyRange = new Random.IRange(2, 6);
             Random.DRange fixCostRange = new Random.DRange(10, 10);
             Random.DRange processTimeRange = new Random.DRange(1, 5);
             Random.DRange dueDateRange = new Random.DRange(5, 20);
@@ -44,11 +48,11 @@ public class BBAutoTest {
 //            preprocessedGraph.printGraph();
 
             System.out.println("Number of Customers, Vehicles: " +
-                    GlobalVars.numberOfCustomers + " " + "-1");
+                    GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
             int geneticTime = 0;
 //            if (Main.GlobalVars.numberOfCustomers == 11) geneticTime = 1000;
-            if (GlobalVars.numberOfCustomers == 12) geneticTime = 10000;
+//            if (GlobalVars.numberOfCustomers == 12) geneticTime = 10000;
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
@@ -78,13 +82,18 @@ public class BBAutoTest {
             GlobalVars.finishTime = System.currentTimeMillis();
             expandedNodes = "" + GlobalVars.numberOfBranchAndBoundNodes;
             elapsedTime = String.format("%.2f", (geneticTime + GlobalVars.finishTime - GlobalVars.startTime) / 1000.);
+            String tableRow = String.format("%d,%d,%d,%s,%s,%s", testId,
+                    GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, elapsedTime, optimalValue, expandedNodes);
 
 //            System.out.println(testInfo);
+            System.out.println(tableHeader);
+            System.out.println(tableRow);
             System.out.println("Optimal Value: " + optimalValue);
             System.out.println("Total Calculation time: " + elapsedTime + "s");
             System.out.println("Number of Branch and Bound Tree Nodes: " + expandedNodes);
             System.out.println("-------------------------------------");
-//            out.println(autoTestRow + "," + optimalValue + "," + elapsedTime + "," + expandedNodes);
+
+            out.println(tableRow);
             out.flush();
         }
         out.close();

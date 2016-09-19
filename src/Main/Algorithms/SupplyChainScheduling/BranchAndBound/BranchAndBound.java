@@ -124,7 +124,7 @@ public class BranchAndBound {
      */
     boolean canBePruned(BBNode newNode) {
         if (newNode.vehicleUsed > GlobalVars.numberOfVehicles)
-            return true; // TODO: Check This
+            return true;
         // if new node capacity is negative
         if (newNode.remainedCapacity < 0)
             return true;
