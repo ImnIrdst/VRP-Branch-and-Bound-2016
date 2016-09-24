@@ -6,6 +6,7 @@ import Main.Algorithms.Other.Random;
 import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.GlobalVars;
 import Main.Graph.Graph;
+import Main.IOLoader.LoadRandomGraph;
 
 import java.io.*;
 import java.util.Scanner;
@@ -26,20 +27,7 @@ public class BBAutoTest {
         out.println(tableHeader);
         System.out.println(tableHeader);
         for (int testId=0 ; testId<100 ; testId++){
-            Random.setSeed(testId);
-            Random.IRange customerQtyRange = new Random.IRange(5, 6);
-            Random.IRange capacityRange = new Random.IRange(1, 5);
-            Random.IRange vehicleQtyRange = new Random.IRange(2, 6);
-            Random.DRange fixCostRange = new Random.DRange(10, 10);
-            Random.DRange processTimeRange = new Random.DRange(1, 5);
-            Random.DRange dueDateRange = new Random.DRange(5, 20);
-            Random.DRange penaltyRange = new Random.DRange(0, 1);
-            Random.DRange edgeWeightRange = new Random.DRange(5 ,10);
-
-            Graph originalGraph = Graph.buildRandomGraph(
-                    customerQtyRange, vehicleQtyRange, capacityRange, fixCostRange,
-                    processTimeRange, dueDateRange, penaltyRange, edgeWeightRange
-            );
+            Graph originalGraph = LoadRandomGraph.load(testId);
 
             // fill the global variables
             originalGraph.setIds();

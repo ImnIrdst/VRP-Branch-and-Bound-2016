@@ -5,6 +5,7 @@ import Main.Algorithms.Other.Random;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
+import Main.IOLoader.LoadRandomGraph;
 import ilog.concert.*;
 import Main.Algorithms.Other.Random.*;
 
@@ -42,25 +43,12 @@ public class Model {
     }
 
     public static void ReadData() throws Exception {
-//        Random.setSeed(1);
-//        IRange customerQtyRange = new IRange(5, 6);
-//        IRange capacityRange = new IRange(1, 5);
-//        IRange vehicleQtyRange = new IRange(2, 5);
-//        DRange fixCostRange = new DRange(10, 10);
-//        DRange processTimeRange = new DRange(1, 5);
-//        DRange dueDateRange = new DRange(5, 20);
-//        DRange penaltyRange = new DRange(0, 1);
-//        DRange edgeWeightRange = new DRange(5 ,10);
-//
-//        Graph originalGraph = Graph.buildRandomGraph(
-//                customerQtyRange, vehicleQtyRange, capacityRange, fixCostRange,
-//                processTimeRange, dueDateRange, penaltyRange, edgeWeightRange
+
+        Graph originalGraph = LoadRandomGraph.load(1);
+//        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+//                "resources/InputData/ISFNodes-06-Customers.csv",
+//                "resources/InputData/ISFRoads.csv"
 //        );
-        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/InputData/ISFNodes-06-Customers.csv",
-                "resources/InputData/ISFRoads.csv"
-        );
-//        Main.Graph originalGraph = Main.Graph.buildAGraphFromCSVFile("resources/input.csv");
 
         Dijkstra dijkstra = new Dijkstra(originalGraph);
         Graph preprocessedGraph = dijkstra.makeShortestPathGraph();
@@ -453,16 +441,16 @@ public class Model {
 //                System.out.println();
 //            }
 
-            for (int k = 0; k < vehiclesQty; k++) {
-                double cap = 0;
-                for (int i = 0; i < nodesQty; i++) {
-                    for (int j = 0; j < nodesQty; j++) {
-                        if (j == depotId) continue;
-                        cap += SCS.getValue(x[i][j][k]);
-                    }
-                }
-                System.out.println("Cap " + cap);
-            }
+//            for (int k = 0; k < vehiclesQty; k++) {
+//                double cap = 0;
+//                for (int i = 0; i < nodesQty; i++) {
+//                    for (int j = 0; j < nodesQty; j++) {
+//                        if (j == depotId) continue;
+//                        cap += SCS.getValue(x[i][j][k]);
+//                    }
+//                }
+//                System.out.println("Cap " + cap);
+//            }
 
 
             System.out.println();
