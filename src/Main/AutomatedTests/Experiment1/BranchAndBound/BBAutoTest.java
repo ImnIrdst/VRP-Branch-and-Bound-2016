@@ -16,14 +16,11 @@ import java.util.Scanner;
  */
 public class BBAutoTest {
     public static void main(String[] args) throws FileNotFoundException {
-
         FileOutputStream fileOutputStream = new FileOutputStream(
                 new File("resources/Experiments/ex1-automated-test-results-bb-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
-//        out.println(sc.nextLine() + ",BBValue,BBTime,BBNodes");
-        out.flush();
 
-        String tableHeader = "Test_ID,C_QTY,V_QTY,CPU_TIME,COST,BB_NODES,";
+        String tableHeader = "Test ID,Customers,Vehicles,Cost,CPU Time,Nodes,";
         out.println(tableHeader);
         System.out.println(tableHeader);
         for (int testId=0 ; testId<100 ; testId++){
@@ -71,7 +68,7 @@ public class BBAutoTest {
             expandedNodes = "" + GlobalVars.numberOfBranchAndBoundNodes;
             elapsedTime = String.format("%.2f", (geneticTime + GlobalVars.finishTime - GlobalVars.startTime) / 1000.);
             String tableRow = String.format("%d,%d,%d,%s,%s,%s", testId,
-                    GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, elapsedTime, optimalValue, expandedNodes);
+                    GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, optimalValue, elapsedTime, expandedNodes);
 
 //            System.out.println(testInfo);
             System.out.println(tableHeader);

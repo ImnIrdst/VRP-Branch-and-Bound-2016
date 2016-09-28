@@ -5,6 +5,7 @@ import Main.Algorithms.Other.Random;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
+import Main.IOLoader.LoadRandomGraph;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -38,7 +39,9 @@ public class CplexAutoTest {
     static Vertex depot;
     static Graph ppGraph;                    // preprocessed graph
 
+    static String outputRow;
     static PrintWriter out;
+
 
     public static void main(String[] arg) throws Exception {
         ReadData();
@@ -49,51 +52,34 @@ public class CplexAutoTest {
 
     public static void ReadData() throws Exception {
 
-        FileInputStream fileInputStream = new FileInputStream(new File("resources/Experiments/ex1-automated-test-results-bb-tmp.csv"));
-        Scanner sc = new Scanner(fileInputStream);
-
-        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/t1-automated-test-results-cplex-tmp.csv"));
+        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/Experiments/ex1-automated-test-results-cplex-tmp.csv"));
         out = new PrintWriter(fileOutputStream);
 
-        String tableHeader = sc.nextLine() + "CPLEXTime,CPLEXValue,CPLEXNodes,CPLEXStatus";
+        String tableHeader = "Test ID,Customers,Vehicles,Cost,CPU Time,Nodes,Status";
         out.println(tableHeader);
         out.flush();
-        for (int testId=0 ; testId<100 ; testId++){
-            Random.setSeed(testId);
-            Random.IRange customerQtyRange = new Random.IRange(5, 6);
-            Random.IRange capacityRange = new Random.IRange(1, 5);
-            Random.IRange vehicleQtyRange = new Random.IRange(2, 6);
-            Random.DRange fixCostRange = new Random.DRange(10, 10);
-            Random.DRange processTimeRange = new Random.DRange(1, 5);
-            Random.DRange dueDateRange = new Random.DRange(5, 20);
-            Random.DRange penaltyRange = new Random.DRange(0, 1);
-            Random.DRange edgeWeightRange = new Random.DRange(5 ,10);
-
-            Graph originalGraph = Graph.buildRandomGraph(
-                    customerQtyRange, vehicleQtyRange, capacityRange, fixCostRange,
-                    processTimeRange, dueDateRange, penaltyRange, edgeWeightRange
-            );
+        for (int testId = 0; testId < 100; testId++) {
+            Graph originalGraph = LoadRandomGraph.load(testId);
 
             Graph preprocessedGraph = originalGraph;
             preprocessedGraph.setIds();
             GlobalVars.setTheGlobalVariables(preprocessedGraph);
 
-            System.out.println("Number of Customers, Vehicles: " +
-                    GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
             t = preprocessedGraph.getAdjacencyMatrix();
             depotId = GlobalVars.depotId;
-            depot = preprocessedGraph.getVertexById(depotId);
+            depot = GlobalVars.depot;
             ppGraph = preprocessedGraph;
-
+            vehicleFixCost = GlobalVars.depot.fixedCost;
+            vehicleCapacity = GlobalVars.depot.capacity;
             nodesQty = GlobalVars.numberOfNodes;
             customersQty = GlobalVars.numberOfCustomers;
+            vehiclesQty = GlobalVars.numberOfVehicles;
 
-//            vehicleIds = new ArrayList<>();
-//            for (Vertex v : ppGraph.getVertices()) {
-//                if (v.hasVehicle == 1) vehicleIds.add(v.getId());
-//            }
+            System.out.println("Number of Customers, Vehicles: " +
+                    GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
+            outputRow = "" + testId + "," + customersQty + "," + vehiclesQty + ",";
             Create_Model();
             Solve_Model();
         }
@@ -233,16 +219,15 @@ public class CplexAutoTest {
      * loaded with more than its capacity
      */
     public static void addConstraint4() throws IloException {
-
         for (int k = 0; k < vehiclesQty; k++) {
             IloLinearNumExpr expr2 = SCS.linearNumExpr();
             for (int i = 0; i < nodesQty; i++) {
                 for (int j = 0; j < nodesQty; j++) {
-                    if (j == depotId) continue;
+//                    if (j == depotId) continue;
                     expr2.addTerm(1.0, x[i][j][k]);
                 }
             }
-            SCS.addLe(expr2, vehicleCapacity);
+            SCS.addLe(expr2, vehicleCapacity + 1);
             expr2.clear();
         }
 
@@ -425,69 +410,46 @@ public class CplexAutoTest {
 
     public static void Solve_Model() throws Exception {
 //        SCS.setParam(IloCplex.IntParam.Simplex.Display, 0);
+        SCS.setParam(IloCplex.DoubleParam.EpInt, 1e-10);
+        SCS.setOut(null);
+        String expandedNodes = "?";
+        String elapsedTime = "?";
+        String optimalValue = "?";
+        String status = "?";
         long startTime = System.currentTimeMillis();
-        if (SCS.solve()) {
-            long finishTime = System.currentTimeMillis();
-            System.out.println("Status = " + SCS.getStatus());
-            System.out.println("Objective Value = " + String.format("%.2f", SCS.getObjValue()));
-            System.out.println("yk, mdt, zk, dd, T, penalty");
-            for (int k = 0; k < vehiclesQty; k++) {
-                long yk = Math.round(SCS.getValue(y[k]));
-                System.out.printf("Y%d(%d, %.1f) ", k, yk, SCS.getValue(S[k]));
-                if (yk == 0) System.out.println();
-                if (yk == 0) continue;
-                for (int i = nodesQty - 1; i >= 0; i--) {
-                    for (int j = nodesQty - 1; j >= 0; j--) {
-//                        long xijk = Math.round(SCS.getValue(x[i][j][k]));
-                        double zjk = (SCS.getValue(D[j]));
-                        double djk = (SCS.getValue(T[j]));
-                        double xijk = (SCS.getValue(x[i][j][k]));
+        try {
+            SCS.setParam(IloCplex.DoubleParam.TiLim, 500);
+            if (SCS.solve()) {
+                long finishTime = System.currentTimeMillis();
+                elapsedTime = String.format("%.2f", (finishTime - startTime) / 1000.);
+                optimalValue = String.format("%.2f", SCS.getObjValue());
 
-                        if (xijk == 0) continue;
-                        Vertex u = ppGraph.getVertexById(i);
-                        Vertex v = ppGraph.getVertexById(j);
+                System.out.println("Status = " + SCS.getStatus());
+                System.out.println("Objective Value = " + String.format("%.2f", SCS.getObjValue()));
 
-                        System.out.print(" "
-                                + u
-                                + " -("
-                                + String.format("%.2f", ppGraph.getDistance(u, v))
-                                + String.format(", %.2f", zjk) + String.format(", %.2f", djk * v.penalty)
-                                + ")-> "
-                                + v + ","
-                        );
-                    }
-                }
-                System.out.println();
+                status = "" + SCS.getStatus();
+
+                expandedNodes = "" + SCS.getNnodes64();
+                System.out.println("Number of Nodes: " + SCS.getNnodes64());
+                System.out.printf("Processing Time: %.2fs\n", (finishTime - startTime) / 1000.);
+            } else {
+                long finishTime = System.currentTimeMillis();
+                elapsedTime = String.format("%.2f", (finishTime - startTime) / 1000.);
+                optimalValue = "NA";
+                System.out.println("Can't be solved!!!!");
             }
-
-//            for (int i = 0; i < customersQty; i++) {
-//                for (int j = 0; j < customersQty; j++) {
-//                    if (i == j || i == depotId || j == depotId) System.out.print("0 ");
-//                    else System.out.print(Math.round(SCS.getValue(A[i][j])) + " ");
-//                }
-//                System.out.println();
-//            }
-
-//            for (int k = 0; k < vehiclesQty; k++) {
-//                double cap = 0;
-//                for (int i = 0; i < nodesQty; i++) {
-//                    for (int j = 0; j < nodesQty; j++) {
-//                        if (j == depotId) continue;
-//                        cap += SCS.getValue(x[i][j][k]);
-//                    }
-//                }
-//                System.out.println("Cap " + cap);
-//            }
-
-
-            System.out.println();
-            System.out.println("Number of Nodes: " + SCS.getNnodes64());
-            System.out.println("Objective Value = " + String.format("%.2f", SCS.getObjValue()));
-            System.out.printf("Processing Time: %.2fs\n", (finishTime - startTime) / 1000.);
-        } else {
-            System.out.println();
-            System.out.println("Can't be solved!!!!");
+        } catch (Exception e) {
+            optimalValue = "ML";
+            long finishTime = System.currentTimeMillis();
+            elapsedTime = String.format("%.2f", (finishTime - startTime) / 1000.);
         }
+        System.out.println("--------------------------------------------------------");
+        outputRow += optimalValue + "," + elapsedTime + "," + expandedNodes + "," + status;
+        out.println(outputRow);
+        out.flush();
+
+        System.out.println(outputRow);
+
         SCS.clearUserCuts();
         SCS.clearCallbacks();
         SCS.clearLazyConstraints();
@@ -498,21 +460,5 @@ public class CplexAutoTest {
     public static Vertex vertexi(int i) {
         return ppGraph.getVertexById(i);
     }
-//    public static void WriteData() throws Exception {
-//
-////            FileOutputStream object = new FileOutputStream("Output_Crew_Phase3_Crew Assignment_Depot.csv");
-////            PrintWriter DepotAssignment = new PrintWriter(object);
-////            DepotAssignment.println("Phase 3:"+ ","+ "Assignment of Pairings to Crew");
-////            DepotAssignment.println("Depot: " + ","+Pairings_SelectedDepot.get(0).Depot);
-////            DepotAssignment.println("Number of Pairings in the Depot: " + "," + Pairings_SelectedDepot.size());
-////            DepotAssignment.println("Number of Employees: "+ "," + Number_Employees);
-////            DepotAssignment.println("Computation Time: " + ","+ (End_ProcessTime - Start_ProcessTime) / 1000 + " Sec");
-////            DepotAssignment.println("," +"Pairing"+","+ "Depot" + "," + "Lable of Crew" +","+ "StartTime" + ","+"EndTime");
-////            for (int p = 0; p < Pairings_SelectedDepot.size(); p++) {
-////                DepotAssignment.println((p+1)+","+"Pairing "+Pairings_SelectedDepot.get(p).idOfPairing+","+Pairings_SelectedDepot.get(p).Depot+
-////                        ","+Pairings_SelectedDepot.get(p).Crew_AssignedPerson+","+Pairings_SelectedDepot.get(p).Starttime+","+Pairings_SelectedDepot.get(p).Endtime);
-////            }
-////            DepotAssignment.close();
-//    }
 }
 

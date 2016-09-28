@@ -206,16 +206,15 @@ public class Model {
      * loaded with more than its capacity
      */
     public static void addConstraint4() throws IloException {
-
         for (int k = 0; k < vehiclesQty; k++) {
             IloLinearNumExpr expr2 = SCS.linearNumExpr();
             for (int i = 0; i < nodesQty; i++) {
                 for (int j = 0; j < nodesQty; j++) {
-                    if (j == depotId) continue;
+//                    if (j == depotId) continue;
                     expr2.addTerm(1.0, x[i][j][k]);
                 }
             }
-            SCS.addLe(expr2, vehicleCapacity);
+            SCS.addLe(expr2, vehicleCapacity + 1);
             expr2.clear();
         }
 
@@ -398,6 +397,7 @@ public class Model {
 
     public static void Solve_Model() throws Exception {
 //        SCS.setParam(IloCplex.IntParam.Simplex.Display, 0);
+        SCS.setParam(IloCplex.DoubleParam.EpInt, 1e-10);
         long startTime = System.currentTimeMillis();
         if (SCS.solve()) {
             long finishTime = System.currentTimeMillis();
