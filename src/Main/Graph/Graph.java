@@ -155,8 +155,9 @@ public class Graph {
         return graph;
     }
 
-    public static Graph buildRandomGraph(IRange customerQtyRange, IRange vehicleQtyRange, IRange capacityRange, DRange fixCostRange,
-                                         DRange processTimeRange, DRange dueDateRange, DRange penaltyRange, DRange edgeWeightsRange) {
+    public static Graph buildRandomGraphDouble(
+            IRange customerQtyRange, IRange vehicleQtyRange, IRange capacityRange, DRange fixCostRange,
+            DRange processTimeRange, DRange dueDateRange, DRange penaltyRange, DRange edgeWeightsRange) {
         Graph graph = new Graph();
         // Add Depot Vertex
         int vehicleQty = Random.getRandomIntInRange(vehicleQtyRange);
@@ -179,6 +180,38 @@ public class Graph {
             for (Vertex v : graph.getVertices()){
                 if (u.name.equals(v.name)) continue;
                 Edge e = new Edge(u, v, Random.getRandomDoubleInRange(edgeWeightsRange));
+                graph.addEdge(e);
+            }
+        }
+
+        return graph;
+    }
+
+    public static Graph buildRandomGraphInt(
+            IRange customerQtyRange, IRange vehicleQtyRange, IRange capacityRange, IRange fixCostRange,
+            IRange processTimeRange, IRange dueDateRange, IRange penaltyRange, IRange edgeWeightsRange) {
+        Graph graph = new Graph();
+        // Add Depot Vertex
+        int vehicleQty = Random.getRandomIntInRange(vehicleQtyRange);
+        int capacity = Random.getRandomIntInRange(capacityRange);
+        double fixCost = Random.getRandomIntInRange(fixCostRange);
+        graph.addVertex(new Vertex("Dp", VertexType.DEPOT, vehicleQty, capacity, fixCost));
+
+        // Build the Customer Vertices
+        int customerQty = Random.getRandomIntInRange(customerQtyRange);
+        for (int i = 0; i < customerQty; i++) {
+            String name = "" + (char)('A' + i);
+            double processTime = Random.getRandomIntInRange(processTimeRange);
+            double dueDate = Random.getRandomIntInRange(dueDateRange);
+            double penalty = Random.getRandomIntInRange(penaltyRange);
+            graph.addVertex(new Vertex(name, VertexType.CUSTOMER, processTime, dueDate, penalty));
+        }
+
+        // Add The Edges
+        for (Vertex u: graph.getVertices()){
+            for (Vertex v : graph.getVertices()){
+                if (u.name.equals(v.name)) continue;
+                Edge e = new Edge(u, v, Random.getRandomIntInRange(edgeWeightsRange));
                 graph.addEdge(e);
             }
         }

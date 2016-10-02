@@ -1,15 +1,12 @@
 package Main.AutomatedTests.Experiment1.BranchAndBound;
 
-import Main.Algorithms.Dijkstra.Dijkstra;
 import Main.Algorithms.Heuristics.GeneticAlgorithm;
-import Main.Algorithms.Other.Random;
 import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.IOLoader.LoadRandomGraph;
 
 import java.io.*;
-import java.util.Scanner;
 
 /**
  * for running the algorithm
@@ -24,7 +21,7 @@ public class BBAutoTest {
         out.println(tableHeader);
         System.out.println(tableHeader);
         for (int testId=0 ; testId<100 ; testId++){
-            Graph originalGraph = LoadRandomGraph.load(testId);
+            Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(testId);
 
             // fill the global variables
             originalGraph.setIds();
@@ -53,7 +50,7 @@ public class BBAutoTest {
             GlobalVars.startTime = System.currentTimeMillis();
             try {
                 // run the branch and bound algorithm
-                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
+                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, 1e6); // geneticAlgorithm.getMinimumCost()
                 branchAndBound.run(GlobalVars.depotName);
                 GlobalVars.finishTime = System.currentTimeMillis();
                 System.out.printf("Optimal Cost: %.2f\n", branchAndBound.bestNode.getCost());

@@ -1,7 +1,5 @@
 package Main.AutomatedTests.Experiment1.MathematicalModel;
 
-import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.Algorithms.Other.Random;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
@@ -12,11 +10,8 @@ import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Scanner;
 
 public class CplexAutoTest {
     static IloCplex SCS;                            // crew rostering problem
@@ -59,7 +54,7 @@ public class CplexAutoTest {
         out.println(tableHeader);
         out.flush();
         for (int testId = 0; testId < 100; testId++) {
-            Graph originalGraph = LoadRandomGraph.load(testId);
+            Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(testId);
 
             Graph preprocessedGraph = originalGraph;
             preprocessedGraph.setIds();

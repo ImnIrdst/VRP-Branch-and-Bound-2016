@@ -1,13 +1,11 @@
 package Main.MathematicalModel;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.Algorithms.Other.Random;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
 import Main.IOLoader.LoadRandomGraph;
 import ilog.concert.*;
-import Main.Algorithms.Other.Random.*;
 
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
@@ -44,7 +42,7 @@ public class Model {
 
     public static void ReadData() throws Exception {
 
-        Graph originalGraph = LoadRandomGraph.load(1);
+        Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(1);
 //        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
 //                "resources/InputData/ISFNodes-06-Customers.csv",
 //                "resources/InputData/ISFRoads.csv"
