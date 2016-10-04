@@ -1,5 +1,6 @@
 package Main.Algorithms.TSP.SimpleTSP;
 
+import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
 
@@ -21,11 +22,7 @@ public class SimpleTSP {
     }
 
     public void run() {
-//        for (int i = 0; i < waitingList.size(); i++) {
-//            this.startTime += graph.getVertexById(waitingList.get(i)).processTime;
-//        }
 
-//        this.waitingList.add(graph.getDepotId());
         this.arrivalTime = this.startTime;
         for (int i = 0; i < waitingList.size(); i++) {
             Vertex current = graph.getVertexById(waitingList.get(i));
@@ -43,7 +40,6 @@ public class SimpleTSP {
     public String toString(){
         StringBuilder sb = new StringBuilder("");
         sb.append(String.format("%s(%.2f, %.2f, %.2f)", graph.getDepot(), startTime, 0.0, travelTime));
-
 
         double tmpPenaltyTaken = 0;
         double tmpArrivalTime = this.startTime;

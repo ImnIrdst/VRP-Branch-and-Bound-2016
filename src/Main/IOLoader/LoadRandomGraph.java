@@ -9,8 +9,9 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class LoadRandomGraph {
+    public static final String filePath = "resources/Experiments/ex1-automated-test-ranges-01.csv";
     public static Graph loadWithDoubleParams(long seed) throws FileNotFoundException {
-        Scanner sc = new Scanner(new File("resources/Experiments/ex1-automated-test-ranges-01.csv"));
+        Scanner sc = new Scanner(new File(filePath));
 
         sc.nextLine();
         String[] minRow = sc.nextLine().split(",");
@@ -35,7 +36,7 @@ public class LoadRandomGraph {
     }
 
     public static Graph loadWithIntParams(long seed) throws FileNotFoundException {
-        Scanner sc = new Scanner(new File("resources/Experiments/ex1-automated-test-ranges-02.csv"));
+        Scanner sc = new Scanner(new File(filePath));
 
         sc.nextLine();
         String[] minRow = sc.nextLine().split(",");

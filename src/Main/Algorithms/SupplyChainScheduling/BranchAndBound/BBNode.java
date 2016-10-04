@@ -6,7 +6,9 @@ import Main.GlobalVars;
 import Main.Graph.Edge;
 import Main.Graph.Vertex;
 import Main.Graph.VertexType;
+import org.omg.CORBA.INTERNAL;
 
+import java.beans.Customizer;
 import java.util.*;
 
 /**
@@ -134,6 +136,7 @@ public class BBNode {
         if (parent != null && this.vertex.type == VertexType.DEPOT) {
             this.tsp = new SimpleTSP(GlobalVars.ppGraph, this.waitingList, this.cumulativeProcessTime);
             this.tsp.run();
+//            this.waitingList.clear();
         }
     }
 
@@ -252,31 +255,39 @@ public class BBNode {
      * then pick remained customers second minimum edges
      */
     public void calculateLowerBoundForTravelTime() {
-//
-//        double lowerBound = 0;
-//
-//        // for each extra needed vehicle peek an edge from depot an mark the end nodes
-//        int extraVehiclesNeeded = getMinimumNumberOfExtraVehiclesNeeded();
-//        Vertex depotNode = GlobalVars.ppGraph.getVertexById(GlobalVars.depotId);
-//
-//        List<Edge> depotEdges = new ArrayList<>();
-//        for (Vertex v : depotNode.neighbours.keySet()) {
-//            if (this.servicedNodes[v.getId()] == false)
-//                depotEdges.add(new Edge(depotNode, v, depotNode.neighbours.get(v)));
-//        }
-//        Collections.sort(depotEdges);
-//
-//        for (int i = 1; i < Math.min(extraVehiclesNeeded, depotEdges.size()); i++) {
-//            lowerBound += depotEdges.get(i).weight;
-//        }
-//
-//        // for other nodes peek the minimum edges
-//        for (Vertex v : GlobalVars.ppGraph.getCustomerVertices()) {
-//            if (this.servicedNodes[v.getId()] == false)
-//                lowerBound += getSecondMinimumEdgeWeightOfVertex(v);
-//        }
-//
-//        this.lowerBoundForTravelTime = lowerBound;
+
+        double lowerBound = 0;
+
+        // for each extra needed vehicle peek an edge from depot an mark the end nodes
+        int extraVehiclesNeeded = getMinimumNumberOfExtraVehiclesNeeded();
+        Vertex depotNode = GlobalVars.ppGraph.getVertexById(GlobalVars.depotId);
+
+        List<Edge> depotEdges = new ArrayList<>();
+        for (Vertex v : depotNode.neighbours.keySet()) {
+            if (this.servicedNodes[v.getId()] == false)
+                depotEdges.add(new Edge(depotNode, v, depotNode.neighbours.get(v)));
+        }
+        Collections.sort(depotEdges);
+
+        for (int i = 1; i < Math.min(extraVehiclesNeeded, depotEdges.size()); i++) {
+            lowerBound += depotEdges.get(i).weight;
+        }
+
+        // for other nodes peek the minimum edges
+        for (Vertex v : GlobalVars.ppGraph.getCustomerVertices()) {
+            if (this.servicedNodes[v.getId()] == false)
+                lowerBound += getSecondMinimumEdgeWeightOfVertex(v);
+        }
+
+        Vertex u = GlobalVars.depot;
+        for (int i = 0; i < waitingList.size() && vertex.type != VertexType.DEPOT; i++) {
+            Vertex v = GlobalVars.ppGraph.getVertexById(waitingList.get(i));
+            lowerBound += GlobalVars.ppGraph.getDistance(u, v);
+
+            u = v;
+        }
+
+        this.lowerBoundForTravelTime = lowerBound;
 
     }
 
@@ -306,17 +317,30 @@ public class BBNode {
      * calculateLowerBoundForSimplerProblem
      */
     public void calculateLowerBoundForSimplerProblem() {
-        lowerBoundForSimplerProblem = 1e9;
+        lowerBoundForSimplerProblem = GlobalVars.INF;
 
-        double minimumEdgeWeight = 1e9;
-        double minimumPenalty = 1e9;
-        double minimumProcessTime = 1e9;
+        double minimumEdgeWeight = GlobalVars.INF;
+        double minimumPenalty = GlobalVars.INF;
+        double minimumProcessTime = GlobalVars.INF;
 
         // extract unserved customers
         List<Vertex> unservedCustomers = new ArrayList<>();
         for (Vertex v : GlobalVars.ppGraph.getVertices()) {
             if (v.type != VertexType.CUSTOMER || this.servicedNodes[v.id] == true) continue;
             unservedCustomers.add(v);
+
+            minimumEdgeWeight = Math.min(minimumEdgeWeight, getMinimumEdgeWeightOfVertex(v));
+            minimumPenalty = Math.min(minimumPenalty, v.penalty);
+            minimumProcessTime = Math.min(minimumProcessTime, v.processTime);
+        }
+
+        if (unservedCustomers.size() == 0) {
+            lowerBoundForSimplerProblem = 0;
+            return;
+        }
+
+        if (this.vertex.type != VertexType.DEPOT) for (Integer vId: waitingList){
+            Vertex v = GlobalVars.ppGraph.getVertexById(vId);
 
             minimumEdgeWeight = Math.min(minimumEdgeWeight, getMinimumEdgeWeightOfVertex(v));
             minimumPenalty = Math.min(minimumPenalty, v.penalty);
@@ -333,31 +357,31 @@ public class BBNode {
 
 
         // calculate optimal cost
-        double optimalCost = 1e9;
-        for (int vehicleQty = 1; vehicleQty < GlobalVars.numberOfVehicles; vehicleQty++) {
+        double optimalCost = GlobalVars.INF;
+        for (int vehicleQty = 1; vehicleQty <= GlobalVars.numberOfVehicles - this.vehicleUsed; vehicleQty++) {
             if (vehicleQty * GlobalVars.depot.fixedCost >= optimalCost) break;
 
             // initialization
             List<Vertex>[] vehicleLoads = new ArrayList[vehicleQty];
-            List<Double>[] penalties = new ArrayList[vehicleQty];
-            List<Double>[] processTimes = new ArrayList[vehicleQty];
+//            List<Double>[] penalties = new ArrayList[vehicleQty]; TODO: use for increasing bounds
+//            List<Double>[] processTimes = new ArrayList[vehicleQty];
             PriorityQueue<TimeIdPair> timeIdPQ = new PriorityQueue<>(10);
             for (int i = 0; i < vehicleQty; i++) {
                 vehicleLoads[i] = new ArrayList<>();
-                penalties[i] = new ArrayList<>();
-                processTimes[i] = new ArrayList<>();
+//                penalties[i] = new ArrayList<>(); TODO: use for increasing bounds
+//                processTimes[i] = new ArrayList<>();
                 if (i != 0) timeIdPQ.add(new TimeIdPair(0, i));
             }
 
             // add waiting list vertexes to vehicle
-            int tempTime = 0;
-            for (int i = 0; i < waitingList.size(); i++) {
+            double tempTime = 0;
+            for (int i = 0; i < waitingList.size() && this.vertex.type != VertexType.DEPOT; i++) {
                 Vertex tempVertex = GlobalVars.ppGraph.getVertexById(waitingList.get(i));
                 vehicleLoads[0].add(tempVertex);
-                penalties[0].add(minimumPenalty);
-                processTimes[0].add(minimumProcessTime);
+//                penalties[0].add(minimumPenalty); TODO: use for increasing bounds
+//                processTimes[0].add(minimumProcessTime);
 
-                tempTime += minimumEdgeWeight + tempVertex.processTime;
+                tempTime += minimumEdgeWeight + minimumProcessTime;
             }
             timeIdPQ.add(new TimeIdPair(tempTime, 0));
 
@@ -368,10 +392,10 @@ public class BBNode {
                 TimeIdPair timeIdPair = timeIdPQ.poll();
 
                 vehicleLoads[timeIdPair.id].add(unservedCustomers.get(i));
-                penalties[timeIdPair.id].add(minimumPenalty);
-                processTimes[timeIdPair.id].add(minimumProcessTime);
+//                penalties[timeIdPair.id].add(minimumPenalty); TODO: use for increasing bounds
+//                processTimes[timeIdPair.id].add(minimumProcessTime);
 
-                if (vehicleLoads[timeIdPair.id].size() > GlobalVars.depot.capacity){
+                if (vehicleLoads[timeIdPair.id].size() > GlobalVars.depot.capacity) {
                     isOverLoaded = true;
                     break;
                 }
@@ -380,46 +404,55 @@ public class BBNode {
 
                 timeIdPQ.add(timeIdPair);
             }
-            if(isOverLoaded == true) continue; // doesn't updates optimal cost
+            if (isOverLoaded == true) continue; // if overloaded don't updates optimal cost
 
-            // adjust penalties
-            for (int i = 0; i < vehicleQty; i++) {
-                for (int j = 0; j < vehicleLoads[i].size(); j++) {
-                    if (j == 0) penalties[i].set(j, vehicleLoads[i].get(j).penalty);
-                    if (j != 0) penalties[i].set(j, Math.min(penalties[i].get(j - 1), vehicleLoads[i].get(j).penalty));
-                }
-            }
+            // adjust penalties TODO: use for increasing bounds
+//            for (int i = 0; i < vehicleQty; i++) {
+//                for (int j = 0; j < vehicleLoads[i].size(); j++) {
+//                    if (j == 0) penalties[i].set(j, vehicleLoads[i].get(j).penalty);
+//                    if (j != 0) penalties[i].set(j, Math.min(penalties[i].get(j - 1), vehicleLoads[i].get(j).penalty));
+//                }
+//            }
 
-            // adjust process times
-            double[] sumOfProcessTimes = new double[vehicleQty];
-            for (int i = 0; i < vehicleQty; i++) {
-                for (int j = vehicleLoads[i].size() - 1; j >= 0; j--) {
-                    if (j == vehicleLoads[i].size() - 1)
-                        processTimes[i].set(j, vehicleLoads[i].get(j).processTime);
-                    if (j != vehicleLoads[i].size() - 1)
-                        processTimes[i].set(j, Math.min(processTimes[i].get(j + 1), vehicleLoads[i].get(j).processTime));
+            // adjust process times TODO: use for increasing bounds
+//            double[] sumOfProcessTimes = new double[vehicleQty];
+//            for (int i = 0; i < vehicleQty; i++) {
+//                for (int j = vehicleLoads[i].size() - 1; j >= 0; j--) {
+//                    if (j == vehicleLoads[i].size() - 1)
+//                        processTimes[i].set(j, vehicleLoads[i].get(j).processTime);
+//                    if (j != vehicleLoads[i].size() - 1)
+//                        processTimes[i].set(j, Math.min(processTimes[i].get(j + 1), vehicleLoads[i].get(j).processTime));
+//
+//                    sumOfProcessTimes[i] += processTimes[i].get(j);
+//                }
+//            }
 
-                    sumOfProcessTimes[i] += processTimes[i].get(j);
-                }
-            }
 
             // calculate cost
-            double currentCost = vehicleQty * GlobalVars.depot.fixedCost;
+            double vehicleUsageCost = vehicleQty * GlobalVars.depot.fixedCost;
+            double travelTimeCost = 0;
+            double penaltyCost = 0;
             for (int i = 0; i < vehicleQty; i++) {
-                double timeline = sumOfProcessTimes[i];
+                double timeline = vehicleLoads[i].size() * minimumProcessTime;// sumOfProcessTimes[i]; TODO: use for increasing bounds
                 for (int j = 0; j < vehicleLoads[i].size(); j++) {
                     timeline += minimumEdgeWeight;
+                    travelTimeCost += minimumEdgeWeight; // TODO: use alternative lowerBound
 
-                    currentCost += minimumEdgeWeight; // TODO: use alternative lowerBound
-                    currentCost += Math.max(0, (timeline - vehicleLoads[i].get(j).dueDate)) * penalties[i].get(j);
+                    penaltyCost += Math.max(0, (timeline - vehicleLoads[i].get(j).dueDate)) * minimumPenalty ; // * penalties[i].get(j); TODO: use for increasing bounds
                 }
 
-                currentCost += minimumEdgeWeight; // TODO: use alternative lowerBound
+                travelTimeCost += minimumEdgeWeight; // TODO: use alternative lowerBound
             }
 
+            if (lowerBoundForTravelTime > travelTimeCost){
+//                System.out.println("lowerBoundForTravelTime > travelTimeCost");
+                travelTimeCost = lowerBoundForTravelTime;
+            }
+
+            double currentCost = vehicleUsageCost + travelTimeCost + penaltyCost;
             optimalCost = Math.min(optimalCost, currentCost);
         }
-        if (optimalCost > 1e5)
+        if (optimalCost > GlobalVars.INF - 10)
             lowerBoundForSimplerProblem = 0;
         else
             lowerBoundForSimplerProblem = optimalCost;
@@ -440,7 +473,7 @@ public class BBNode {
      */
     public double getLowerBound() {
 //        return 0;
-        return lowerBoundForVehicleCost + lowerBoundForTravelTime + lowerBoundForPenaltyTaken +  lowerBoundForSimplerProblem;
+        return lowerBoundForVehicleCost /*+ lowerBoundForTravelTime*/ + lowerBoundForPenaltyTaken + lowerBoundForSimplerProblem;
     }
 
     // --------------   helper functions ---------------
@@ -477,27 +510,11 @@ public class BBNode {
     public double getMinimumEdgeWeightOfVertex(Vertex v) {
         double min = Integer.MAX_VALUE;
 
-        int minId = -1;
         for (Vertex u : v.neighbours.keySet()) {
             if (u.id == v.id) continue;
-            if (u.id != this.vertex.id
-                    && u.type == VertexType.CUSTOMER
-                    && this.servicedNodes[u.id] == true) continue;
+            if (u.type == VertexType.CUSTOMER && this.servicedNodes[u.id] == true) continue;
 
             if (min > GlobalVars.ppGraph.getDistance(u, v)) {
-                min = GlobalVars.ppGraph.getDistance(u, v);
-                minId = u.getId();
-            }
-        }
-
-        min = Integer.MAX_VALUE;
-        for (Vertex u : v.neighbours.keySet()) {
-            if (u.id == v.id) continue;
-            if (u.id != this.vertex.id
-                    && u.type == VertexType.CUSTOMER
-                    && this.servicedNodes[u.id] == true) continue;
-
-            if (min >= GlobalVars.ppGraph.getDistance(u, v) && u.getId() != minId) {
                 min = GlobalVars.ppGraph.getDistance(u, v);
             }
         }

@@ -28,10 +28,11 @@ public class GlobalVars {
     public static double minimumValue;
 
     // finals
-    public static final double INF = 1e9;
+    public static final double INF = 1e6;
 
     // for reporting
     public static int numberOfBranchAndBoundNodes = 0;
+    public static boolean enableBreakPoints = false;
 
 
     /**

@@ -1,5 +1,6 @@
 package Main.Algorithms.Heuristics;
 
+import Main.Algorithms.TSP.SimpleTSP.SimpleTSP;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
@@ -22,8 +23,8 @@ public class GeneticAlgorithm {
     private Chromosome bestChromosome;
     private List<Chromosome> population;
 
-    private final boolean IS_VERBOSE = false;
-    private final double MUTATION_PROBABILITY = 0.005;
+    private final boolean IS_VERBOSE = true;
+    private final double MUTATION_PROBABILITY = 0.05;
 
     private int depotId;
     private long printTimeStepSize;
@@ -267,77 +268,79 @@ public class GeneticAlgorithm {
             if (isCostCalculated == true)
                 return cost;
 
-            int remainedCapacity = 0;
-            int vehiclesUsageCost = 0;
-            int servicedCustomersQty = 0;
+            double vehiclesUsageCost = 0;
+            double travelTimeCost = 0;
+            double penaltyCost = 0;
 
-            double cumulativeTimeTaken = 0;
-            double timeElapsedOnThisPath = 0;
-            double cumulativePenaltyTaken = 0;
-
-            List<Integer> tmpList = new ArrayList<>(list);
-            tmpList.add(depotId);
-
+            Vertex depot = graph.getVertexById(depotId);
+                // [4, 7, 6, 3, 0, 8, 5, 1, 2]
 //            List<Integer> debugList = new ArrayList<>();
-//            debugList.add(7);
-//            debugList.add(6);
-//            debugList.add(3);
-//            debugList.add(2);
-//            debugList.add(8);
-//            debugList.add(0);
 //            debugList.add(5);
-//            debugList.add(4);
-//            debugList.add(8);
 //            debugList.add(1);
+//            debugList.add(2);
+//            debugList.add(0);
 //            debugList.add(8);
-//
-//            if (debugList.equals(tmpList))
-//                tmpList = tmpList;
+//            debugList.add(4);
+//            debugList.add(7);
+//            debugList.add(3);
+//            debugList.add(6);
+            if (list.toString().equals("[7, 6, 3, 0, 8, 4, 2, 1, 5]"))
+                list = list;
+            if (list.toString().equals("[4, 7, 6, 3, 0, 8, 5, 1, 2]"))
+                list = list;
 
-            Vertex u = graph.getVertexById(depotId);
-            for (int i = 0; i < tmpList.size() - 1; i++) {
-                Vertex v = null;
-                try {
-                    v = graph.getVertexById(tmpList.get(i));
-                    if (u.getId() == v.getId()) continue;
-                } catch (Exception e) {
-                    e.printStackTrace();
+//            System.out.println("-------------");
+//            System.out.println(this);
+            List<Integer> waitingList = new ArrayList<>();
+
+            double cumulativeProcessTime = 0;
+            for (int i = 0; i < list.size(); i++) {
+                Vertex v = graph.getVertexById(list.get(i));
+
+                if (v.type == VertexType.CUSTOMER) {
+                    waitingList.add(v.id);
+                    cumulativeProcessTime += v.processTime;
                 }
 
-
-                if (u.type != VertexType.DEPOT) {
-                    cumulativeTimeTaken += graph.getDistance(u, v);
-                    timeElapsedOnThisPath += graph.getDistance(u, v);
-                }
-//
-//                if (u.type == VertexType.DEPOT && v.hasVehicle == 0)
-//                    return INF;
-//
-//                if (u.type == VertexType.DEPOT && v.hasVehicle == 1) {
-//                    remainedCapacity = v.capacity;
-//                    vehiclesUsageCost += v.fixedCost;
-////                    timeElapsedOnThisPath = v.mdt;
-//                }
-
-                if (v.type == VertexType.DEPOT && timeElapsedOnThisPath > v.dueDate) {
-                    cumulativePenaltyTaken += (timeElapsedOnThisPath - v.dueDate) * v.penalty;
+                if (waitingList.size() > depot.capacity){
+                    return GlobalVars.INF;
                 }
 
-//                if (v.type == VertexType.CUSTOMER) {
-//                    servicedCustomersQty++;
-//                    remainedCapacity -= v.demand;
-//                }
+                if (v.type == VertexType.DEPOT && waitingList.size() > 0){
+                    waitingList.add(depotId);
+                    SimpleTSP tsp = new SimpleTSP(graph, waitingList, cumulativeProcessTime);
+                    tsp.run();
+//                    System.out.println(tsp);
 
-                if (v.type == VertexType.DEPOT) {
-                    if (servicedCustomersQty == customerQty)
-                        return vehiclesUsageCost + cumulativePenaltyTaken + cumulativeTimeTaken;
+                    vehiclesUsageCost += depot.fixedCost;
+                    travelTimeCost += tsp.travelTime;
+                    penaltyCost += tsp.penaltyTaken;
+
+                    waitingList.clear();
                 }
-
-                if (remainedCapacity < 0) return INF;
-
-                u = v;
             }
-            return INF;
+
+            if (waitingList.size() > 0){
+                waitingList.add(depotId);
+                SimpleTSP tsp = new SimpleTSP(graph, waitingList, cumulativeProcessTime);
+                tsp.run();
+
+//                System.out.println(tsp);
+                vehiclesUsageCost += depot.fixedCost;
+                travelTimeCost += tsp.travelTime;
+                penaltyCost += tsp.penaltyTaken;
+
+                waitingList.clear();
+            }
+
+//            System.out.println("Cost: " + (vehiclesUsageCost + travelTimeCost + penaltyCost));
+//            graph.getDistance(graph.getVertexById(), graph.getVertexById())
+
+            if (vehiclesUsageCost + travelTimeCost + penaltyCost < 94.5)
+                System.out.printf("%s ||||| %.2f, %.2f, %.2f, %.2f\n",
+                        this.toString(), vehiclesUsageCost, travelTimeCost, penaltyCost,
+                        vehiclesUsageCost + travelTimeCost + penaltyCost);
+            return vehiclesUsageCost + travelTimeCost + penaltyCost;
         }
 
         @Override

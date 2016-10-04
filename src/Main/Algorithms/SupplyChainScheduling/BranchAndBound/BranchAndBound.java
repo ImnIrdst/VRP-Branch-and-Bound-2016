@@ -64,12 +64,21 @@ public class BranchAndBound {
         // go down the tree
         while (!pq.isEmpty()) {
             BBNode u = pq.poll();
-            if (canBePruned(u)) continue;
 
+
+            if (getHierarchy(u).equals("Dp -> A -> H -> C -> G -> D -> Dp -> B -> E -> F")){
+                u = u;
+            }
+
+            if (canBePruned(u)) continue;
             for (Vertex v : u.vertex.neighbours.keySet()) {
                 if (v.type == VertexType.DEPOT && u.waitingList.size() == 0) continue;
                 if (v.type != VertexType.DEPOT && u.servicedNodes[v.id] == true) continue;
 
+                if (getHierarchy(u).equals("Dp -> A -> H -> C -> G -> D -> Dp -> B -> E") && Objects.equals(v.name, "F"))
+                    GlobalVars.enableBreakPoints = true;
+
+                GlobalVars.enableBreakPoints = false;
                 BBNode newNode = new BBNode(v, u);
                 addNodeToPriorityQueue(newNode);
             }
@@ -96,13 +105,8 @@ public class BranchAndBound {
      * @param newNode node that must be added to the pq.
      */
     void addNodeToPriorityQueue(BBNode newNode) {
-//        if (getHierarchy(newNode).equals("764 -> 771 -> 556 -> 764 -> 453 -> 652 -> 10 -> 493 -> 764"))
-//            System.out.println(newNode.getStringPath() + "\n" + newNode.getPrintCostDetailsString());
-
         if (canBePruned(newNode)) return;
 
-
-//        System.out.println(getHierarchy(newNode));
         // if this node is an answer
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == graph.getCustomersQty()

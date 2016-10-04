@@ -32,9 +32,7 @@ public class BBAutoTest {
             System.out.println("Number of Customers, Vehicles: " +
                     GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
-            int geneticTime = 0;
-//            if (Main.GlobalVars.numberOfCustomers == 11) geneticTime = 1000;
-//            if (GlobalVars.numberOfCustomers == 12) geneticTime = 10000;
+            int geneticTime = 1000;
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
@@ -50,7 +48,7 @@ public class BBAutoTest {
             GlobalVars.startTime = System.currentTimeMillis();
             try {
                 // run the branch and bound algorithm
-                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, 1e6); // geneticAlgorithm.getMinimumCost()
+                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, geneticAlgorithm.getMinimumCost() + 5); // geneticAlgorithm.getMinimumCost()
                 branchAndBound.run(GlobalVars.depotName);
                 GlobalVars.finishTime = System.currentTimeMillis();
                 System.out.printf("Optimal Cost: %.2f\n", branchAndBound.bestNode.getCost());

@@ -1,6 +1,7 @@
 package Main.Algorithms.SupplyChainScheduling.BranchAndBound;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
+import Main.Algorithms.Heuristics.GeneticAlgorithm;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.IOLoader.LoadRandomGraph;
@@ -12,11 +13,11 @@ import java.io.FileNotFoundException;
  */
 public class BBTest {
     public static void main(String[] args) throws FileNotFoundException {
-//        Graph originalGraph = LoadRandomGraph.loadWithIntParams(1);
-        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
-                "resources/InputData/ISFNodes-10-Customers.csv",
-                "resources/InputData/ISFRoads.csv"
-        );
+        Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(1);
+//        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
+//                "resources/InputData/ISFNodes-10-Customers.csv",
+//                "resources/InputData/ISFRoads.csv"
+//        );
 //        Graph originalGraph = Graph.buildAGraphFromCSVFile("resources/input.csv");
 //        originalGraph.printGraph();
 
@@ -28,24 +29,25 @@ public class BBTest {
         preprocessedGraph.setIds();
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
         preprocessedGraph.printVertices();
-//        preprocessedGraph.printGraph();
+        preprocessedGraph.printGraph();
 
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);
         System.out.println("Number of Vehicles: " + GlobalVars.numberOfVehicles);
         // run the genetic algorithm
 
-        int geneticTime = 100;
-//        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-//                preprocessedGraph, GlobalVars.numberOfCustomers, 2, 40);
-//        geneticAlgorithm.run(geneticTime);
-//        geneticAlgorithm.printBestChromosome();
+        int geneticTime = 10000;
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
+                preprocessedGraph, GlobalVars.numberOfCustomers, 2, 40);
+        geneticAlgorithm.run(geneticTime);
+        geneticAlgorithm.printBestChromosome();
 
         // run the branch and bound algorithm
         GlobalVars.startTime = System.currentTimeMillis();
-        BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, 1e9); // geneticAlgorithm.getMinimumCost()
+        BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost()); // geneticAlgorithm.getMinimumCost()
         branchAndBound.run(GlobalVars.depotName);
         GlobalVars.finishTime = System.currentTimeMillis();
         branchAndBound.printTheAnswer();
+        System.out.println(branchAndBound.getHierarchy(branchAndBound.bestNode));
 
         // export the result
 //         branchAndBound.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);

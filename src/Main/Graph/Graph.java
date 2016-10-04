@@ -170,7 +170,7 @@ public class Graph {
         for (int i = 0; i < customerQty; i++) {
             String name = "" + (char)('A' + i);
             double processTime = Random.getRandomDoubleInRange(processTimeRange);
-            double dueDate = Random.getRandomDoubleInRange(dueDateRange);
+            double dueDate = Random.getRandomDoubleInRange(dueDateRange) + processTime + edgeWeightsRange.min;
             double penalty = Random.getRandomDoubleInRange(penaltyRange);
             graph.addVertex(new Vertex(name, VertexType.CUSTOMER, processTime, dueDate, penalty));
         }
