@@ -95,6 +95,23 @@ public class GeneticAlgorithm {
     }
 
     /**
+     * gets a random population with shuffling
+     */
+    public Chromosome getRandomChromosome(int size) {
+        Chromosome newChromosome = new Chromosome();
+
+        for (int j = 0; j < size; j++) {
+            if (j < customerQty)
+                newChromosome.add(j);
+            else
+                newChromosome.add(depotId);
+        }
+        Collections.shuffle(newChromosome.list); // shuffle to generate a random population
+
+        return newChromosome;
+    }
+
+    /**
      * initializes the population by shuffling the ids of nodes
      */
     public void initializePopulation(int customerQty, int vehicleQty) {
@@ -192,19 +209,7 @@ public class GeneticAlgorithm {
         System.out.println("Best Chromosome: " + bestChromosome + ", " + String.format("%.8f", minimumCost));
     }
 
-    public Chromosome getRandomChromosome(int size) {
-        Chromosome newChromosome = new Chromosome();
 
-        for (int j = 0; j < size; j++) {
-            if (j < customerQty)
-                newChromosome.add(j);
-            else
-                newChromosome.add(depotId);
-        }
-        Collections.shuffle(newChromosome.list); // shuffle to generate a random population
-
-        return newChromosome;
-    }
 
     /**
      * @return a random number less than given bound
@@ -273,17 +278,6 @@ public class GeneticAlgorithm {
             double penaltyCost = 0;
 
             Vertex depot = graph.getVertexById(depotId);
-                // [4, 7, 6, 3, 0, 8, 5, 1, 2]
-//            List<Integer> debugList = new ArrayList<>();
-//            debugList.add(5);
-//            debugList.add(1);
-//            debugList.add(2);
-//            debugList.add(0);
-//            debugList.add(8);
-//            debugList.add(4);
-//            debugList.add(7);
-//            debugList.add(3);
-//            debugList.add(6);
             if (list.toString().equals("[7, 6, 3, 0, 8, 4, 2, 1, 5]"))
                 list = list;
             if (list.toString().equals("[4, 7, 6, 3, 0, 8, 5, 1, 2]"))
@@ -336,10 +330,10 @@ public class GeneticAlgorithm {
 //            System.out.println("Cost: " + (vehiclesUsageCost + travelTimeCost + penaltyCost));
 //            graph.getDistance(graph.getVertexById(), graph.getVertexById())
 
-            if (vehiclesUsageCost + travelTimeCost + penaltyCost < 94.5)
-                System.out.printf("%s ||||| %.2f, %.2f, %.2f, %.2f\n",
-                        this.toString(), vehiclesUsageCost, travelTimeCost, penaltyCost,
-                        vehiclesUsageCost + travelTimeCost + penaltyCost);
+//            if (vehiclesUsageCost + travelTimeCost + penaltyCost < 94.5)
+//                System.out.printf("%s ||||| %.2f, %.2f, %.2f, %.2f\n",
+//                        this.toString(), vehiclesUsageCost, travelTimeCost, penaltyCost,
+//                        vehiclesUsageCost + travelTimeCost + penaltyCost);
             return vehiclesUsageCost + travelTimeCost + penaltyCost;
         }
 

@@ -363,13 +363,13 @@ public class BBNode {
 
             // initialization
             List<Vertex>[] vehicleLoads = new ArrayList[vehicleQty];
-//            List<Double>[] penalties = new ArrayList[vehicleQty]; TODO: use for increasing bounds
-//            List<Double>[] processTimes = new ArrayList[vehicleQty];
+            List<Double>[] penalties = new ArrayList[vehicleQty]; // TODO: use for increasing bounds
+            List<Double>[] processTimes = new ArrayList[vehicleQty];
             PriorityQueue<TimeIdPair> timeIdPQ = new PriorityQueue<>(10);
             for (int i = 0; i < vehicleQty; i++) {
                 vehicleLoads[i] = new ArrayList<>();
-//                penalties[i] = new ArrayList<>(); TODO: use for increasing bounds
-//                processTimes[i] = new ArrayList<>();
+                penalties[i] = new ArrayList<>(); // TODO: use for increasing bounds
+                processTimes[i] = new ArrayList<>();
                 if (i != 0) timeIdPQ.add(new TimeIdPair(0, i));
             }
 
@@ -378,8 +378,8 @@ public class BBNode {
             for (int i = 0; i < waitingList.size() && this.vertex.type != VertexType.DEPOT; i++) {
                 Vertex tempVertex = GlobalVars.ppGraph.getVertexById(waitingList.get(i));
                 vehicleLoads[0].add(tempVertex);
-//                penalties[0].add(minimumPenalty); TODO: use for increasing bounds
-//                processTimes[0].add(minimumProcessTime);
+                penalties[0].add(minimumPenalty); // TODO: use for increasing bounds
+                processTimes[0].add(minimumProcessTime);
 
                 tempTime += minimumEdgeWeight + minimumProcessTime;
             }
@@ -392,8 +392,8 @@ public class BBNode {
                 TimeIdPair timeIdPair = timeIdPQ.poll();
 
                 vehicleLoads[timeIdPair.id].add(unservedCustomers.get(i));
-//                penalties[timeIdPair.id].add(minimumPenalty); TODO: use for increasing bounds
-//                processTimes[timeIdPair.id].add(minimumProcessTime);
+                penalties[timeIdPair.id].add(minimumPenalty); // TODO: use for increasing bounds
+                processTimes[timeIdPair.id].add(minimumProcessTime);
 
                 if (vehicleLoads[timeIdPair.id].size() > GlobalVars.depot.capacity) {
                     isOverLoaded = true;
@@ -406,26 +406,26 @@ public class BBNode {
             }
             if (isOverLoaded == true) continue; // if overloaded don't updates optimal cost
 
-            // adjust penalties TODO: use for increasing bounds
-//            for (int i = 0; i < vehicleQty; i++) {
-//                for (int j = 0; j < vehicleLoads[i].size(); j++) {
-//                    if (j == 0) penalties[i].set(j, vehicleLoads[i].get(j).penalty);
-//                    if (j != 0) penalties[i].set(j, Math.min(penalties[i].get(j - 1), vehicleLoads[i].get(j).penalty));
-//                }
-//            }
+            // adjust penalties // TODO: use for increasing bounds
+            for (int i = 0; i < vehicleQty; i++) {
+                for (int j = 0; j < vehicleLoads[i].size(); j++) {
+                    if (j == 0) penalties[i].set(j, vehicleLoads[i].get(j).penalty);
+                    if (j != 0) penalties[i].set(j, Math.min(penalties[i].get(j - 1), vehicleLoads[i].get(j).penalty));
+                }
+            }
 
-            // adjust process times TODO: use for increasing bounds
-//            double[] sumOfProcessTimes = new double[vehicleQty];
-//            for (int i = 0; i < vehicleQty; i++) {
-//                for (int j = vehicleLoads[i].size() - 1; j >= 0; j--) {
-//                    if (j == vehicleLoads[i].size() - 1)
-//                        processTimes[i].set(j, vehicleLoads[i].get(j).processTime);
-//                    if (j != vehicleLoads[i].size() - 1)
-//                        processTimes[i].set(j, Math.min(processTimes[i].get(j + 1), vehicleLoads[i].get(j).processTime));
-//
-//                    sumOfProcessTimes[i] += processTimes[i].get(j);
-//                }
-//            }
+            // adjust process times
+            double[] sumOfProcessTimes = new double[vehicleQty]; // TODO: use for increasing bounds
+            for (int i = 0; i < vehicleQty; i++) {
+                for (int j = vehicleLoads[i].size() - 1; j >= 0; j--) {
+                    if (j == vehicleLoads[i].size() - 1)
+                        processTimes[i].set(j, vehicleLoads[i].get(j).processTime);
+                    if (j != vehicleLoads[i].size() - 1)
+                        processTimes[i].set(j, Math.min(processTimes[i].get(j + 1), vehicleLoads[i].get(j).processTime));
+
+                    sumOfProcessTimes[i] += processTimes[i].get(j);
+                }
+            }
 
 
             // calculate cost

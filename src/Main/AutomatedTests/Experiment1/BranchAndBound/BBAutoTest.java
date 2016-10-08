@@ -17,22 +17,23 @@ public class BBAutoTest {
                 new File("resources/Experiments/ex1-automated-test-results-bb-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
 
-        String tableHeader = "Test ID,Customers,Vehicles,Cost,CPU Time,Nodes,";
+        String tableHeader = "Test ID,Customers,Vehicles,Cost,CPU Time,Nodes,UpperBound";
         out.println(tableHeader);
         System.out.println(tableHeader);
         for (int testId=0 ; testId<100 ; testId++){
+//            if (testId == 0) continue;
             Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(testId);
 
             // fill the global variables
             originalGraph.setIds();
             GlobalVars.setTheGlobalVariables(originalGraph);
-//            preprocessedGraph.printVertices();
+            originalGraph.printVertices();
 //            preprocessedGraph.printGraph();
 
             System.out.println("Number of Customers, Vehicles: " +
                     GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
-            int geneticTime = 1000;
+            int geneticTime = 10000;
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
@@ -44,11 +45,14 @@ public class BBAutoTest {
             String expandedNodes = "";
             String elapsedTime = "";
             String optimalValue = "";
+            String upperBound = String.format("%.2f", geneticAlgorithm.getMinimumCost());
+            if (geneticAlgorithm.getMinimumCost() > GlobalVars.INF - 10)
+                upperBound = "INF";
 
             GlobalVars.startTime = System.currentTimeMillis();
             try {
                 // run the branch and bound algorithm
-                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, geneticAlgorithm.getMinimumCost() + 5); // geneticAlgorithm.getMinimumCost()
+                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
                 branchAndBound.run(GlobalVars.depotName);
                 GlobalVars.finishTime = System.currentTimeMillis();
                 System.out.printf("Optimal Cost: %.2f\n", branchAndBound.bestNode.getCost());
@@ -62,8 +66,9 @@ public class BBAutoTest {
             GlobalVars.finishTime = System.currentTimeMillis();
             expandedNodes = "" + GlobalVars.numberOfBranchAndBoundNodes;
             elapsedTime = String.format("%.2f", (geneticTime + GlobalVars.finishTime - GlobalVars.startTime) / 1000.);
-            String tableRow = String.format("%d,%d,%d,%s,%s,%s", testId,
-                    GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, optimalValue, elapsedTime, expandedNodes);
+            String tableRow = String.format("%d,%d,%d,%s,%s,%s,%s", testId,
+                    GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles,
+                    optimalValue, elapsedTime, expandedNodes, upperBound);
 
 //            System.out.println(testInfo);
             System.out.println(tableHeader);

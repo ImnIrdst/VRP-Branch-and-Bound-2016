@@ -1,0 +1,4 @@
+Test ID,Customers,Vehicles,Cost,CPU Time,Nodes,UpperBound
+0,8,2,NA,10.01,0,105.26
+1,8,2,NA,10.00,0,98.27
+2,8,3,NA,10.60,14422,144.57
