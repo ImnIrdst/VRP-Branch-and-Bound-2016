@@ -23,14 +23,15 @@ public class GeneticAlgorithm {
     private Chromosome bestChromosome;
     private List<Chromosome> population;
 
-    private final boolean IS_VERBOSE = true;
-    private final boolean IS_DEBUG_MODE = false;
-
     private final double MUTATION_PROBABILITY = 0.05;
     private final double CROSSOVER_PROBABILITY = 1.00;
 
+    private final boolean IS_VERBOSE = true;
+    private final boolean IS_DEBUG_MODE = false;
+
     private int depotId;
     private long printTimeStepSize;
+    private long chromosomesQty = 0;
 
     /**
      * Constructor Creates a population with given qty
@@ -54,9 +55,9 @@ public class GeneticAlgorithm {
      */
     public void run(int computeDurationMilliSecond) {
         if (IS_VERBOSE) {
-            System.out.println("--------------------------");
-            System.out.println("Genetic algorithm");
-            System.out.println("--------------------------");
+            System.out.println(GlobalVars.equalsLine);
+            System.out.println("\t\t\t\t\t\t\t\t\tGenetic algorithm");
+            System.out.println(GlobalVars.equalsLine);
         }
 
         long startTime = System.currentTimeMillis();
@@ -69,8 +70,12 @@ public class GeneticAlgorithm {
 
             // cross over
             for (Chromosome c1 : population) {
-                for (Chromosome c2 : population)
-                    newPopulation.add(crossOver(c1, c2));
+                for (Chromosome c2 : population) {
+                    if (getRandom0to1() < CROSSOVER_PROBABILITY) {
+                        newPopulation.add(crossOver(c1, c2));
+                        chromosomesQty++;
+                    }
+                }
             }
 
             // mutate
@@ -88,8 +93,8 @@ public class GeneticAlgorithm {
             // print the progress
             if (IS_VERBOSE && System.currentTimeMillis() > printTime) {
                 printTime += printTimeStepSize;
-                System.out.printf("Iteration #%d,\t\tTime elapsed: %.2fs,\t\tMinimum Cost: %.2f\n",
-                        iteration, (System.currentTimeMillis() - startTime) / 1000., minimumCost);
+                System.out.printf("Iteration #%d,\tTime elapsed: %.2fs,\tChromosomesQty: %d,\tMinimum Cost: %.2f\n",
+                        iteration, (System.currentTimeMillis() - startTime) / 1000., chromosomesQty, minimumCost);
             }
             iteration++;
         }
@@ -119,6 +124,7 @@ public class GeneticAlgorithm {
         int size = customerQty + vehicleQty - 1;
         for (int i = 0; i < populationSize; i++) {
             population.add(getRandomChromosome(size));
+            chromosomesQty++;
         }
     }
 
@@ -128,7 +134,7 @@ public class GeneticAlgorithm {
      * @param chromosome array of id of the nodes
      */
     public void mutate(Chromosome chromosome) {
-        if (getRandInt(1000) / 1000. > MUTATION_PROBABILITY)
+        if (getRandom0to1() > MUTATION_PROBABILITY)
             return;
 
         int i = getRandInt(chromosome.size);
@@ -166,7 +172,6 @@ public class GeneticAlgorithm {
                 usedNodes[chromosome2.get(i)]--;
                 newChromosome.add(chromosome2.get(i));
             }
-
         }
 
 
@@ -211,7 +216,6 @@ public class GeneticAlgorithm {
     }
 
 
-
     /**
      * @return a random number less than given bound
      */
@@ -221,13 +225,20 @@ public class GeneticAlgorithm {
     }
 
     /**
+     * @return a random number between 0, 1 for probability
+     */
+    public double getRandom0to1() {
+        return getRandInt(1001) / 1000.;
+    }
+
+    /**
      * Chromosome class for a set of ids (for VRPD) problem
      */
     private class Chromosome implements Comparable<Chromosome> {
         public int size;
         public List<Integer> list;
 
-        private int cost;
+        private double cost;
         private boolean isCostCalculated = false;
 
         /**
@@ -300,11 +311,13 @@ public class GeneticAlgorithm {
                     cumulativeProcessTime += v.processTime;
                 }
 
-                if (waitingList.size() > depot.capacity){
-                    return GlobalVars.INF;
+                if (waitingList.size() > depot.capacity) {
+                    this.cost = GlobalVars.INF;
+                    this.isCostCalculated = true;
+                    return cost;
                 }
 
-                if (v.type == VertexType.DEPOT && waitingList.size() > 0){
+                if (v.type == VertexType.DEPOT && waitingList.size() > 0) {
                     waitingList.add(depotId);
                     SimpleTSP tsp = new SimpleTSP(graph, waitingList, cumulativeProcessTime);
                     tsp.run();
@@ -317,7 +330,7 @@ public class GeneticAlgorithm {
                 }
             }
 
-            if (waitingList.size() > 0){
+            if (waitingList.size() > 0) {
                 waitingList.add(depotId);
                 SimpleTSP tsp = new SimpleTSP(graph, waitingList, cumulativeProcessTime);
                 tsp.run();
@@ -338,7 +351,9 @@ public class GeneticAlgorithm {
                             vehiclesUsageCost + travelTimeCost + penaltyCost);
             }
 
-            return vehiclesUsageCost + travelTimeCost + penaltyCost;
+            this.isCostCalculated = true;
+            this.cost = vehiclesUsageCost + travelTimeCost + penaltyCost;
+            return cost;
         }
 
         @Override

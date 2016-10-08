@@ -3,6 +3,7 @@ package Main.Graph;
 import Main.Algorithms.Other.Random;
 import Main.Algorithms.Other.Random.IRange;
 import Main.Algorithms.Other.Random.DRange;
+import Main.GlobalVars;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -279,11 +280,13 @@ public class Graph {
     }
 
     public void printVertices() {
+        System.out.println(GlobalVars.equalsLine);
         System.out.println("v.id\tv.name\tv.type\tv.processTime\tv.dueDate\tv.penalty\tv.capacity\tv.fixedCost");
         for (Vertex v : getVertices()) {
             System.out.printf("%d\t\t%s\t\t%8s\t%4.1f\t\t\t%4.1f\t\t%4.1f\t\t%4d\t\t%4.1f\n",
                     v.id, v.name, v.type, v.processTime, v.dueDate, v.penalty, v.capacity, v.fixedCost);
         }
+        System.out.println(GlobalVars.equalsLine + "\n");
     }
 
     /**

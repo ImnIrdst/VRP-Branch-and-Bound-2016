@@ -34,6 +34,12 @@ public class GlobalVars {
     public static int numberOfBranchAndBoundNodes = 0;
     public static boolean enableBreakPoints = false;
 
+    public static String equalsLine =
+            "============================================================================================";
+    public static String dashesLine =
+            "--------------------------------------------------------------------------------------------";
+    public static String plusesLine =
+            "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
 
     /**
      * initialize the global variables
