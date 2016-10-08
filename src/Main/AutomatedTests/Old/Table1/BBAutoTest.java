@@ -62,7 +62,7 @@ public class BBAutoTest {
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                    preprocessedGraph, GlobalVars.numberOfCustomers, 2, 40);
+                    preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
             geneticAlgorithm.run(geneticTime);
 //            geneticAlgorithm.printBestChromosome();
 

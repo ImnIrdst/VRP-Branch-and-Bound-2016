@@ -103,7 +103,7 @@ public class GeneticAlgorithm {
     /**
      * gets a random population with shuffling
      */
-    public Chromosome getRandomChromosome(int size) {
+    public Chromosome getRandomChromosome1(int size) {
         Chromosome newChromosome = new Chromosome();
 
         for (int j = 0; j < size; j++) {
@@ -114,6 +114,57 @@ public class GeneticAlgorithm {
         }
         Collections.shuffle(newChromosome.list); // shuffle to generate a random population
 
+
+        return newChromosome;
+    }
+
+    public Chromosome getRandomChromosome(int size) {
+        List<Integer> customers = new ArrayList<>();
+
+        for (int j = 0; j < customerQty; j++) {
+            customers.add(j);
+        }
+
+        Chromosome newChromosome = new Chromosome();
+
+
+        int remainedCapacity = GlobalVars.depot.capacity;
+        int remainedVehicles = GlobalVars.depot.vehicleQty - 1;
+
+        Collections.shuffle(customers);
+        for (int i = 0; i < size && customers.size() > 0; i++) {
+
+            int vId = customers.get(customers.size() - 1);
+            customers.remove(customers.size() - 1);
+
+            if (vId != depotId && remainedCapacity < 0 && remainedVehicles > 0) {
+                remainedVehicles--;
+                remainedCapacity = GlobalVars.depot.capacity;
+                newChromosome.add(depotId);
+                i++;
+            }
+
+            if (vId != depotId && getRandom0to1() < 0.1 && remainedVehicles > 0) {
+                remainedVehicles--;
+                remainedCapacity = GlobalVars.depot.capacity;
+                newChromosome.add(depotId);
+                i++;
+            }
+
+            if (vId == depotId) {
+                remainedVehicles--;
+                remainedCapacity = GlobalVars.depot.capacity;
+            } else {
+                remainedCapacity--;
+            }
+
+            newChromosome.add(vId);
+        }
+        while (newChromosome.list.size() < size)
+            newChromosome.add(depotId);
+
+        if (newChromosome.list.size() > 24)
+            newChromosome = newChromosome;
         return newChromosome;
     }
 
@@ -191,7 +242,8 @@ public class GeneticAlgorithm {
         }
         // select randomly
         for (int i = 0; i < populationSize / 4; i++) {
-            newPopulation.add(chromosomes.get(i));
+            newPopulation.add(getRandomChromosome(size));
+            //newPopulation.add(chromosomes.get(i));
         }
 
         // select top nodes
