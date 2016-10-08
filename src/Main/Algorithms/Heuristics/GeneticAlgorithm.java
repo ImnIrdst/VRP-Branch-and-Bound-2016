@@ -24,11 +24,13 @@ public class GeneticAlgorithm {
     private List<Chromosome> population;
 
     private final boolean IS_VERBOSE = true;
+    private final boolean IS_DEBUG_MODE = false;
+
     private final double MUTATION_PROBABILITY = 0.05;
+    private final double CROSSOVER_PROBABILITY = 1.00;
 
     private int depotId;
     private long printTimeStepSize;
-    private double INF;
 
     /**
      * Constructor Creates a population with given qty
@@ -41,7 +43,6 @@ public class GeneticAlgorithm {
         this.minimumCost = Double.MAX_VALUE;
         this.population = new ArrayList<>();
 
-        this.INF = GlobalVars.INF;
         this.depotId = GlobalVars.depotId;
         this.printTimeStepSize = GlobalVars.printTimeStepSize;
     }
@@ -85,7 +86,7 @@ public class GeneticAlgorithm {
             }
 
             // print the progress
-            if (System.currentTimeMillis() > printTime && IS_VERBOSE) {
+            if (IS_VERBOSE && System.currentTimeMillis() > printTime) {
                 printTime += printTimeStepSize;
                 System.out.printf("Iteration #%d,\t\tTime elapsed: %.2fs,\t\tMinimum Cost: %.2f\n",
                         iteration, (System.currentTimeMillis() - startTime) / 1000., minimumCost);
@@ -278,15 +279,18 @@ public class GeneticAlgorithm {
             double penaltyCost = 0;
 
             Vertex depot = graph.getVertexById(depotId);
-            if (list.toString().equals("[7, 6, 3, 0, 8, 4, 2, 1, 5]"))
-                list = list;
-            if (list.toString().equals("[4, 7, 6, 3, 0, 8, 5, 1, 2]"))
-                list = list;
 
-//            System.out.println("-------------");
-//            System.out.println(this);
+            if (IS_DEBUG_MODE) {
+                if (list.toString().equals("[7, 6, 3, 0, 8, 4, 2, 1, 5]"))
+                    list = list;
+                if (list.toString().equals("[4, 7, 6, 3, 0, 8, 5, 1, 2]"))
+                    list = list;
+
+                System.out.println("-------------");
+                System.out.println(this);
+            }
+
             List<Integer> waitingList = new ArrayList<>();
-
             double cumulativeProcessTime = 0;
             for (int i = 0; i < list.size(); i++) {
                 Vertex v = graph.getVertexById(list.get(i));
@@ -304,7 +308,6 @@ public class GeneticAlgorithm {
                     waitingList.add(depotId);
                     SimpleTSP tsp = new SimpleTSP(graph, waitingList, cumulativeProcessTime);
                     tsp.run();
-//                    System.out.println(tsp);
 
                     vehiclesUsageCost += depot.fixedCost;
                     travelTimeCost += tsp.travelTime;
@@ -319,7 +322,6 @@ public class GeneticAlgorithm {
                 SimpleTSP tsp = new SimpleTSP(graph, waitingList, cumulativeProcessTime);
                 tsp.run();
 
-//                System.out.println(tsp);
                 vehiclesUsageCost += depot.fixedCost;
                 travelTimeCost += tsp.travelTime;
                 penaltyCost += tsp.penaltyTaken;
@@ -327,13 +329,15 @@ public class GeneticAlgorithm {
                 waitingList.clear();
             }
 
-//            System.out.println("Cost: " + (vehiclesUsageCost + travelTimeCost + penaltyCost));
-//            graph.getDistance(graph.getVertexById(), graph.getVertexById())
+            if (IS_DEBUG_MODE) {
+                System.out.println("Cost: " + (vehiclesUsageCost + travelTimeCost + penaltyCost));
 
-//            if (vehiclesUsageCost + travelTimeCost + penaltyCost < 94.5)
-//                System.out.printf("%s ||||| %.2f, %.2f, %.2f, %.2f\n",
-//                        this.toString(), vehiclesUsageCost, travelTimeCost, penaltyCost,
-//                        vehiclesUsageCost + travelTimeCost + penaltyCost);
+                if (vehiclesUsageCost + travelTimeCost + penaltyCost < 94.5)
+                    System.out.printf("%s ||||| %.2f, %.2f, %.2f, %.2f\n",
+                            this.toString(), vehiclesUsageCost, travelTimeCost, penaltyCost,
+                            vehiclesUsageCost + travelTimeCost + penaltyCost);
+            }
+
             return vehiclesUsageCost + travelTimeCost + penaltyCost;
         }
 
