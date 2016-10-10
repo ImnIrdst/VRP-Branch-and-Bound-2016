@@ -1,6 +1,6 @@
 import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.Algorithms.Heuristics.GeneticAlgorithm;
-import Main.Algorithms.Heuristics.PGAThread;
+import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.PGA.PGAThread;
 import Main.Graph.Graph;
 import Main.GlobalVars;
 

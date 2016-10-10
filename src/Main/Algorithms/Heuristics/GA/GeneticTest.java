@@ -1,6 +1,7 @@
-package Main.Algorithms.Heuristics;
+package Main.Algorithms.Heuristics.GA;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
+import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.IOLoader.LoadRandomGraph;

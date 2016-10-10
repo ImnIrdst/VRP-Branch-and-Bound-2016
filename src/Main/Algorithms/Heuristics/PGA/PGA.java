@@ -1,4 +1,4 @@
-package Main.Algorithms.Heuristics;
+package Main.Algorithms.Heuristics.PGA;
 
 /**
  * Parallel GA Algorithm

@@ -1,7 +1,7 @@
 package Main.Algorithms.SupplyChainScheduling.BranchAndBound;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.Algorithms.Heuristics.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.IOLoader.LoadRandomGraph;

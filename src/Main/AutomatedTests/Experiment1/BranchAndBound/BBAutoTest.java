@@ -1,6 +1,6 @@
 package Main.AutomatedTests.Experiment1.BranchAndBound;
 
-import Main.Algorithms.Heuristics.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
 import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.GlobalVars;
 import Main.Graph.Graph;
