@@ -1,6 +1,6 @@
 package Main.AutomatedTests.Experiment1.BranchAndBound;
 
-import Main.Algorithms.Heuristics.GA.GA2.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GA1.GeneticAlgorithm;
 import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.GlobalVars;
 import Main.Graph.Graph;
@@ -34,11 +34,12 @@ public class BBAutoTest {
                     GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
             int geneticTime = 10000;
+            int maxIterationsNoUpdate = 500;
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                     originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
-            geneticAlgorithm.run(geneticTime);
+            geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);
 //            geneticAlgorithm.printBestChromosome();
 
 
