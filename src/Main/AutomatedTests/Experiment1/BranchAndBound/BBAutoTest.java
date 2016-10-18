@@ -1,6 +1,6 @@
 package Main.AutomatedTests.Experiment1.BranchAndBound;
 
-import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GA2.GeneticAlgorithm;
 import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.GlobalVars;
 import Main.Graph.Graph;
@@ -37,7 +37,7 @@ public class BBAutoTest {
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                    originalGraph, GlobalVars.numberOfCustomers, 2, 40);
+                    originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
             geneticAlgorithm.run(geneticTime);
 //            geneticAlgorithm.printBestChromosome();
 

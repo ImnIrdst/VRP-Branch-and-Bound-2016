@@ -1,5 +1,5 @@
 import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GA2.GeneticAlgorithm;
 import Main.Algorithms.Heuristics.PGA.PGAThread;
 import Main.Graph.Graph;
 import Main.GlobalVars;
@@ -21,7 +21,7 @@ public class PGATest {
             geneticAlgorithm.run(COMPUTATION_TIME);
             sum += geneticAlgorithm.getMinimumCost();
 
-            if (i % 10 == 0) System.out.printf("GA iteration # %02d\n", i);
+            if (i % 10 == 0) System.out.printf("GA iterations # %02d\n", i);
         }
         System.out.println("GA average: " + (sum / TEST_ROUNDS));
     }
@@ -48,7 +48,7 @@ public class PGATest {
                 minimum = Math.min(minimum, pgaThreads[i].getResult());
             }
             overallSum += minimum;
-            if (r % 10 == 0) System.out.printf("PGA iteration #% 02d\n", r);
+            if (r % 10 == 0) System.out.printf("PGA iterations #% 02d\n", r);
         }
         System.out.println("PGA average: " + (overallSum / TEST_ROUNDS));
     }

@@ -2,7 +2,7 @@ package Main.AutomatedTests.Old.Table2;
 
 import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GA2.GeneticAlgorithm;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 

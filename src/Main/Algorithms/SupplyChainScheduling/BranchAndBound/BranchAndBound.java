@@ -66,8 +66,12 @@ public class BranchAndBound {
             BBNode u = pq.poll();
 
 
-            if (getHierarchy(u).equals("Dp -> A -> H -> C -> G -> D -> Dp -> B -> E -> F")){
+            if (getHierarchy(u).equals("Dp -> A -> H -> C -> G -> D -> Dp -> B -> E -> F")) {
                 u = u;
+            }
+
+            if (getIdsHierarchy(u).equals("[8, 4, 7, 1, 2, 6, 3, 0, 5, 8]")) {
+                System.out.println(u.getPrintCostDetailsString());
             }
 
             if (canBePruned(u)) continue;
@@ -111,7 +115,7 @@ public class BranchAndBound {
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == graph.getCustomersQty()
                 && newNode.getCost() <= minimumCost) {
-//            System.out.println(getHierarchy(newNode));
+            System.out.println(getIdsHierarchy(newNode));
             bestNode = newNode;
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;
@@ -186,9 +190,19 @@ public class BranchAndBound {
 
     public String getHierarchy(BBNode bbNode) {
         String string = bbNode.vertex.name; // String.format("%s(%.2f)", bbNode.vertex.name, bbNode.getCost());
-        for (BBNode node = bbNode.parent ; node != null ; node = node.parent){
+        for (BBNode node = bbNode.parent; node != null; node = node.parent) {
             string = node.vertex.name + " -> " + string;
         }
+
+        return string;
+    }
+
+    public String getIdsHierarchy(BBNode bbNode) {
+        String string = "" + bbNode.vertex.id; // String.format("%s(%.2f)", bbNode.vertex.name, bbNode.getCost());
+        for (BBNode node = bbNode.parent; node != null; node = node.parent) {
+            string = node.vertex.id + ", " + string;
+        }
+        string = "[" + string + "]";
 
         return string;
     }

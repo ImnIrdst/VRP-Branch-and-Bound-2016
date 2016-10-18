@@ -55,13 +55,13 @@ public class Dijkstra {
         }
 
         while (!pq.isEmpty()) {
-            Vertex u = pq.poll(); // vertex with shortest distance (first iteration will return source)
+            Vertex u = pq.poll(); // vertex with shortest distance (first iterations will return source)
             if (u.distOnShortestPath == Integer.MAX_VALUE)
                 break; // we can ignore u (and any other remaining vertices) since they are unreachable
 
             //look at distances to each neighbour
             for (Map.Entry<Vertex, Double> a : u.neighbours.entrySet()) {
-                Vertex v = a.getKey(); //the neighbour in this iteration
+                Vertex v = a.getKey(); //the neighbour in this iterations
 
                 double weight = a.getValue();
                 if (u.distOnShortestPath + weight < v.distOnShortestPath) { // shorter path to neighbour found

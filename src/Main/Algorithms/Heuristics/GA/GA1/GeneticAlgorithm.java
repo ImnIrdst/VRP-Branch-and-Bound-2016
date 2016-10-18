@@ -1,4 +1,4 @@
-package Main.Algorithms.Heuristics.GA;
+package Main.Algorithms.Heuristics.GA.GA1;
 
 import Main.Algorithms.TSP.SimpleTSP.SimpleTSP;
 import Main.GlobalVars;
@@ -6,10 +6,13 @@ import Main.Graph.Graph;
 import Main.Graph.Vertex;
 import Main.Graph.VertexType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 /**
- * An Implementation of GA Algorithm used for
+ * An Implementation of GA1 Algorithm used for
  * calculating an upper bound for our problem (VRPD)
  * Created by iman on 7/27/16.
  */
@@ -31,7 +34,9 @@ public class GeneticAlgorithm {
 
     private int depotId;
     private long printTimeStepSize;
-    private long chromosomesQty = 0;
+
+    public long chromosomesQty = 0;
+    public long iterations = 0;
 
     /**
      * Constructor Creates a population with given qty
@@ -64,7 +69,6 @@ public class GeneticAlgorithm {
         long printTime = startTime + printTimeStepSize;
         initializePopulation(customerQty, vehicleQty);
 
-        int iteration = 0;
         while (System.currentTimeMillis() < startTime + computeDurationMilliSecond) {
             List<Chromosome> newPopulation = new ArrayList<>();
 
@@ -94,9 +98,10 @@ public class GeneticAlgorithm {
             if (IS_VERBOSE && System.currentTimeMillis() > printTime) {
                 printTime += printTimeStepSize;
                 System.out.printf("Iteration #%d,\tTime elapsed: %.2fs,\tChromosomesQty: %d,\tMinimum Cost: %.2f\n",
-                        iteration, (System.currentTimeMillis() - startTime) / 1000., chromosomesQty, minimumCost);
+                        iterations, (System.currentTimeMillis() - startTime) / 1000., chromosomesQty, minimumCost);
             }
-            iteration++;
+
+            iterations++;
         }
     }
 
@@ -184,7 +189,7 @@ public class GeneticAlgorithm {
      *
      * @param chromosome array of id of the nodes
      */
-    public void mutate(Chromosome chromosome) {
+    public void mutate1(Chromosome chromosome) {
         if (getRandom0to1() > MUTATION_PROBABILITY)
             return;
 
@@ -195,6 +200,36 @@ public class GeneticAlgorithm {
         int tmp = chromosome.get(i);
         chromosome.set(i, chromosome.get(j));
         chromosome.set(j, tmp);
+
+    }
+
+    /**
+     * perform mutation on a given chromosome
+     *
+     * @param chromosome array of id of the nodes
+     */
+    public void mutate(Chromosome chromosome) {
+        if (getRandom0to1() > MUTATION_PROBABILITY)
+            return;
+
+        int i = getRandInt(chromosome.size);
+        int j = getRandInt(chromosome.size);
+
+        if (i > j) {
+            int t = i;
+            i = j;
+            j = t;
+        }
+
+        List<Integer> temp = new ArrayList<>();
+        for (int k = i; k <= j; k++) {
+            temp.add(chromosome.get(k));
+        }
+        Collections.shuffle(temp);
+
+        for (int k = i; k <= j; k++) {
+            chromosome.set(k, temp.get(k - i));
+        }
     }
 
     /**
@@ -233,26 +268,19 @@ public class GeneticAlgorithm {
      * Selects top chromosomes from old population and their children
      */
     public List<Chromosome> selection(List<Chromosome> chromosomes) {
-        int size = customerQty + vehicleQty - 1;
         List<Chromosome> newPopulation = new ArrayList<>();
-
-        // new population
-        for (int i = 0; i < populationSize / 4; i++) {
-            newPopulation.add(getRandomChromosome(size));
-        }
-        // select randomly
-        for (int i = 0; i < populationSize / 4; i++) {
-            newPopulation.add(getRandomChromosome(size));
-            //newPopulation.add(chromosomes.get(i));
-        }
 
         // select top nodes
         Collections.sort(chromosomes);
-        for (int i = 0; i < populationSize / 2; i++) {
+
+        for (int i = 0; i < 9 * (populationSize / 10); i++) {
             newPopulation.add(chromosomes.get(i));
         }
 
-        Collections.sort(newPopulation);
+        for (int i = chromosomes.size() - populationSize / 10; i < chromosomes.size(); i++) {
+            newPopulation.add(chromosomes.get(i));
+        }
+
         return newPopulation;
     }
 

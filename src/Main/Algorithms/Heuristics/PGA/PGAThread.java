@@ -1,6 +1,6 @@
 package Main.Algorithms.Heuristics.PGA;
 
-import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GA2.GeneticAlgorithm;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 

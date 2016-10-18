@@ -161,13 +161,17 @@ public class Graph {
             DRange processTimeRange, DRange dueDateRange, DRange penaltyRange, DRange edgeWeightsRange) {
         Graph graph = new Graph();
         // Add Depot Vertex
+        int customerQty = Random.getRandomIntInRange(customerQtyRange);
+        vehicleQtyRange.max = Math.min(vehicleQtyRange.max, customerQty);
+        vehicleQtyRange.min = Math.min(vehicleQtyRange.min, vehicleQtyRange.max);
         int vehicleQty = Random.getRandomIntInRange(vehicleQtyRange);
         int capacity = Random.getRandomIntInRange(capacityRange);
         double fixCost = Random.getRandomDoubleInRange(fixCostRange);
+
+
         graph.addVertex(new Vertex("Dp", VertexType.DEPOT, vehicleQty, capacity, fixCost));
 
         // Build the Customer Vertices
-        int customerQty = Random.getRandomIntInRange(customerQtyRange);
         for (int i = 0; i < customerQty; i++) {
             String name = "" + (char)('A' + i);
             double processTime = Random.getRandomDoubleInRange(processTimeRange);

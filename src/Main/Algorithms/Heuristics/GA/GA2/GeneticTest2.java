@@ -1,7 +1,6 @@
-package Main.Algorithms.Heuristics.GA;
+package Main.Algorithms.Heuristics.GA.GA2;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.IOLoader.LoadRandomGraph;
@@ -11,7 +10,7 @@ import java.io.FileNotFoundException;
 /**
  * Created by IMN on 10/8/2016.
  */
-public class GeneticTest {
+public class GeneticTest2 {
     public static void main(String[] args) throws FileNotFoundException {
         Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(1);
 

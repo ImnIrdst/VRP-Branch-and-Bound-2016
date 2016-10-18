@@ -1,7 +1,7 @@
 package Main.Algorithms.SupplyChainScheduling.BranchAndBound;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GA2.GeneticAlgorithm;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.IOLoader.LoadRandomGraph;
@@ -35,7 +35,7 @@ public class BBTest {
         System.out.println("Number of Vehicles: " + GlobalVars.numberOfVehicles);
         // run the genetic algorithm
 
-        int geneticTime = 10000;
+        int geneticTime = 100;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, 2, 40);
         geneticAlgorithm.run(geneticTime);
