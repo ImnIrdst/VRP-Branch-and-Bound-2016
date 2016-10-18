@@ -1,6 +1,6 @@
 package Main.AutomatedTests.Experiment1.ATC;
 
-import Main.Algorithms.Heuristics.GA.GA1.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.DispatchingRules.ATC;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.IOLoader.LoadRandomGraph;
@@ -18,7 +18,7 @@ public class ATCAutoTest {
 
     public static void main(String[] args) throws FileNotFoundException {
         FileOutputStream fileOutputStream = new FileOutputStream(
-                new File("resources/Experiments/Ex2/ex1-automated-test-results-ga1-tmp.csv"));
+                new File("resources/Experiments/Ex1/ex1-automated-test-results-atc-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
 
         double sumOfCosts = 0;
@@ -28,7 +28,7 @@ public class ATCAutoTest {
         out.println(tableHeader);
         System.out.println(tableHeader);
         for (int id = 0; id < 100; id++) {
-            int testId = id / testBatch;
+            int testId = id; // id / testBatch;
 
             Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(testId);
 
@@ -42,49 +42,27 @@ public class ATCAutoTest {
             System.out.println("Number of Customers, Vehicles: " +
                     GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
-            int geneticTime = 10000;
+            // run atc algorithm
+            ATC atc = new ATC(originalGraph);
+            atc.run();
 
-            // run the genetic algorithm
-            GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                    originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
-            geneticAlgorithm.run(geneticTime);
-//            geneticAlgorithm.printBestChromosome();
+            String time = String.format("%.2f", atc.getElapsedTimeInSeconds());
+            String cost = String.format("%.2f", atc.getCost());
+            if (atc.getCost() > GlobalVars.INF - 1e-9) cost = "NA";
 
 
-            String iterations = "" + geneticAlgorithm.iterations;
-            String chromosomeQty = "" + geneticAlgorithm.chromosomesQty;
-            String cost = String.format("%.2f", geneticAlgorithm.getMinimumCost());
-
-            String tableRow = String.format("%d,%d,%d,%d,%s,%s,%s", id, testId,
-                    GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, cost, iterations, chromosomeQty);
+            String tableRow = String.format("%d,%d,%d,%d,%s,%s", id, testId,
+                    GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, cost, time);
 
 //            System.out.println(testInfo);
             System.out.println(tableHeader);
             System.out.println(tableRow);
             System.out.println("Optimal Value: " + cost);
-            System.out.println("Total Calculation time: " + iterations + "s");
+            System.out.println("Total Calculation time: " + time + "s");
             System.out.println("-------------------------------------");
 
             out.println(tableRow);
             out.flush();
-
-
-            sumOfCosts += geneticAlgorithm.getMinimumCost();
-            sumOfChromosomes += geneticAlgorithm.chromosomesQty;
-            sumOfIterations  += geneticAlgorithm.iterations;
-            if ((id + 1) % testBatch == 0) {
-                String averageRow = String.format("avg,%d,%d,%d,%s,%s,%s", testId,
-                        GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, sumOfCosts / testBatch,
-                        sumOfIterations / testBatch, sumOfChromosomes / testBatch);
-                System.out.println(averageRow);
-
-                out.println(averageRow);
-                out.flush();
-
-                sumOfCosts = 0;
-                sumOfChromosomes = 0;
-                sumOfIterations = 0;
-            }
         }
         out.close();
     }

@@ -4,6 +4,7 @@ import Main.Algorithms.TSP.SimpleTSP.SimpleTSP;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
+import Main.Graph.VertexType;
 import org.omg.CORBA.StringHolder;
 
 import java.util.ArrayList;
@@ -18,12 +19,17 @@ public class ATC {
     private double result = 0;
     private List<Integer> path;
 
+    private long startTime;
+    private long finishTime;
+
     public ATC(Graph graph) {
         this.graph = graph;
         path = new ArrayList<>();
     }
 
     public void run() {
+        startTime = System.currentTimeMillis();
+
         int servedNodesQty = 0;
         boolean[] isServed = new boolean[graph.getGraphSize()];
 
@@ -60,7 +66,7 @@ public class ATC {
                 if (isServed[v.id] == true) continue;
 
                 double atcValue = getATCRuleValue(graph.getDepot(), v, 0, sumOfProcessTimes);
-                atcValue -= getATCRuleValue(u, graph.getDepot(), arrivalTime, 0);
+                atcValue -= getATCRuleValue(u, graph.getDepot(), arrivalTime, sumOfProcessTimes);
                 if (atcValue > bestValueStart) {
                     bestValueStart = atcValue;
                     start = v;
@@ -100,6 +106,8 @@ public class ATC {
                 path.add(graph.getDepotId());
             }
         }
+
+        finishTime = System.currentTimeMillis();
     }
 
     public double getATCRuleValue(Vertex u, Vertex v, double previousArrivalTime, double sumOfProcessTimes) {
@@ -107,12 +115,22 @@ public class ATC {
         double dk = v.dueDate;
         double wk = v.penalty;
 
+        if (v.type == VertexType.DEPOT) pk = 1;
+
         double t = previousArrivalTime;
         double c = graph.getDistance(u, v);
         double A = sumOfProcessTimes;
 
         double Ik = (wk / pk) - ((dk - pk - t - c) / A) - t;
         return Ik;
+    }
+
+    public double getElapsedTimeInSeconds() {
+        return (finishTime - startTime) / 1000.0;
+    }
+
+    public double getCost() {
+        return result;
     }
 
     @Override

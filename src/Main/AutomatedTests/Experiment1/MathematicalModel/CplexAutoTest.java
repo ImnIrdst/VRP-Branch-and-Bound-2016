@@ -47,7 +47,7 @@ public class CplexAutoTest {
 
     public static void ReadData() throws Exception {
 
-        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/Experiments/ex1-automated-test-results-cplex-tmp.csv"));
+        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/Experiments/Ex1/ex1-automated-test-results-cplex-tmp.csv"));
         out = new PrintWriter(fileOutputStream);
 
         String tableHeader = "Test ID,Customers,Vehicles,Cost,CPU Time,Nodes,Status";
@@ -406,14 +406,14 @@ public class CplexAutoTest {
     public static void Solve_Model() throws Exception {
 //        SCS.setParam(IloCplex.IntParam.Simplex.Display, 0);
         SCS.setParam(IloCplex.DoubleParam.EpInt, 1e-10);
-        SCS.setOut(null);
+//        SCS.setOut(null);
         String expandedNodes = "?";
         String elapsedTime = "?";
         String optimalValue = "?";
         String status = "?";
         long startTime = System.currentTimeMillis();
         try {
-            SCS.setParam(IloCplex.DoubleParam.TiLim, 500);
+            SCS.setParam(IloCplex.DoubleParam.TiLim, 400);
             if (SCS.solve()) {
                 long finishTime = System.currentTimeMillis();
                 elapsedTime = String.format("%.2f", (finishTime - startTime) / 1000.);
