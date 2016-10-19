@@ -71,7 +71,6 @@ public class GeneticAlgorithm {
 
         startTime = System.currentTimeMillis();
         long printTime = startTime + printTimeStepSize;
-
         long iterationsNoUpdate = 0;
 
         initializePopulation(customerQty, vehicleQty);
@@ -108,7 +107,9 @@ public class GeneticAlgorithm {
                         iterations, (System.currentTimeMillis() - startTime) / 1000., chromosomesQty, minimumCost);
             }
 
-            if (iterationsNoUpdate > maxIterationsNoUpdate) break;
+            if (iterationsNoUpdate > maxIterationsNoUpdate)
+                break;
+
 
             iterations++;
             iterationsNoUpdate++;
@@ -212,7 +213,6 @@ public class GeneticAlgorithm {
         int tmp = chromosome.get(i);
         chromosome.set(i, chromosome.get(j));
         chromosome.set(j, tmp);
-
     }
 
     /**

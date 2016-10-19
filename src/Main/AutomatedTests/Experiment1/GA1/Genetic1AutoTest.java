@@ -18,17 +18,17 @@ public class Genetic1AutoTest {
 
     public static void main(String[] args) throws FileNotFoundException {
         FileOutputStream fileOutputStream = new FileOutputStream(
-                new File("resources/Experiments/Ex2/ex1-automated-test-results-ga1-tmp.csv"));
+                new File("resources/Experiments/Ex1/ex1-automated-test-results-ga1-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
 
         double sumOfCosts = 0;
         double sumOfTimes = 0;
         double sumOfIterations = 0;
         double sumOfChromosomes = 0;
-        String tableHeader = "ID,TestID,Customers,Vehicles,Cost,Iterations,ChromosomesQty";
+        String tableHeader = "ID,TestID,Customers,Vehicles,Cost,Iterations,ChromosomesQty"; // TODO: correct this
         out.println(tableHeader);
         System.out.println(tableHeader);
-        for (int id = 0; id < 100; id++) {
+        for (int id = 0; id < 100 * testBatch; id++) {
             int testId = id / testBatch;
 
             Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(testId);
@@ -44,7 +44,7 @@ public class Genetic1AutoTest {
                     GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
             int geneticTime = 10000;
-            int maxIterationsNoUpdate = 500;
+            int maxIterationsNoUpdate = 3000;
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(

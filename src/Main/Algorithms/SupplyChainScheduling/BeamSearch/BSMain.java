@@ -36,7 +36,7 @@ public class BSMain {
         int geneticTime = 0;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, 2, 40);
-        geneticAlgorithm.run(geneticTime);
+//        geneticAlgorithm.run(geneticTime);
         geneticAlgorithm.printBestChromosome();
 
         // run the branch and bound algorithm

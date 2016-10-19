@@ -1,7 +1,7 @@
 package Main.Algorithms.SupplyChainScheduling.BranchAndBound;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.Algorithms.Heuristics.GA.GA2.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GA1.GeneticAlgorithm;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.IOLoader.LoadRandomGraph;
@@ -36,9 +36,10 @@ public class BBTest {
         // run the genetic algorithm
 
         int geneticTime = 100;
+        int maxIterationNoUpdate = 500;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, 2, 40);
-        geneticAlgorithm.run(geneticTime);
+        geneticAlgorithm.run(geneticTime, maxIterationNoUpdate);
         geneticAlgorithm.printBestChromosome();
 
         // run the branch and bound algorithm

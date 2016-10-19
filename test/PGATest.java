@@ -18,7 +18,7 @@ public class PGATest {
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                     preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
-            geneticAlgorithm.run(COMPUTATION_TIME);
+//            geneticAlgorithm.run(COMPUTATION_TIME);
             sum += geneticAlgorithm.getMinimumCost();
 
             if (i % 10 == 0) System.out.printf("GA iterations # %02d\n", i);

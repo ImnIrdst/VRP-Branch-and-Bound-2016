@@ -19,7 +19,7 @@ public class PGAThread extends Thread {
 
     @Override
     public void run() {
-        geneticAlgorithm.run(computeDuration);
+//        geneticAlgorithm.run(computeDuration);
     }
 
     public double getResult(){

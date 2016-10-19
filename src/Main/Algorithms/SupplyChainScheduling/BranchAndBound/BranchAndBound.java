@@ -53,9 +53,9 @@ public class BranchAndBound {
      * @param depotName is name of the depot (node that contains vehicles)
      */
     public void run(String depotName) {
-//        System.out.println("--------------------------");
-//        System.out.println("Branch and bound algorithm");
-//        System.out.println("--------------------------");
+        System.out.println(GlobalVars.equalsLine);
+        System.out.println("\t\t\t\t\t\t\tBranch and bound algorithm");
+        System.out.println(GlobalVars.equalsLine);
 
         // add initial node
         Vertex depotVertex = graph.getVertexByName(depotName);
@@ -115,7 +115,7 @@ public class BranchAndBound {
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == graph.getCustomersQty()
                 && newNode.getCost() <= minimumCost) {
-            System.out.println(getIdsHierarchy(newNode));
+            // System.out.println(getIdsHierarchy(newNode));
             bestNode = newNode;
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;

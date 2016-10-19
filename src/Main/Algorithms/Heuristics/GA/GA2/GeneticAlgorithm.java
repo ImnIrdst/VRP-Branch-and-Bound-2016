@@ -35,6 +35,10 @@ public class GeneticAlgorithm {
     public long chromosomesQty = 0;
     public long iterations = 0;
 
+    private long startTime = 0;
+    private long finishTime = 0;
+
+
     /**
      * Constructor Creates a population with given qty
      */
@@ -55,17 +59,18 @@ public class GeneticAlgorithm {
      *
      * @param computeDurationMilliSecond is how much time can be consumed
      */
-    public void run(int computeDurationMilliSecond) {
+    public void run(int computeDurationMilliSecond, int maxIterationsNoUpdate) {
         if (IS_VERBOSE) {
             System.out.println(GlobalVars.equalsLine);
             System.out.println("\t\t\t\t\t\t\t\t\tGenetic algorithm");
             System.out.println(GlobalVars.equalsLine);
         }
 
-        long startTime = System.currentTimeMillis();
+        startTime = System.currentTimeMillis();
         long printTime = startTime + printTimeStepSize;
-        initializePopulation(customerQty, vehicleQty);
+        long iterationsNoUpdate = 0;
 
+        initializePopulation(customerQty, vehicleQty);
         while (System.currentTimeMillis() < startTime + computeDurationMilliSecond) {
             List<Chromosome> newPopulation = new ArrayList<>();
 
@@ -89,6 +94,7 @@ public class GeneticAlgorithm {
             if (population.get(0).getCost() < minimumCost) {
                 minimumCost = population.get(0).getCost();
                 bestChromosome = population.get(0);
+                iterationsNoUpdate = 0;
             }
 
             // print the progress
@@ -98,8 +104,15 @@ public class GeneticAlgorithm {
                         iterations, (System.currentTimeMillis() - startTime) / 1000., chromosomesQty, minimumCost);
             }
 
+            if (iterationsNoUpdate > maxIterationsNoUpdate)
+                break;
+
+
             iterations++;
+            iterationsNoUpdate++;
         }
+
+        finishTime = System.currentTimeMillis();
     }
 
     /**
@@ -261,6 +274,10 @@ public class GeneticAlgorithm {
      */
     public double getMinimumCost() {
         return minimumCost;
+    }
+
+    public double getElapsedTimeInSeconds() {
+        return (finishTime - startTime) / 1000.0;
     }
 
     public void printBestChromosome() {
