@@ -37,9 +37,9 @@ public class GeneticTest2 {
         // run the genetic algorithm
 
         int geneticTime = 10000;
-        int maxIterationsNoUpdate = 500;
+        int maxIterationsNoUpdate = 300;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
+                preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
         geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);
         geneticAlgorithm.printBestChromosome();
     }

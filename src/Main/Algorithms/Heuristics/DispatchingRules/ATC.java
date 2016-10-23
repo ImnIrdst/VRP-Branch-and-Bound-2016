@@ -1,11 +1,8 @@
 package Main.Algorithms.Heuristics.DispatchingRules;
 
-import Main.Algorithms.TSP.SimpleTSP.SimpleTSP;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
-import Main.Graph.VertexType;
-import org.omg.CORBA.StringHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +50,8 @@ public class ATC {
             for (Vertex v : graph.getCustomerVertices()) {
                 if (isServed[v.id] == true) continue;
 
-                double atcValue = getATCRuleValue(u, v, arrivalTime, sumOfProcessTimes);
+                double atcValue = RankingIndex.getIndexValue2(
+                        u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
                 if (atcValue > bestValue) {
                     bestValue = atcValue;
                     next = v;
@@ -65,8 +63,10 @@ public class ATC {
             for (Vertex v : graph.getCustomerVertices()) {
                 if (isServed[v.id] == true) continue;
 
-                double atcValue = getATCRuleValue(graph.getDepot(), v, 0, sumOfProcessTimes);
-                atcValue -= getATCRuleValue(u, graph.getDepot(), arrivalTime, sumOfProcessTimes);
+                double atcValue = RankingIndex.getIndexValue2(
+                        graph.getDepot(), v, graph.getDistance(graph.getDepot(), v), 0, sumOfProcessTimes);
+                atcValue -= RankingIndex.getIndexValue2(
+                        u, graph.getDepot(), graph.getDistance(u, graph.getDepot()), arrivalTime, sumOfProcessTimes);
                 if (atcValue > bestValueStart) {
                     bestValueStart = atcValue;
                     start = v;
@@ -110,20 +110,6 @@ public class ATC {
         finishTime = System.currentTimeMillis();
     }
 
-    public double getATCRuleValue(Vertex u, Vertex v, double previousArrivalTime, double sumOfProcessTimes) {
-        double pk = v.processTime;
-        double dk = v.dueDate;
-        double wk = v.penalty;
-
-        if (v.type == VertexType.DEPOT) pk = 1;
-
-        double t = previousArrivalTime;
-        double c = graph.getDistance(u, v);
-        double A = sumOfProcessTimes;
-
-        double Ik = (wk / pk) - ((dk - pk - t - c) / A) - t;
-        return Ik;
-    }
 
     public double getElapsedTimeInSeconds() {
         return (finishTime - startTime) / 1000.0;

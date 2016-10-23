@@ -23,8 +23,8 @@ public class GeneticAlgorithm {
     private Chromosome bestChromosome;
     private List<Chromosome> population;
 
-    private final double MUTATION_PROBABILITY = 0.05;
-    private final double CROSSOVER_PROBABILITY = 1.00;
+    private final double MUTATION_PROBABILITY = 0.10;
+    private final double CROSSOVER_PROBABILITY = 0.80;
 
     private final boolean IS_VERBOSE = true;
     private final boolean IS_DEBUG_MODE = false;
@@ -225,6 +225,8 @@ public class GeneticAlgorithm {
      * @return a new chromosome by crossover of two given chromosomes
      */
     public Chromosome crossOver(Chromosome chromosome1, Chromosome chromosome2) {
+        if (chromosome1.hashCode() == chromosome2.hashCode()) return chromosome1;
+
         int size = chromosome1.size;
         int mid = getRandInt(size);
         Chromosome newChromosome = new Chromosome();
@@ -258,11 +260,11 @@ public class GeneticAlgorithm {
         // select top nodes
         Collections.sort(chromosomes);
 
-        for (int i = 0; i < 9 * (populationSize / 10); i++) {
+        for (int i = 0; i < 8 * (populationSize / 10); i++) {
             newPopulation.add(chromosomes.get(i));
         }
 
-        for (int i = chromosomes.size() - populationSize / 10; i < chromosomes.size(); i++) {
+        for (int i = chromosomes.size() - (2 * (populationSize / 10)); i < chromosomes.size(); i++) {
             newPopulation.add(chromosomes.get(i));
         }
 
@@ -281,7 +283,9 @@ public class GeneticAlgorithm {
     }
 
     public void printBestChromosome() {
-        System.out.println("Best Chromosome: " + bestChromosome + ", " + String.format("%.8f", minimumCost));
+        System.out.println("Best Chromosome: " + bestChromosome
+                + ", " + String.format("Cost: %.2f", minimumCost)
+                + ", " + String.format("Cost: %d", iterations));
     }
 
 
@@ -347,6 +351,18 @@ public class GeneticAlgorithm {
             size++;
         }
 
+//
+
+        List<Integer> orderThem(List<Integer> customers){
+            Collections.shuffle(customers);
+
+            return null;
+        }
+
+
+        /**
+         * Using DeadLines
+         */
         List<Integer> orderThem1(List<Integer> customers) {
             Collections.sort(customers, new Comparator<Integer>() {
                 @Override
@@ -358,8 +374,16 @@ public class GeneticAlgorithm {
             return null;
         }
 
-        List<Integer> orderThem(List<Integer> customers){
-            Collections.shuffle(customers);
+        /**
+         * Using ATC rules
+         */
+        List<Integer> orderThem2(List<Integer> customers){
+            Collections.sort(customers, new Comparator<Integer>() {
+                @Override
+                public int compare(Integer o1, Integer o2) {
+                    return Double.compare(graph.getVertexById(o1).dueDate, graph.getVertexById(o2).dueDate);
+                }
+            });
 
             return null;
         }
@@ -447,6 +471,11 @@ public class GeneticAlgorithm {
         @Override
         public String toString() {
             return list.toString();
+        }
+
+        @Override
+        public int hashCode() {
+            return list.hashCode();
         }
     }
 }

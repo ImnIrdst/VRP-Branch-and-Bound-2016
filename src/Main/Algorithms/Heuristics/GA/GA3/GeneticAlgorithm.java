@@ -1,10 +1,10 @@
-package Main.Algorithms.Heuristics.GA.GA1;
+package Main.Algorithms.Heuristics.GA.GA3;
 
+import Main.Algorithms.Heuristics.DispatchingRules.RankingIndex;
 import Main.Algorithms.TSP.SimpleTSP.SimpleTSP;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
-import Main.Graph.VertexType;
 
 import java.util.*;
 
@@ -25,6 +25,8 @@ public class GeneticAlgorithm {
 
     private final double MUTATION_PROBABILITY = 0.10;
     private final double CROSSOVER_PROBABILITY = 0.80;
+
+    private final int NUMBER_OF_DISPATCHING_RULES = 3;
 
     private final boolean IS_VERBOSE = true;
     private final boolean IS_DEBUG_MODE = false;
@@ -121,65 +123,44 @@ public class GeneticAlgorithm {
     public Chromosome getRandomChromosome1(int size) {
         Chromosome newChromosome = new Chromosome();
 
-        for (int j = 0; j < size; j++) {
-            if (j < customerQty)
-                newChromosome.add(j);
-            else
-                newChromosome.add(depotId);
+        for (int j = 0; j < customerQty; j++) {
+            newChromosome.add(getRandInt(vehicleQty + 1));
         }
-        Collections.shuffle(newChromosome.list); // shuffle to generate a random population
-
 
         return newChromosome;
     }
 
     public Chromosome getRandomChromosome(int size) {
-        List<Integer> customers = new ArrayList<>();
+        List<Integer> vehicles = new ArrayList<>();
 
-        for (int j = 0; j < customerQty; j++) {
-            customers.add(j);
+        for (int j = 0; j < vehicleQty; j++) {
+            vehicles.add(j);
         }
 
         Chromosome newChromosome = new Chromosome();
 
+        int[] remainedCapacity = new int[vehicleQty];
+        Arrays.fill(remainedCapacity, GlobalVars.depot.capacity);
 
-        int remainedCapacity = GlobalVars.depot.capacity;
-        int remainedVehicles = GlobalVars.depot.vehicleQty - 1;
+        for (int i = 0; i < customerQty && vehicles.size() > 0; i++) {
+            Collections.shuffle(vehicles);
 
-        Collections.shuffle(customers);
-        for (int i = 0; i < size && customers.size() > 0; i++) {
-
-            int vId = customers.get(customers.size() - 1);
-            customers.remove(customers.size() - 1);
-
-            if (vId != depotId && remainedCapacity < 0 && remainedVehicles > 0) {
-                remainedVehicles--;
-                remainedCapacity = GlobalVars.depot.capacity;
-                newChromosome.add(depotId);
-                i++;
-            }
-
-            if (vId != depotId && getRandom0to1() < 0.1 && remainedVehicles > 0) {
-                remainedVehicles--;
-                remainedCapacity = GlobalVars.depot.capacity;
-                newChromosome.add(depotId);
-                i++;
-            }
-
-            if (vId == depotId) {
-                remainedVehicles--;
-                remainedCapacity = GlobalVars.depot.capacity;
-            } else {
-                remainedCapacity--;
+            int vId;
+            while (true) {
+                vId = vehicles.get(vehicles.size() - 1);
+                if (remainedCapacity[vId] > 0) {
+                    remainedCapacity[vId]--;
+                    break;
+                }
+                vehicles.remove(vehicles.size() - 1);
             }
 
             newChromosome.add(vId);
         }
-        while (newChromosome.list.size() < size)
-            newChromosome.add(depotId);
 
-        if (newChromosome.list.size() > 24)
-            newChromosome = newChromosome;
+        for (int i=0 ; i<vehicleQty ; i++)
+            newChromosome.add(getRandInt(NUMBER_OF_DISPATCHING_RULES));
+
         return newChromosome;
     }
 
@@ -187,7 +168,7 @@ public class GeneticAlgorithm {
      * initializes the population by shuffling the ids of nodes
      */
     public void initializePopulation(int customerQty, int vehicleQty) {
-        int size = customerQty + vehicleQty - 1;
+        int size = customerQty + vehicleQty;
         for (int i = 0; i < populationSize; i++) {
             population.add(getRandomChromosome(size));
             chromosomesQty++;
@@ -255,22 +236,22 @@ public class GeneticAlgorithm {
         int mid = getRandInt(size);
         Chromosome newChromosome = new Chromosome();
 
-        int[] usedNodes = new int[customerQty + 1];
-        for (int i = 0; i < customerQty; i++) usedNodes[i] = 1;
-        usedNodes[customerQty] = vehicleQty - 1;
+        int[] remainedCapacity = new int[vehicleQty + 1];
+        Arrays.fill(remainedCapacity, GlobalVars.depot.capacity);
 
         for (int i = 0; i < mid; i++) {
+            if (remainedCapacity[chromosome1.get(i)] <= 0) continue;
+
             newChromosome.add(chromosome1.get(i));
-            usedNodes[chromosome1.get(i)]--;
+            remainedCapacity[chromosome1.get(i)]--;
         }
 
-        for (int i = 0; i < size; i++) {
-            if (usedNodes[chromosome2.get(i)] > 0) {
-                usedNodes[chromosome2.get(i)]--;
-                newChromosome.add(chromosome2.get(i));
-            }
-        }
+        for (int i = 0; i < size && newChromosome.size < size; i++) {
+            if (remainedCapacity[chromosome2.get(i)] <= 0) continue;
 
+            newChromosome.add(chromosome2.get(i));
+            remainedCapacity[chromosome2.get(i)]--;
+        }
 
         return newChromosome;
     }
@@ -375,6 +356,126 @@ public class GeneticAlgorithm {
             size++;
         }
 
+        List<Integer> orderThem(List<Integer> customers) {
+            Collections.shuffle(customers);
+
+            return null;
+        }
+
+        List<Integer> orderThem1(List<Integer> customers, double previousProcessTimes) {
+            int servedNodesQty = 0;
+            boolean[] isServed = new boolean[customers.size()];
+
+            double sumOfProcessTimes = 0;
+            for (Vertex v: graph.getCustomerVertices())
+                sumOfProcessTimes += v.processTime;
+
+            double thisBatchProcessTimes = 0;
+            for (Integer vId : customers)
+                thisBatchProcessTimes += graph.getVertexById(vId).processTime;
+
+            double arrivalTime = previousProcessTimes + thisBatchProcessTimes;
+
+            Vertex u = graph.getDepot();
+            List<Integer> orderedCustomers = new ArrayList<>();
+            while (servedNodesQty < customers.size()) {
+                Vertex next = null;
+                double bestValue = -GlobalVars.INF;
+                for (int i=0 ; i<customers.size() ; i++){
+                    if (isServed[i]) continue;
+                    Vertex v = graph.getVertexById(customers.get(i));
+
+                    double indexValue = RankingIndex.getIndexValue1(
+                            u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
+
+                    if (indexValue > bestValue){
+                        bestValue = indexValue;
+                        next = v;
+                    }
+                }
+                orderedCustomers.add(next.id);
+                u = next;
+            }
+
+            return orderedCustomers;
+        }
+
+        List<Integer> orderThem2(List<Integer> customers, double previousProcessTimes) {
+            int servedNodesQty = 0;
+            boolean[] isServed = new boolean[customers.size()];
+
+            double sumOfProcessTimes = 0;
+            for (Vertex v: graph.getCustomerVertices())
+                sumOfProcessTimes += v.processTime;
+
+            double thisBatchProcessTimes = 0;
+            for (Integer vId : customers)
+                thisBatchProcessTimes += graph.getVertexById(vId).processTime;
+
+            double arrivalTime = previousProcessTimes + thisBatchProcessTimes;
+
+            Vertex u = graph.getDepot();
+            List<Integer> orderedCustomers = new ArrayList<>();
+            while (servedNodesQty < customers.size()) {
+                Vertex next = null;
+                double bestValue = -GlobalVars.INF;
+                for (int i=0 ; i<customers.size() ; i++){
+                    if (isServed[i]) continue;
+                    Vertex v = graph.getVertexById(customers.get(i));
+
+                    double indexValue = RankingIndex.getIndexValue2(
+                            u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
+
+                    if (indexValue > bestValue){
+                        bestValue = indexValue;
+                        next = v;
+                    }
+                }
+                orderedCustomers.add(next.id);
+                u = next;
+            }
+
+            return orderedCustomers;
+        }
+
+        List<Integer> orderThem3(List<Integer> customers, double previousProcessTimes) {
+            int servedNodesQty = 0;
+            boolean[] isServed = new boolean[customers.size()];
+
+            double sumOfProcessTimes = 0;
+            for (Vertex v: graph.getCustomerVertices())
+                sumOfProcessTimes += v.processTime;
+
+            double thisBatchProcessTimes = 0;
+            for (Integer vId : customers)
+                thisBatchProcessTimes += graph.getVertexById(vId).processTime;
+
+            double arrivalTime = previousProcessTimes + thisBatchProcessTimes;
+
+            Vertex u = graph.getDepot();
+            List<Integer> orderedCustomers = new ArrayList<>();
+            while (servedNodesQty < customers.size()) {
+                Vertex next = null;
+                double bestValue = -GlobalVars.INF;
+                for (int i=0 ; i<customers.size() ; i++){
+                    if (isServed[i]) continue;
+                    Vertex v = graph.getVertexById(customers.get(i));
+
+                    double indexValue = RankingIndex.getIndexValue3(
+                            u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
+
+                    if (indexValue > bestValue){
+                        bestValue = indexValue;
+                        next = v;
+                    }
+                }
+                orderedCustomers.add(next.id);
+                u = next;
+            }
+
+            return orderedCustomers;
+        }
+
         /**
          * fitness function for this chromosome
          */
@@ -382,61 +483,58 @@ public class GeneticAlgorithm {
             if (isCostCalculated == true)
                 return cost;
 
+            List<Integer>[] batch = new ArrayList[vehicleQty + 1];
+            for (int i = 0; i < list.size(); i++) {
+                if (batch[list.get(i)] == null)
+                    batch[list.get(i)] = new ArrayList<>();
+                batch[list.get(i)].add(i);
+            }
+
+
             double vehiclesUsageCost = 0;
             double travelTimeCost = 0;
             double penaltyCost = 0;
+            double cumulativeProcessTime = 0;
 
             Vertex depot = graph.getVertexById(depotId);
 
             if (IS_DEBUG_MODE) {
-                if (list.toString().equals("[7, 6, 3, 0, 8, 4, 2, 1, 5]"))
+                if (list.toString().equals("[6, 6, 6, 6, 6, 6, 6, 6]")) {
                     list = list;
-                if (list.toString().equals("[4, 7, 6, 3, 0, 8, 5, 1, 2]"))
+                }
+                if (list.toString().equals("[4, 7, 6, 3, 0, 8, 5, 1, 2]")) {
                     list = list;
+                }
 
                 System.out.println("-------------");
                 System.out.println(this);
             }
 
-            List<Integer> waitingList = new ArrayList<>();
-            double cumulativeProcessTime = 0;
-            for (int i = 0; i < list.size(); i++) {
-                Vertex v = graph.getVertexById(list.get(i));
+            for (int i = 0; i < batch.length; i++) {
+                if (batch[i] == null) continue;
 
-                if (v.type == VertexType.CUSTOMER) {
-                    waitingList.add(v.id);
-                    cumulativeProcessTime += v.processTime;
-                }
-
-                if (waitingList.size() > depot.capacity) {
+                if (batch[i].size() > depot.capacity) {
                     this.cost = GlobalVars.INF;
                     this.isCostCalculated = true;
                     return cost;
                 }
 
-                if (v.type == VertexType.DEPOT && waitingList.size() > 0) {
-                    waitingList.add(depotId);
-                    SimpleTSP tsp = new SimpleTSP(graph, waitingList, cumulativeProcessTime);
-                    tsp.run();
+                orderThem(batch[i]);
+                batch[i].add(depotId);
 
-                    vehiclesUsageCost += depot.fixedCost;
-                    travelTimeCost += tsp.travelTime;
-                    penaltyCost += tsp.penaltyTaken;
-
-                    waitingList.clear();
+                for (int j = 0; j < batch[i].size(); j++) {
+                    int vId = batch[i].get(j);
+                    Vertex v = graph.getVertexById(vId);
+                    cumulativeProcessTime += v.processTime;
                 }
-            }
 
-            if (waitingList.size() > 0) {
-                waitingList.add(depotId);
-                SimpleTSP tsp = new SimpleTSP(graph, waitingList, cumulativeProcessTime);
+                SimpleTSP tsp = new SimpleTSP(graph, batch[i], cumulativeProcessTime);
                 tsp.run();
 
                 vehiclesUsageCost += depot.fixedCost;
                 travelTimeCost += tsp.travelTime;
                 penaltyCost += tsp.penaltyTaken;
 
-                waitingList.clear();
             }
 
             if (IS_DEBUG_MODE) {
