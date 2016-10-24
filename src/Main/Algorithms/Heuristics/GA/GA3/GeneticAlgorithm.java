@@ -20,17 +20,18 @@ public class GeneticAlgorithm {
     private int customerQty;
     private int populationSize;
     private double minimumCost;
+    private double totalProcessTimes;
     private Chromosome bestChromosome;
     private List<Chromosome> population;
 
     private final double MUTATION_PROBABILITY = 0.10;
     private final double CROSSOVER_PROBABILITY = 0.80;
+    private final int TOURNAMENT_SIZE = 4;
 
-    private final int NUMBER_OF_DISPATCHING_RULES = 3;
-
+    private final int NUMBER_OF_DISPATCHING_RULES = RankingIndex.NUMBER_OF_RULES;
     private final boolean IS_VERBOSE = true;
-    private final boolean IS_DEBUG_MODE = false;
 
+    private final boolean IS_DEBUG_MODE = false;
     private int depotId;
     private long printTimeStepSize;
 
@@ -49,11 +50,13 @@ public class GeneticAlgorithm {
         this.vehicleQty = vehicleQty;
         this.customerQty = customerQty;
         this.populationSize = populationSize;
-        this.minimumCost = Double.MAX_VALUE;
+        this.minimumCost = GlobalVars.INF;
         this.population = new ArrayList<>();
 
-        this.depotId = GlobalVars.depotId;
+        this.depotId = graph.getDepotId();
         this.printTimeStepSize = GlobalVars.printTimeStepSize;
+
+        for (Vertex v : graph.getCustomerVertices()) totalProcessTimes += v.processTime;
     }
 
     /**
@@ -72,16 +75,24 @@ public class GeneticAlgorithm {
         long printTime = startTime + printTimeStepSize;
         long iterationsNoUpdate = 0;
 
-        initializePopulation(customerQty, vehicleQty);
+        initializePopulation();
         while (System.currentTimeMillis() < startTime + computeDurationMilliSecond) {
             List<Chromosome> newPopulation = new ArrayList<>();
 
             // cross over
-            for (Chromosome c1 : population) {
-                for (Chromosome c2 : population) {
+            while (newPopulation.size() < 2 * populationSize) {
+                Collections.shuffle(population);
+                for (int i = 0; i < populationSize; i += 2 * TOURNAMENT_SIZE) {
+                    Chromosome c1 = tournament(population, i, i + TOURNAMENT_SIZE);
+                    Chromosome c2 = tournament(population, i + TOURNAMENT_SIZE, i + TOURNAMENT_SIZE * 2);
+
                     if (getRandom0to1() < CROSSOVER_PROBABILITY) {
                         newPopulation.add(crossOver(c1, c2));
-                        chromosomesQty++;
+                        newPopulation.add(crossOver(c2, c1));
+                        chromosomesQty += 2;
+                    } else {
+                        newPopulation.add(c1);
+                        newPopulation.add(c2);
                     }
                 }
             }
@@ -118,27 +129,23 @@ public class GeneticAlgorithm {
     }
 
     /**
-     * gets a random population with shuffling
+     * initializes the population by shuffling the ids of nodes
      */
-    public Chromosome getRandomChromosome1(int size) {
-        Chromosome newChromosome = new Chromosome();
-
-        for (int j = 0; j < customerQty; j++) {
-            newChromosome.add(getRandInt(vehicleQty + 1));
+    public void initializePopulation() {
+        for (int i = 0; i < populationSize; i++) {
+            population.add(getRandomChromosome());
+            chromosomesQty++;
         }
-
-        return newChromosome;
     }
 
-    public Chromosome getRandomChromosome(int size) {
+    /**
+     * returns a chromosome that satisfies the capacity constraint.
+     */
+    public Chromosome getRandomChromosome() {
         List<Integer> vehicles = new ArrayList<>();
-
-        for (int j = 0; j < vehicleQty; j++) {
-            vehicles.add(j);
-        }
+        for (int j = 0; j < vehicleQty; j++) vehicles.add(j);
 
         Chromosome newChromosome = new Chromosome();
-
         int[] remainedCapacity = new int[vehicleQty];
         Arrays.fill(remainedCapacity, GlobalVars.depot.capacity);
 
@@ -146,51 +153,87 @@ public class GeneticAlgorithm {
             Collections.shuffle(vehicles);
 
             int vId;
-            while (true) {
+            while (true) { // peek the vehicle that is not reached its capacity
                 vId = vehicles.get(vehicles.size() - 1);
-                if (remainedCapacity[vId] > 0) {
-                    remainedCapacity[vId]--;
-                    break;
-                }
-                vehicles.remove(vehicles.size() - 1);
+                remainedCapacity[vId]--;
+                if (remainedCapacity[vId] >= 0) break;
+                else vehicles.remove(vehicles.size() - 1);
             }
 
-            newChromosome.add(vId);
+            newChromosome.addCustomer(vId);
         }
 
-        for (int i=0 ; i<vehicleQty ; i++)
-            newChromosome.add(getRandInt(NUMBER_OF_DISPATCHING_RULES));
+        for (int i = 0; i < vehicleQty; i++)
+            newChromosome.addVehicleRule(getRandInt(NUMBER_OF_DISPATCHING_RULES) + 1);
 
         return newChromosome;
     }
 
-    /**
-     * initializes the population by shuffling the ids of nodes
-     */
-    public void initializePopulation(int customerQty, int vehicleQty) {
-        int size = customerQty + vehicleQty;
-        for (int i = 0; i < populationSize; i++) {
-            population.add(getRandomChromosome(size));
-            chromosomesQty++;
-        }
+    public Chromosome tournament(List<Chromosome> population, int begin, int end) {
+        Chromosome bestChromosome = null;
+        double bestValue = GlobalVars.INF;
+        for (int i = begin; i < end; i++)
+            if (population.get(i).getCost() < bestValue) bestChromosome = population.get(i);
+
+        return bestChromosome;
     }
 
     /**
-     * perform mutation on a given chromosome
+     * perform cross over on two chromosomes
      *
-     * @param chromosome array of id of the nodes
+     * @param chromosome1 array of id of the nodes
+     * @param chromosome2 array of id of the nodes
+     * @return a new chromosome by crossover of two given chromosomes
      */
-    public void mutate1(Chromosome chromosome) {
-        if (getRandom0to1() > MUTATION_PROBABILITY)
-            return;
+    public Chromosome crossOver(Chromosome chromosome1, Chromosome chromosome2) {
 
-        int i = getRandInt(chromosome.size);
-        int j = getRandInt(chromosome.size);
+        int p1 = getRandInt(customerQty);
+        int p2 = getRandInt(customerQty);
 
         // swap
-        int tmp = chromosome.get(i);
-        chromosome.set(i, chromosome.get(j));
-        chromosome.set(j, tmp);
+        if (p1 > p2) {
+            int tmp = p1;
+            p1 = p2;
+            p2 = tmp;
+        }
+
+        Chromosome newChromosome = new Chromosome();
+        int[] remainedCapacity = new int[vehicleQty];
+        Arrays.fill(remainedCapacity, GlobalVars.depot.capacity);
+
+        newChromosome = new Chromosome(chromosome2);
+        Collections.fill(newChromosome.customers, -1);
+
+        for (int i = p1; i <= p2; i++) {
+            newChromosome.setCustomer(i, chromosome1.getCustomer(i));
+            remainedCapacity[chromosome1.getCustomer(i)]--;
+        }
+
+        for (int i = 0; i < customerQty; i++) {
+            if (newChromosome.getCustomer(i) != -1) continue;
+
+            int vehicleId = chromosome2.getCustomer(i);
+            while (remainedCapacity[vehicleId] <= 0) vehicleId = getRandInt(vehicleQty);
+
+            newChromosome.setCustomer(i, vehicleId);
+            remainedCapacity[vehicleId]--;
+        }
+
+        // cross over the vehicle rules
+        p1 = getRandInt(vehicleQty);
+        p2 = getRandInt(vehicleQty);
+
+        // swap
+        if (p1 > p2) {
+            int tmp = p1;
+            p1 = p2;
+            p2 = tmp;
+        }
+
+        for (int i = p1; i <= p2; i++)
+            newChromosome.vehiclesRules.set(i, chromosome1.getVehicleRule(i));
+
+        return newChromosome;
     }
 
     /**
@@ -202,59 +245,47 @@ public class GeneticAlgorithm {
         if (getRandom0to1() > MUTATION_PROBABILITY)
             return;
 
-        int i = getRandInt(chromosome.size);
-        int j = getRandInt(chromosome.size);
+        int p1 = getRandInt(customerQty);
+        int p2 = getRandInt(customerQty);
 
-        if (i > j) {
-            int t = i;
-            i = j;
-            j = t;
+        if (p1 > p2) {
+            int t = p1;
+            p1 = p2;
+            p2 = t;
         }
 
         List<Integer> temp = new ArrayList<>();
-        for (int k = i; k <= j; k++) {
-            temp.add(chromosome.get(k));
+        for (int k = p1; k <= p2; k++) {
+            temp.add(chromosome.getCustomer(k));
         }
         Collections.shuffle(temp);
 
-        for (int k = i; k <= j; k++) {
-            chromosome.set(k, temp.get(k - i));
+        for (int k = p1; k <= p2; k++) {
+            chromosome.setCustomer(k, temp.get(k - p1));
         }
+
+        // for the vehicle rules
+        p1 = getRandInt(vehicleQty);
+        p2 = getRandInt(vehicleQty);
+
+        if (p1 > p2) {
+            int t = p1;
+            p1 = p2;
+            p2 = t;
+        }
+
+        temp = new ArrayList<>();
+        for (int k = p1; k <= p2; k++) {
+            temp.add(chromosome.getVehicleRule(k));
+        }
+        Collections.shuffle(temp);
+
+        for (int k = p1; k <= p2; k++) {
+            chromosome.setVehicleRule(k, temp.get(k - p1));
+        }
+
     }
 
-    /**
-     * perform mutation on a given chromosome
-     *
-     * @param chromosome1 array of id of the nodes
-     * @param chromosome2 array of id of the nodes
-     * @return a new chromosome by crossover of two given chromosomes
-     */
-    public Chromosome crossOver(Chromosome chromosome1, Chromosome chromosome2) {
-        if (chromosome1.hashCode() == chromosome2.hashCode()) return chromosome1;
-
-        int size = chromosome1.size;
-        int mid = getRandInt(size);
-        Chromosome newChromosome = new Chromosome();
-
-        int[] remainedCapacity = new int[vehicleQty + 1];
-        Arrays.fill(remainedCapacity, GlobalVars.depot.capacity);
-
-        for (int i = 0; i < mid; i++) {
-            if (remainedCapacity[chromosome1.get(i)] <= 0) continue;
-
-            newChromosome.add(chromosome1.get(i));
-            remainedCapacity[chromosome1.get(i)]--;
-        }
-
-        for (int i = 0; i < size && newChromosome.size < size; i++) {
-            if (remainedCapacity[chromosome2.get(i)] <= 0) continue;
-
-            newChromosome.add(chromosome2.get(i));
-            remainedCapacity[chromosome2.get(i)]--;
-        }
-
-        return newChromosome;
-    }
 
     /**
      * Selects top chromosomes from old population and their children
@@ -265,11 +296,11 @@ public class GeneticAlgorithm {
         // select top nodes
         Collections.sort(chromosomes);
 
-        for (int i = 0; i < 8 * (populationSize / 10); i++) {
+        for (int i = 0; i < 7 * (populationSize / 10); i++) {
             newPopulation.add(chromosomes.get(i));
         }
 
-        for (int i = chromosomes.size() - (2 * (populationSize / 10)); i < chromosomes.size(); i++) {
+        for (int i = chromosomes.size() - (3 * (populationSize / 10)); i < chromosomes.size(); i++) {
             newPopulation.add(chromosomes.get(i));
         }
 
@@ -310,65 +341,94 @@ public class GeneticAlgorithm {
     }
 
     /**
-     * Chromosome class for a set of ids (for VRPD) problem
+     * Chromosome class for a setCustomer of ids (for VRPD) problem
      */
     private class Chromosome implements Comparable<Chromosome> {
-        public int size;
-        public List<Integer> list;
+        public List<Integer> customers;
+        public List<Integer> vehiclesRules;
 
         private double cost;
+        private double travelCost;
+        private double penaltyCost;
+        private double vehicleUsageCost;
+
         private boolean isCostCalculated = false;
 
         /**
          * default constructor
          */
         public Chromosome() {
-            list = new ArrayList<>();
+            customers = new ArrayList<>();
+            vehiclesRules = new ArrayList<>();
         }
 
         /**
          * copy constructor
          */
         public Chromosome(Chromosome chromosome) {
-            this.size = chromosome.size;
-            this.list = new ArrayList<>(chromosome.list);
+            this.customers = new ArrayList<>(chromosome.customers);
+            this.vehiclesRules = new ArrayList<>(chromosome.vehiclesRules);
         }
 
         /**
-         * get value in idx position
+         * get Customer id in idx position
          */
-        public int get(int idx) {
-            return list.get(idx);
+        public int getCustomer(int idx) {
+            return customers.get(idx);
         }
 
         /**
-         * set value in idx position
+         * get rule for vehicle in idx position
          */
-        public void set(int idx, int value) {
-            list.set(idx, value);
+        public int getVehicleRule(int idx) {
+            return vehiclesRules.get(idx);
         }
 
         /**
-         * adds the value to the end of list
+         * set customer in idx position
          */
-        public void add(int value) {
-            list.add(value);
-            size++;
+        public void setCustomer(int idx, int value) {
+            customers.set(idx, value);
         }
 
+        /**
+         * set rule for vehicle in idx position
+         */
+        public void setVehicleRule(int idx, int value) {
+            vehiclesRules.set(idx, value);
+        }
+
+        /**
+         * adds the value to the end of customers
+         */
+        public void addCustomer(int value) {
+            customers.add(value);
+        }
+
+        /**
+         * add the rule to the end of customersVehicle
+         */
+        public void addVehicleRule(int rule) {
+            vehiclesRules.add(rule);
+        }
+
+        /**
+         * randomly order them.
+         */
         List<Integer> orderThem(List<Integer> customers) {
             Collections.shuffle(customers);
 
-            return null;
+            return customers;
         }
 
-        List<Integer> orderThem1(List<Integer> customers, double previousProcessTimes) {
+        /**
+         * order them by dispatching rule 2 (Khodabandeh's rule)
+         */
+        List<Integer> orderThem1(List<Integer> customers, double previousProcessTimes, int indexType) {
             int servedNodesQty = 0;
             boolean[] isServed = new boolean[customers.size()];
 
-            double sumOfProcessTimes = 0;
-            for (Vertex v: graph.getCustomerVertices())
-                sumOfProcessTimes += v.processTime;
+            double sumOfProcessTimes = totalProcessTimes;
 
             double thisBatchProcessTimes = 0;
             for (Integer vId : customers)
@@ -379,97 +439,41 @@ public class GeneticAlgorithm {
             Vertex u = graph.getDepot();
             List<Integer> orderedCustomers = new ArrayList<>();
             while (servedNodesQty < customers.size()) {
+
+                int nextId = -1;
                 Vertex next = null;
                 double bestValue = -GlobalVars.INF;
-                for (int i=0 ; i<customers.size() ; i++){
+                for (int i = 0; i < customers.size(); i++) {
                     if (isServed[i]) continue;
                     Vertex v = graph.getVertexById(customers.get(i));
 
-                    double indexValue = RankingIndex.getIndexValue1(
-                            u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
+                    double indexValue = -GlobalVars.INF;
 
-                    if (indexValue > bestValue){
+                    switch (indexType) {
+                        case 1: // (DueDates)
+                            indexValue = RankingIndex.getIndexValue1(u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
+                            break;
+                        case 2: // (Khodabandeh's rule)
+                            indexValue = RankingIndex.getIndexValue2(u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
+                            break;
+                        case 3: // (Pinedo ATC rule)
+                            indexValue = RankingIndex.getIndexValue3(u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
+                            break;
+                        case 4: // (Process Times)
+                            indexValue = RankingIndex.getIndexValue4(u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
+                            break;
+                    }
+
+                    if (indexValue > bestValue) {
                         bestValue = indexValue;
                         next = v;
+                        nextId = i;
                     }
                 }
+
                 orderedCustomers.add(next.id);
-                u = next;
-            }
-
-            return orderedCustomers;
-        }
-
-        List<Integer> orderThem2(List<Integer> customers, double previousProcessTimes) {
-            int servedNodesQty = 0;
-            boolean[] isServed = new boolean[customers.size()];
-
-            double sumOfProcessTimes = 0;
-            for (Vertex v: graph.getCustomerVertices())
-                sumOfProcessTimes += v.processTime;
-
-            double thisBatchProcessTimes = 0;
-            for (Integer vId : customers)
-                thisBatchProcessTimes += graph.getVertexById(vId).processTime;
-
-            double arrivalTime = previousProcessTimes + thisBatchProcessTimes;
-
-            Vertex u = graph.getDepot();
-            List<Integer> orderedCustomers = new ArrayList<>();
-            while (servedNodesQty < customers.size()) {
-                Vertex next = null;
-                double bestValue = -GlobalVars.INF;
-                for (int i=0 ; i<customers.size() ; i++){
-                    if (isServed[i]) continue;
-                    Vertex v = graph.getVertexById(customers.get(i));
-
-                    double indexValue = RankingIndex.getIndexValue2(
-                            u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
-
-                    if (indexValue > bestValue){
-                        bestValue = indexValue;
-                        next = v;
-                    }
-                }
-                orderedCustomers.add(next.id);
-                u = next;
-            }
-
-            return orderedCustomers;
-        }
-
-        List<Integer> orderThem3(List<Integer> customers, double previousProcessTimes) {
-            int servedNodesQty = 0;
-            boolean[] isServed = new boolean[customers.size()];
-
-            double sumOfProcessTimes = 0;
-            for (Vertex v: graph.getCustomerVertices())
-                sumOfProcessTimes += v.processTime;
-
-            double thisBatchProcessTimes = 0;
-            for (Integer vId : customers)
-                thisBatchProcessTimes += graph.getVertexById(vId).processTime;
-
-            double arrivalTime = previousProcessTimes + thisBatchProcessTimes;
-
-            Vertex u = graph.getDepot();
-            List<Integer> orderedCustomers = new ArrayList<>();
-            while (servedNodesQty < customers.size()) {
-                Vertex next = null;
-                double bestValue = -GlobalVars.INF;
-                for (int i=0 ; i<customers.size() ; i++){
-                    if (isServed[i]) continue;
-                    Vertex v = graph.getVertexById(customers.get(i));
-
-                    double indexValue = RankingIndex.getIndexValue3(
-                            u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
-
-                    if (indexValue > bestValue){
-                        bestValue = indexValue;
-                        next = v;
-                    }
-                }
-                orderedCustomers.add(next.id);
+                servedNodesQty++;
+                isServed[nextId] = true;
                 u = next;
             }
 
@@ -483,32 +487,19 @@ public class GeneticAlgorithm {
             if (isCostCalculated == true)
                 return cost;
 
-            List<Integer>[] batch = new ArrayList[vehicleQty + 1];
-            for (int i = 0; i < list.size(); i++) {
-                if (batch[list.get(i)] == null)
-                    batch[list.get(i)] = new ArrayList<>();
-                batch[list.get(i)].add(i);
+            List<Integer>[] batch = new ArrayList[vehicleQty];
+            for (int i = 0; i < customers.size(); i++) {
+                if (batch[customers.get(i)] == null)
+                    batch[customers.get(i)] = new ArrayList<>();
+                batch[customers.get(i)].add(i);
             }
 
+            vehicleUsageCost = 0;
+            travelCost = 0;
+            penaltyCost = 0;
 
-            double vehiclesUsageCost = 0;
-            double travelTimeCost = 0;
-            double penaltyCost = 0;
             double cumulativeProcessTime = 0;
-
             Vertex depot = graph.getVertexById(depotId);
-
-            if (IS_DEBUG_MODE) {
-                if (list.toString().equals("[6, 6, 6, 6, 6, 6, 6, 6]")) {
-                    list = list;
-                }
-                if (list.toString().equals("[4, 7, 6, 3, 0, 8, 5, 1, 2]")) {
-                    list = list;
-                }
-
-                System.out.println("-------------");
-                System.out.println(this);
-            }
 
             for (int i = 0; i < batch.length; i++) {
                 if (batch[i] == null) continue;
@@ -518,10 +509,10 @@ public class GeneticAlgorithm {
                     this.isCostCalculated = true;
                     return cost;
                 }
+                // batch[i] = orderThem(batch[i]);
+                batch[i] = orderThem1(batch[i], cumulativeProcessTime, vehiclesRules.get(i));
 
-                orderThem(batch[i]);
                 batch[i].add(depotId);
-
                 for (int j = 0; j < batch[i].size(); j++) {
                     int vId = batch[i].get(j);
                     Vertex v = graph.getVertexById(vId);
@@ -531,23 +522,13 @@ public class GeneticAlgorithm {
                 SimpleTSP tsp = new SimpleTSP(graph, batch[i], cumulativeProcessTime);
                 tsp.run();
 
-                vehiclesUsageCost += depot.fixedCost;
-                travelTimeCost += tsp.travelTime;
+                vehicleUsageCost += depot.fixedCost;
+                travelCost += tsp.travelTime;
                 penaltyCost += tsp.penaltyTaken;
-
-            }
-
-            if (IS_DEBUG_MODE) {
-                System.out.println("Cost: " + (vehiclesUsageCost + travelTimeCost + penaltyCost));
-
-                if (vehiclesUsageCost + travelTimeCost + penaltyCost < 94.5)
-                    System.out.printf("%s ||||| %.2f, %.2f, %.2f, %.2f\n",
-                            this.toString(), vehiclesUsageCost, travelTimeCost, penaltyCost,
-                            vehiclesUsageCost + travelTimeCost + penaltyCost);
             }
 
             this.isCostCalculated = true;
-            this.cost = vehiclesUsageCost + travelTimeCost + penaltyCost;
+            this.cost = vehicleUsageCost + travelCost + penaltyCost;
             return cost;
         }
 
@@ -558,12 +539,52 @@ public class GeneticAlgorithm {
 
         @Override
         public String toString() {
-            return list.toString();
+            return customers.toString() + " " + vehiclesRules.toString();
         }
 
         @Override
         public int hashCode() {
-            return list.hashCode();
+            return customers.hashCode();
         }
     }
 }
+
+// ----------------- Debuging ------------------
+//if (IS_DEBUG_MODE) {
+//        if (customers.toString().equals("[6, 6, 6, 6, 6, 6, 6, 6]")) {
+//        customers = customers;
+//        }
+//        if (customers.toString().equals("[4, 7, 6, 3, 0, 8, 5, 1, 2]")) {
+//        customers = customers;
+//        }
+//
+//        System.out.println("-------------");
+//        System.out.println(this);
+//        }
+//if (IS_DEBUG_MODE) {
+//        System.out.println("Cost: " + (vehiclesUsageCost + travelTimeCost + penaltyCost));
+//
+//        if (vehiclesUsageCost + travelTimeCost + penaltyCost < 94.5)
+//        System.out.printf("%s ||||| %.2f, %.2f, %.2f, %.2f\n",
+//        this.toString(), vehiclesUsageCost, travelTimeCost, penaltyCost,
+//        vehiclesUsageCost + travelTimeCost + penaltyCost);
+//        }
+
+// -------------------- Trash Code ---------------
+//    /**
+//     * perform mutation on a given chromosome
+//     *
+//     * @param chromosome array of id of the nodes
+//     */
+//    public void mutate1(Chromosome chromosome) {
+//        if (getRandom0to1() > MUTATION_PROBABILITY)
+//            return;
+//
+//        int i = getRandInt(chromosome.customersSize);
+//        int j = getRandInt(chromosome.customersSize);
+//
+//        // swap
+//        int tmp = chromosome.getCustomer(i);
+//        chromosome.setCustomer(i, chromosome.getCustomer(j));
+//        chromosome.setCustomer(j, tmp);
+//    }

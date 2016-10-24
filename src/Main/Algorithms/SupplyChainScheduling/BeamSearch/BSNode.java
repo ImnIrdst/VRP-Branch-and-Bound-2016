@@ -22,7 +22,7 @@ public class BSNode {
     public double curTimeElapsed;     // the time elapsed after moving the vehicle in current path
     public double maxTimeElapsed;     // the maximum time elapsed in all paths
     public double cumulativePenaltyTaken; // cumulative penalty taken in all nodes
-    public double cumulativeTimeTaken; // cumulative time that all vehicles spend to serve the customers
+    public double cumulativeTimeTaken; // cumulative time that all customersVehicle spend to serve the customers
     public int remainedCapacity;   // remained goods in the car
     public boolean[] servicedNodes; // nodes that are serviced
     public int numberOfServicedCustomers; // for easily terminate the algorithm
@@ -226,7 +226,7 @@ public class BSNode {
     }
 
     /**
-     * calculates a lower bound for cumulative time needed for all the vehicles to serve all customers
+     * calculates a lower bound for cumulative time needed for all the customersVehicle to serve all customers
      */
     public void calculateLowerBoundForCumulativeTimeNeededForAllVehicles() {
         double lowerBound = 0;
@@ -296,7 +296,7 @@ public class BSNode {
     // --------------   helper functions ---------------
 
     /**
-     * @return minimum number of extra vehicles needed to serve the remaining customers
+     * @return minimum number of extra customersVehicle needed to serve the remaining customers
      */
     public int getMinimumNumberOfExtraVehiclesNeeded() {
         return 0;
@@ -348,8 +348,8 @@ public class BSNode {
      */
     public String getPrintCostDetailsString() {
         return "Time needed: " + String.format("%.2f", maxTimeElapsed) + "\n"
-                + "Travel Time of all vehicles: " + String.format("%.2f", cumulativeTimeTaken) + "\n"
-                + "Penalty Taken of all vehicles: " + String.format("%.2f", cumulativePenaltyTaken) + "\n"
+                + "Travel Time of all customersVehicle: " + String.format("%.2f", cumulativeTimeTaken) + "\n"
+                + "Penalty Taken of all customersVehicle: " + String.format("%.2f", cumulativePenaltyTaken) + "\n"
                 + "Number of Vehicles Used: " + vehicleUsed + "\n"
                 + "Cumulative Vehicles Usage Cost: " + vehicleUsageCost + "\n"
                 + "Minimum Cost for the problem: " + String.format("%.2f", getCost());
@@ -382,15 +382,15 @@ public class BSNode {
 //-------------- Trash -------------
 //        ArrayList<Integer> edgeWeightsFromDepotToUnservicedCustomers = new ArrayList<>();
 //
-//        Vertex depotVertex = Main.GlobalVars.ppGraph.adjacencyList.get(Main.GlobalVars.depotName);
+//        Vertex depotVertex = Main.GlobalVars.ppGraph.adjacencyList.getCustomer(Main.GlobalVars.depotName);
 //        for (Vertex u : Main.GlobalVars.ppGraph.adjacencyList.values()) {
 //            if (u.type == VertexType.CUSTOMER && this.servicedNodes[u.id] == false) {
-//                edgeWeightsFromDepotToUnservicedCustomers.add(depotVertex.neighbours.get(u));
-//                edgeWeightsFromDepotToUnservicedCustomers.add(u.neighbours.get(depotVertex));
+//                edgeWeightsFromDepotToUnservicedCustomers.addCustomer(depotVertex.neighbours.getCustomer(u));
+//                edgeWeightsFromDepotToUnservicedCustomers.addCustomer(u.neighbours.getCustomer(depotVertex));
 //            }
 //        }
 //        if (this.vertex.type == VertexType.CUSTOMER) {
-//            edgeWeightsFromDepotToUnservicedCustomers.add(this.vertex.neighbours.get(depotVertex));
+//            edgeWeightsFromDepotToUnservicedCustomers.addCustomer(this.vertex.neighbours.getCustomer(depotVertex));
 //        }
 //        Collections.sort(edgeWeightsFromDepotToUnservicedCustomers);
 //
@@ -402,5 +402,5 @@ public class BSNode {
 //
 //        if (vehiclesNeeded == 0) return 0;
 //
-//        return edgeWeightsFromDepotToUnservicedCustomers.get(vehiclesNeeded * 2 - 1)
-//                + edgeWeightsFromDepotToUnservicedCustomers.get(vehiclesNeeded * 2 - 2);
+//        return edgeWeightsFromDepotToUnservicedCustomers.getCustomer(vehiclesNeeded * 2 - 1)
+//                + edgeWeightsFromDepotToUnservicedCustomers.getCustomer(vehiclesNeeded * 2 - 2);

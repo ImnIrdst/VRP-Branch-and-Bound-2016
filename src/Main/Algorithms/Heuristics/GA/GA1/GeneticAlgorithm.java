@@ -25,6 +25,7 @@ public class GeneticAlgorithm {
 
     private final double MUTATION_PROBABILITY = 0.10;
     private final double CROSSOVER_PROBABILITY = 0.80;
+    private final int TOURNAMENT_SIZE = 4;
 
     private final boolean IS_VERBOSE = true;
     private final boolean IS_DEBUG_MODE = false;
@@ -47,10 +48,10 @@ public class GeneticAlgorithm {
         this.vehicleQty = vehicleQty;
         this.customerQty = customerQty;
         this.populationSize = populationSize;
-        this.minimumCost = Double.MAX_VALUE;
+        this.minimumCost = GlobalVars.INF;
         this.population = new ArrayList<>();
 
-        this.depotId = GlobalVars.depotId;
+        this.depotId = graph.getDepotId();
         this.printTimeStepSize = GlobalVars.printTimeStepSize;
     }
 
@@ -75,11 +76,20 @@ public class GeneticAlgorithm {
             List<Chromosome> newPopulation = new ArrayList<>();
 
             // cross over
-            for (Chromosome c1 : population) {
-                for (Chromosome c2 : population) {
+            while (newPopulation.size() < 2 * populationSize) {
+                Collections.shuffle(population);
+                for (int i = 0; i < populationSize; i += 2 * TOURNAMENT_SIZE) {
+                    Chromosome c1 = tournament(population, i, i + TOURNAMENT_SIZE);
+                    Chromosome c2 = tournament(population, i + TOURNAMENT_SIZE, i + TOURNAMENT_SIZE * 2);
+                    if (c1 == null || c2 == null) continue;
+
                     if (getRandom0to1() < CROSSOVER_PROBABILITY) {
                         newPopulation.add(crossOver(c1, c2));
-                        chromosomesQty++;
+                        newPopulation.add(crossOver(c2, c1));
+                        chromosomesQty += 2;
+                    } else {
+                        newPopulation.add(c1);
+                        newPopulation.add(c2);
                     }
                 }
             }
@@ -194,6 +204,15 @@ public class GeneticAlgorithm {
         }
     }
 
+    public Chromosome tournament(List<Chromosome> population, int begin, int end) {
+        Chromosome bestChromosome = null;
+        double bestValue = GlobalVars.INF;
+        for (int i = begin; i < end; i++)
+            if (population.get(i).getCost() < bestValue) bestChromosome = population.get(i);
+
+        return bestChromosome;
+    }
+
     /**
      * perform mutation on a given chromosome
      *
@@ -239,6 +258,8 @@ public class GeneticAlgorithm {
         for (int k = i; k <= j; k++) {
             chromosome.set(k, temp.get(k - i));
         }
+
+
     }
 
     /**
@@ -329,7 +350,7 @@ public class GeneticAlgorithm {
     }
 
     /**
-     * Chromosome class for a set of ids (for VRPD) problem
+     * Chromosome class for a setCustomer of ids (for VRPD) problem
      */
     private class Chromosome implements Comparable<Chromosome> {
         public int size;
@@ -354,21 +375,21 @@ public class GeneticAlgorithm {
         }
 
         /**
-         * get value in idx position
+         * getCustomer value in idx position
          */
         public int get(int idx) {
             return list.get(idx);
         }
 
         /**
-         * set value in idx position
+         * setCustomer value in idx position
          */
         public void set(int idx, int value) {
             list.set(idx, value);
         }
 
         /**
-         * adds the value to the end of list
+         * adds the value to the end of customers
          */
         public void add(int value) {
             list.add(value);

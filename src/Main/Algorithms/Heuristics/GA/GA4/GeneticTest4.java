@@ -1,4 +1,4 @@
-package Main.Algorithms.Heuristics.GA.GA3;
+package Main.Algorithms.Heuristics.GA.GA4;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
 import Main.GlobalVars;
@@ -10,7 +10,7 @@ import java.io.FileNotFoundException;
 /**
  * Created by IMN on 10/8/2016.
  */
-public class GeneticTest3 {
+public class GeneticTest4 {
     public static void main(String[] args) throws FileNotFoundException {
         Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(1);
 
@@ -37,7 +37,7 @@ public class GeneticTest3 {
         // run the genetic algorithm
 
         int geneticTime = 10000;
-        int maxIterationsNoUpdate = 4000;
+        int maxIterationsNoUpdate = 500;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
         geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);

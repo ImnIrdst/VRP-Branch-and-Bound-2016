@@ -9,11 +9,11 @@ import java.util.List;
 public class Greedy {
 
     /**
-     * calculates how much extra vehicles needed to satisfy remained customers demand
+     * calculates how much extra customersVehicle needed to satisfy remained customers demand
      *
      * @param sumOfCustomerDemands  summation of remained customers demand
      * @param otherVehiclesCapacity current vehicle remained capacity
-     * @return how much extra vehicles needed to satisfy remained customers demand
+     * @return how much extra customersVehicle needed to satisfy remained customers demand
      */
     public static double minimumExtraVehicleUsageCostNeeded(
             int sumOfCustomerDemands, List<CapacityCostPair> otherVehiclesCapacity) {
@@ -38,11 +38,11 @@ public class Greedy {
     }
 
     /**
-     * calculates how much extra vehicles needed to satisfy remained customers demand
+     * calculates how much extra customersVehicle needed to satisfy remained customers demand
      *
      * @param sumOfCustomerDemands  summation of remained customers demand
      * @param otherVehiclesCapacity current vehicle remained capacity
-     * @return how much extra vehicles needed to satisfy remained customers demand
+     * @return how much extra customersVehicle needed to satisfy remained customers demand
      */
     public static int minimumExtraVehiclesNeeded(
             int sumOfCustomerDemands, List<CapacityCostPair> otherVehiclesCapacity) {

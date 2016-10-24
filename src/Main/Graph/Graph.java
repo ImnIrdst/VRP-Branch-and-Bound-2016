@@ -11,10 +11,10 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
- * Simple graph stored in a HashMap adjacency list
+ * Simple graph stored in a HashMap adjacency customers
  */
 public class Graph {
-    public Map<String, Vertex> adjacencyList; // adjacency list: mapping of vertex names to Vertex objects, built from a set of Edge
+    public Map<String, Vertex> adjacencyList; // adjacency customers: mapping of vertex names to Vertex objects, built from a setCustomer of Edge
     public Map<Integer, Vertex> idToVertexMap; // maps vertex Id to Vertex
 
     /**
@@ -25,7 +25,7 @@ public class Graph {
     }
 
     /**
-     * Constructor: Builds an adjacencyList from a set of edges
+     * Constructor: Builds an adjacencyList from a setCustomer of edges
      */
     public Graph(Edge[] edges) {
         adjacencyList = new HashMap<>();
@@ -225,14 +225,14 @@ public class Graph {
     }
 
     /**
-     * adds a vertex to the adjacency list
+     * adds a vertex to the adjacency customers
      */
     public void addVertex(Vertex u) {
         if (!adjacencyList.containsKey(u.name)) adjacencyList.put(u.name, u);
     }
 
     /**
-     * adds an edge to the adjacency list
+     * adds an edge to the adjacency customers
      */
     public void addEdge(Edge e) {
         if (!adjacencyList.containsKey(e.uName)) adjacencyList.put(e.uName, new Vertex(e.uName));
@@ -249,7 +249,7 @@ public class Graph {
     }
 
     /**
-     * gets the graph size
+     * gets the graph customersSize
      */
     public int getGraphSize() {
         return adjacencyList.size();
@@ -312,14 +312,14 @@ public class Graph {
     }
 
     /**
-     * @return list of vertices in the graph
+     * @return customers of vertices in the graph
      */
     public Collection<Vertex> getVertices() {
         return adjacencyList.values();
     }
 
     /**
-     * @return list of customers (list of neighbors of depot)
+     * @return customers of customers (customers of neighbors of depot)
      */
     public Collection<Vertex> getCustomerVertices() {
         return getVertexById(getDepotId()).neighbours.keySet();

@@ -27,7 +27,7 @@ public class BeamSearch {
 
     private double theta = 0.10;              // pruning probability
 //    private double delta1 = 0.01;              // for time
-    private double delta2 = 0.005;               // step size for theta
+    private double delta2 = 0.005;               // step customersSize for theta
     private double updateTime = 1000;
 
     private double timeLimit;
@@ -72,14 +72,14 @@ public class BeamSearch {
     /**
      * runs the algorithm given the depot name
      *
-     * @param depotName is name of the depot (node that contains vehicles)
+     * @param depotName is name of the depot (node that contains customersVehicle)
      */
     public void run(String depotName) {
 //        System.out.println("--------------------------");
 //        System.out.println("Branch and bound algorithm");
 //        System.out.println("--------------------------");
 
-        // add initial node
+        // addCustomer initial node
         Vertex depotVertex = graph.getVertexByName(depotName);
         pq.add(new BSNode(depotVertex, null));
         long bsCheckPoint = System.currentTimeMillis();
@@ -150,7 +150,7 @@ public class BeamSearch {
     }
 
     /**
-     * add new node to the queue and check some criteria
+     * addCustomer new node to the queue and check some criteria
      *
      * @param newNode node that must be added to the pq.
      */
@@ -171,7 +171,7 @@ public class BeamSearch {
             return;
         }
 
-        // if this node is a intermediate node add it to the queue.
+        // if this node is a intermediate node addCustomer it to the queue.
         if (!canBePruned(newNode)) {
             canBeAddedToPQ.add(newNode);
             GlobalVars.numberOfBranchAndBoundNodes++;

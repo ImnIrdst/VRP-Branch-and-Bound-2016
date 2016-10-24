@@ -50,14 +50,14 @@ public class BranchAndBound {
     /**
      * runs the algorithm given the depot name
      *
-     * @param depotName is name of the depot (node that contains vehicles)
+     * @param depotName is name of the depot (node that contains customersVehicle)
      */
     public void run(String depotName) {
         System.out.println(GlobalVars.equalsLine);
         System.out.println("\t\t\t\t\t\t\tBranch and bound algorithm");
         System.out.println(GlobalVars.equalsLine);
 
-        // add initial node
+        // addCustomer initial node
         Vertex depotVertex = graph.getVertexByName(depotName);
         pq.add(new BBNode(depotVertex, null));
 
@@ -104,7 +104,7 @@ public class BranchAndBound {
     }
 
     /**
-     * add new node to the queue and check some criteria
+     * addCustomer new node to the queue and check some criteria
      *
      * @param newNode node that must be added to the pq.
      */
