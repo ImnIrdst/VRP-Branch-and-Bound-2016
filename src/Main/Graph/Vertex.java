@@ -19,7 +19,7 @@ public class Vertex {
     public double processTime;
 
     // if node is depot
-    public int vehicleQty;          // number of vehicles
+    public int vehicleQty;          // number of customersVehicle
     public int capacity;            // Q: capacity of vehicle
     public double fixedCost;          // F: fix cost vehicle k
 
@@ -130,7 +130,7 @@ public class Vertex {
     }
 
     /**
-     * get Id of the node
+     * getCustomer Id of the node
      * if n is number of nodes then
      * 1,2,...,n-1 -> for customers
      * n -> depot

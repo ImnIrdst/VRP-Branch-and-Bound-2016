@@ -1,6 +1,6 @@
 package Main.AutomatedTests.Experiment1.BranchAndBound;
 
-import Main.Algorithms.Heuristics.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GA1.GeneticAlgorithm;
 import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.GlobalVars;
 import Main.Graph.Graph;
@@ -14,7 +14,7 @@ import java.io.*;
 public class BBAutoTest {
     public static void main(String[] args) throws FileNotFoundException {
         FileOutputStream fileOutputStream = new FileOutputStream(
-                new File("resources/Experiments/ex1-automated-test-results-bb-tmp.csv"));
+                new File("resources/Experiments/Ex1/ex1-automated-test-results-bb-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
 
         String tableHeader = "Test ID,Customers,Vehicles,Cost,CPU Time,Nodes,UpperBound";
@@ -34,13 +34,14 @@ public class BBAutoTest {
                     GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
             int geneticTime = 10000;
+            int maxIterationsNoUpdate = 500;
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                    originalGraph, GlobalVars.numberOfCustomers, 2, 40);
-            geneticAlgorithm.run(geneticTime);
-//            geneticAlgorithm.printBestChromosome();
-
+                    originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
+            geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);
+            geneticAlgorithm.printBestChromosome();
+            geneticTime = (int) geneticAlgorithm.getElapsedTimeInSeconds();
 
             String expandedNodes = "";
             String elapsedTime = "";

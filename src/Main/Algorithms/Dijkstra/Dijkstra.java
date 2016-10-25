@@ -27,7 +27,7 @@ public class Dijkstra {
      */
     public void run(String startName) {
 
-        if (!graph.containsVertex(startName)) { // if you set the wrong node to start dijkstra with it
+        if (!graph.containsVertex(startName)) { // if you setCustomer the wrong node to start dijkstra with it
             System.err.printf("Main.Graph doesn't contain start vertex \"%s\"\n", startName);
             return;
         }
@@ -49,26 +49,26 @@ public class Dijkstra {
                 v.previousNodeOnShortestPath = source; // for start node distance is 0 and previous node is itself
             } else {
                 v.distOnShortestPath = Integer.MAX_VALUE;
-                v.previousNodeOnShortestPath = null; // for all other nodes set their distance to infinity and previous to null
+                v.previousNodeOnShortestPath = null; // for all other nodes setCustomer their distance to infinity and previous to null
             }
-            pq.add(v); // add node to priority queue
+            pq.add(v); // addCustomer node to priority queue
         }
 
         while (!pq.isEmpty()) {
-            Vertex u = pq.poll(); // vertex with shortest distance (first iteration will return source)
+            Vertex u = pq.poll(); // vertex with shortest distance (first iterations will return source)
             if (u.distOnShortestPath == Integer.MAX_VALUE)
                 break; // we can ignore u (and any other remaining vertices) since they are unreachable
 
             //look at distances to each neighbour
             for (Map.Entry<Vertex, Double> a : u.neighbours.entrySet()) {
-                Vertex v = a.getKey(); //the neighbour in this iteration
+                Vertex v = a.getKey(); //the neighbour in this iterations
 
                 double weight = a.getValue();
                 if (u.distOnShortestPath + weight < v.distOnShortestPath) { // shorter path to neighbour found
                     pq.remove(v);             // remove it from pq
                     v.distOnShortestPath = u.distOnShortestPath + weight; // update its distance
                     v.previousNodeOnShortestPath = u;           // update its previous node on the shortest path
-                    pq.add(v);                // add it to the pq again
+                    pq.add(v);                // addCustomer it to the pq again
                 }
             }
         }
@@ -78,7 +78,7 @@ public class Dijkstra {
      * Prints a path from the source to the specified vertex
      */
     public void printPath(String endName) {
-        if (!graph.containsVertex(endName)) { // if you set the wrong node to print the path
+        if (!graph.containsVertex(endName)) { // if you setCustomer the wrong node to print the path
             System.err.printf("Main.Graph doesn't contain end vertex \"%s\"\n", endName);
             return;
         }

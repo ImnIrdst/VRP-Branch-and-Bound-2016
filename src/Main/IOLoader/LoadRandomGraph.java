@@ -9,7 +9,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class LoadRandomGraph {
-    public static final String filePath = "resources/Experiments/ex1-automated-test-ranges-01.csv";
+    public static final String filePath = "resources/RandomRanges/ex1-automated-test-ranges-04-01.csv";
     public static Graph loadWithDoubleParams(long seed) throws FileNotFoundException {
         Scanner sc = new Scanner(new File(filePath));
 

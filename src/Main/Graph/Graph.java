@@ -3,6 +3,7 @@ package Main.Graph;
 import Main.Algorithms.Other.Random;
 import Main.Algorithms.Other.Random.IRange;
 import Main.Algorithms.Other.Random.DRange;
+import Main.GlobalVars;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,10 +11,10 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
- * Simple graph stored in a HashMap adjacency list
+ * Simple graph stored in a HashMap adjacency customers
  */
 public class Graph {
-    public Map<String, Vertex> adjacencyList; // adjacency list: mapping of vertex names to Vertex objects, built from a set of Edge
+    public Map<String, Vertex> adjacencyList; // adjacency customers: mapping of vertex names to Vertex objects, built from a setCustomer of Edge
     public Map<Integer, Vertex> idToVertexMap; // maps vertex Id to Vertex
 
     /**
@@ -24,7 +25,7 @@ public class Graph {
     }
 
     /**
-     * Constructor: Builds an adjacencyList from a set of edges
+     * Constructor: Builds an adjacencyList from a setCustomer of edges
      */
     public Graph(Edge[] edges) {
         adjacencyList = new HashMap<>();
@@ -160,13 +161,17 @@ public class Graph {
             DRange processTimeRange, DRange dueDateRange, DRange penaltyRange, DRange edgeWeightsRange) {
         Graph graph = new Graph();
         // Add Depot Vertex
+        int customerQty = Random.getRandomIntInRange(customerQtyRange);
+        vehicleQtyRange.max = Math.min(vehicleQtyRange.max, customerQty);
+        vehicleQtyRange.min = Math.min(vehicleQtyRange.min, vehicleQtyRange.max);
         int vehicleQty = Random.getRandomIntInRange(vehicleQtyRange);
         int capacity = Random.getRandomIntInRange(capacityRange);
         double fixCost = Random.getRandomDoubleInRange(fixCostRange);
+
+
         graph.addVertex(new Vertex("Dp", VertexType.DEPOT, vehicleQty, capacity, fixCost));
 
         // Build the Customer Vertices
-        int customerQty = Random.getRandomIntInRange(customerQtyRange);
         for (int i = 0; i < customerQty; i++) {
             String name = "" + (char)('A' + i);
             double processTime = Random.getRandomDoubleInRange(processTimeRange);
@@ -220,14 +225,14 @@ public class Graph {
     }
 
     /**
-     * adds a vertex to the adjacency list
+     * adds a vertex to the adjacency customers
      */
     public void addVertex(Vertex u) {
         if (!adjacencyList.containsKey(u.name)) adjacencyList.put(u.name, u);
     }
 
     /**
-     * adds an edge to the adjacency list
+     * adds an edge to the adjacency customers
      */
     public void addEdge(Edge e) {
         if (!adjacencyList.containsKey(e.uName)) adjacencyList.put(e.uName, new Vertex(e.uName));
@@ -244,7 +249,7 @@ public class Graph {
     }
 
     /**
-     * gets the graph size
+     * gets the graph customersSize
      */
     public int getGraphSize() {
         return adjacencyList.size();
@@ -279,11 +284,13 @@ public class Graph {
     }
 
     public void printVertices() {
+        System.out.println(GlobalVars.equalsLine);
         System.out.println("v.id\tv.name\tv.type\tv.processTime\tv.dueDate\tv.penalty\tv.capacity\tv.fixedCost");
         for (Vertex v : getVertices()) {
             System.out.printf("%d\t\t%s\t\t%8s\t%4.1f\t\t\t%4.1f\t\t%4.1f\t\t%4d\t\t%4.1f\n",
                     v.id, v.name, v.type, v.processTime, v.dueDate, v.penalty, v.capacity, v.fixedCost);
         }
+        System.out.println(GlobalVars.equalsLine + "\n");
     }
 
     /**
@@ -305,14 +312,14 @@ public class Graph {
     }
 
     /**
-     * @return list of vertices in the graph
+     * @return customers of vertices in the graph
      */
     public Collection<Vertex> getVertices() {
         return adjacencyList.values();
     }
 
     /**
-     * @return list of customers (list of neighbors of depot)
+     * @return customers of customers (customers of neighbors of depot)
      */
     public Collection<Vertex> getCustomerVertices() {
         return getVertexById(getDepotId()).neighbours.keySet();
