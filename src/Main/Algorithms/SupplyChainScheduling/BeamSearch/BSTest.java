@@ -10,7 +10,7 @@ import java.io.FileNotFoundException;
 /**
  * for running the algorithm
  */
-public class BSMain {
+public class BSTest {
     public static void main(String[] args) throws FileNotFoundException {
 
         Graph originalGraph = Graph.buildAGraphFromAttributeTables(
