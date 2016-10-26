@@ -1,14 +1,15 @@
 package Main.Algorithms.SupplyChainScheduling.BeamSearch;
 
+import Main.Algorithms.Other.TimeIdPair;
+import Main.Algorithms.TSP.SimpleTSP.SimpleTSP;
 import Main.GlobalVars;
 import Main.Graph.Edge;
 import Main.Graph.Vertex;
 import Main.Graph.VertexType;
+import org.omg.CORBA.INTERNAL;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.beans.Customizer;
+import java.util.*;
 
 /**
  * a node that used in branch and bound for VRP
@@ -17,23 +18,37 @@ public class BSNode {
     public Vertex vertex;          // current vertex of the graph
     public BSNode parent;          // parent of the node in the BBAutoTest tree
 
+    public List<Integer> waitingList; // customers that must be served
+    public double cumulativeProcessTime; // process time of served customers
+    public double cumulativeWLTravelTime; // cumulative travel time of waiting customers customers
+
     public int vehicleUsed;        // number of vehicle used in this node
     public double vehicleUsageCost;
     public double curTimeElapsed;     // the time elapsed after moving the vehicle in current path
     public double maxTimeElapsed;     // the maximum time elapsed in all paths
     public double cumulativePenaltyTaken; // cumulative penalty taken in all nodes
     public double cumulativeTimeTaken; // cumulative time that all customersVehicle spend to serve the customers
+    public double cumulativeWLMinimum2ndEdges; // cumulative waiting customers minimum second edges
     public int remainedCapacity;   // remained goods in the car
     public boolean[] servicedNodes; // nodes that are serviced
     public int numberOfServicedCustomers; // for easily terminate the algorithm
-
     public double startTime;          // it's the time when vehicle starts moving
     public double arrivalTime;        // the moment that the vehicle reached to the node
     public double thisVertexPenalty;  // the penalty that taken in this vertex
 
+
+    public SimpleTSP tsp;
+
     public double lowerBoundForVehicleCost;
     public double lowerBoundForPenaltyTaken;
-    public double lowerBoundForTimeTaken;
+    public double lowerBoundForTravelTime;
+    public double lowerBoundForSimplerProblem;
+
+    /**
+     * Default Constructor (Empty Constructor)
+     */
+    public BSNode() {
+    }
 
     /**
      * constructor for the branch and bound node
@@ -42,39 +57,96 @@ public class BSNode {
         this.vertex = vertex;
         this.parent = parent;
 
+        this.calculateServicedNodes();
+        this.calculateWaitingList();
+        this.calculateCumulativeProcessTime();
+        this.calculateCumulativeWLTravelTime();
+        this.calculateCumulativeWLMinimumSecondEdges();
+        this.calculateTsp();
+
         this.calculateVehicleUsed();
         this.calculateVehicleUsageCost();
         this.calculateCurTimeElapsed();
-        this.calculateMaxTimeElapsed();
         this.calculateRemainedCapacity();
-        this.calculateArrivalTime();
-        this.calculateThisVertexPenalty();
         this.calculateCumulativePenaltyTaken();
         this.calculateCumulativeTimeTaken();
-        this.calculateServicedNodes();
-        this.calculateParentStartTime();
+
 
         this.calculateLowerBoundForPenaltyTaken();
         this.calculateLowerBoundForMinimumVehicleUsageCost();
-        this.calculateLowerBoundForCumulativeTimeNeededForAllVehicles();
-
-        long elapsedTime = System.currentTimeMillis() - GlobalVars.startTime;
-
-        if (elapsedTime > GlobalVars.bbPrintTime) {
-            GlobalVars.bbPrintTime += GlobalVars.printTimeStepSize;
-            System.out.printf("Time: %.1fs,\t\t", GlobalVars.bbPrintTime / 1000.);
-            System.out.printf("Minimum value: %.2f,\t\t", GlobalVars.minimumValue);
-            System.out.print("Nodes: " + GlobalVars.numberOfBranchAndBoundNodes + "\n");
-        }
+        this.calculateLowerBoundForTravelTime();
+        this.calculateLowerBoundForSimplerProblem();
 
     }
+
+
+    /**
+     * calculateWaitingList
+     */
+    public void calculateWaitingList() {
+        this.waitingList = new ArrayList<>();
+
+        if (parent != null && parent.vertex.type == VertexType.DEPOT) {
+            this.waitingList.add(vertex.getId());
+
+        }
+        if (parent != null && parent.vertex.type != VertexType.DEPOT) {
+            for (int i = 0; i < parent.waitingList.size(); i++) {
+                this.waitingList.add(parent.waitingList.get(i));
+            }
+            this.waitingList.add(vertex.getId());
+        }
+    }
+
+    /**
+     * calculateCumulativeProcessTime
+     */
+    public void calculateCumulativeProcessTime() {
+        if (parent == null)
+            cumulativeProcessTime = 0;
+        else if (this.vertex.type == VertexType.CUSTOMER)
+            cumulativeProcessTime += parent.cumulativeProcessTime + this.vertex.processTime;
+        else
+            cumulativeProcessTime += parent.cumulativeProcessTime;
+    }
+
+    /**
+     * calculateCumulativeWLTravelTime
+     */
+    public void calculateCumulativeWLTravelTime() {
+        if (parent != null && parent.vertex.type == VertexType.DEPOT)
+            this.cumulativeWLTravelTime += GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
+        if (parent != null && parent.vertex.type != VertexType.DEPOT)
+            this.cumulativeWLTravelTime += parent.cumulativeWLTravelTime
+                    + GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
+    }
+
+    public void calculateCumulativeWLMinimumSecondEdges() {
+        if (parent != null && parent.vertex.type == VertexType.DEPOT)
+            this.cumulativeWLMinimum2ndEdges += getSecondMinimumEdgeWeightOfVertex(this.vertex);
+        if (parent != null && parent.vertex.type != VertexType.DEPOT)
+            this.cumulativeWLMinimum2ndEdges += parent.cumulativeWLMinimum2ndEdges
+                    + getSecondMinimumEdgeWeightOfVertex(this.vertex);
+    }
+
+    /**
+     * calculateTsp
+     */
+    private void calculateTsp() {
+        if (parent != null && this.vertex.type == VertexType.DEPOT) {
+            this.tsp = new SimpleTSP(GlobalVars.ppGraph, this.waitingList, this.cumulativeProcessTime);
+            this.tsp.run();
+//            this.waitingList.clear();
+        }
+    }
+
 
     /**
      * calculateVehicleUsed
      */
     public void calculateVehicleUsed() {
         if (parent == null)
-            vehicleUsed = 0;
+            this.vehicleUsed = 0;
         else if (parent.vertex.type == VertexType.DEPOT)
             this.vehicleUsed = parent.vehicleUsed + 1;
         else
@@ -86,8 +158,8 @@ public class BSNode {
      */
     public void calculateVehicleUsageCost() {
         if (parent == null)
-            vehicleUsageCost = 0;
-        else if (parent.vertex.type == VertexType.DEPOT)
+            this.vehicleUsageCost = 0;
+        else if (this.vertex.type == VertexType.DEPOT)
             this.vehicleUsageCost = parent.vehicleUsageCost + this.vertex.fixedCost;
         else
             this.vehicleUsageCost = parent.vehicleUsageCost;
@@ -99,26 +171,8 @@ public class BSNode {
     public void calculateCurTimeElapsed() {
         if (parent == null) curTimeElapsed = 0;
 
-        else if (parent.vertex.type == VertexType.DEPOT)
-            this.curTimeElapsed = 0; //TODO: ???
-
-        else if (parent.vertex.type == VertexType.CUSTOMER)
-            this.curTimeElapsed = parent.curTimeElapsed + GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
-
-        calculateMaxTimeElapsed();
-        if (this.vertex.type == VertexType.DEPOT) this.curTimeElapsed = 0;
-    }
-
-    /**
-     * calculateMaxTimeElapsed
-     */
-    public void calculateMaxTimeElapsed() {
-        if (parent == null) {
-            this.maxTimeElapsed = 0;
-            return;
-        }
-        this.maxTimeElapsed = Math.max(this.maxTimeElapsed, parent.maxTimeElapsed);
-        this.maxTimeElapsed = Math.max(this.maxTimeElapsed, this.curTimeElapsed);
+        else if (this.vertex.type == VertexType.DEPOT)
+            this.curTimeElapsed = tsp.arrivalTime;
     }
 
     /**
@@ -127,9 +181,10 @@ public class BSNode {
     public void calculateRemainedCapacity() {
         if (parent == null)
             this.remainedCapacity = 0;
+
         else if (this.vertex.type == VertexType.CUSTOMER
-                && this.parent.vertex.type == VertexType.DEPOT)
-            this.remainedCapacity = this.vertex.capacity - 1;
+                && parent.vertex.type == VertexType.DEPOT)
+            this.remainedCapacity = parent.vertex.capacity - 1;
 
         else if (this.vertex.type == VertexType.CUSTOMER)
             this.remainedCapacity = parent.remainedCapacity - 1;
@@ -139,35 +194,17 @@ public class BSNode {
     }
 
     /**
-     * calculateArrivalTime
-     */
-    public void calculateArrivalTime() {
-        if (parent == null)
-            this.arrivalTime = -1;
-        else if (parent.vertex.type == VertexType.DEPOT)
-            this.arrivalTime = 0; // TODO
-        else
-            this.arrivalTime = parent.arrivalTime + GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
-    }
-
-    /**
-     * calculateThisVertexPenalty
-     */
-    public void calculateThisVertexPenalty() {
-        if (this.arrivalTime > this.vertex.dueDate && this.vertex.type == VertexType.DEPOT)
-            this.thisVertexPenalty = this.vertex.penalty * (this.arrivalTime - this.vertex.dueDate);
-        else
-            this.thisVertexPenalty = 0;
-    }
-
-    /**
      * calculateCumulativePenaltyTaken
      */
     public void calculateCumulativePenaltyTaken() {
         if (parent == null)
             this.cumulativePenaltyTaken = 0;
+
+        else if (this.vertex.type == VertexType.DEPOT)
+            this.cumulativePenaltyTaken = parent.cumulativePenaltyTaken + tsp.penaltyTaken;
+
         else
-            this.cumulativePenaltyTaken = parent.cumulativePenaltyTaken + this.thisVertexPenalty;
+            this.cumulativePenaltyTaken = parent.cumulativePenaltyTaken;
     }
 
     /**
@@ -177,11 +214,11 @@ public class BSNode {
         if (parent == null)
             this.cumulativeTimeTaken = 0;
 
-        else if (parent.vertex.type == VertexType.DEPOT)
-            this.cumulativeTimeTaken = parent.cumulativeTimeTaken + 0;
+        else if (this.vertex.type == VertexType.DEPOT)
+            this.cumulativeTimeTaken = parent.cumulativeTimeTaken + tsp.travelTime;
 
         else
-            this.cumulativeTimeTaken = parent.cumulativeTimeTaken + GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
+            this.cumulativeTimeTaken = parent.cumulativeTimeTaken;
     }
 
     /**
@@ -201,36 +238,25 @@ public class BSNode {
                 this.servicedNodes[this.vertex.id] = true;
             }
         }
-
     }
-
-    /**
-     * calculateParentStartTime
-     */
-    public void calculateParentStartTime() {
-        if (parent != null && parent.vertex.type == VertexType.DEPOT)
-            parent.startTime = 0; // this.arrivalTime - Main.GlobalVars.ppGraph.getDistance(parent.vertex, this.vertex);
-
-        // for finished nodes.
-        if (parent != null && this.vertex.type == VertexType.DEPOT
-                && this.numberOfServicedCustomers == GlobalVars.numberOfCustomers)
-            this.startTime = -1;
-    }
-
 
     /**
      * calculates Lower Bound For Minimum Vehicle Usage Cost
      */
     public void calculateLowerBoundForMinimumVehicleUsageCost() {
-
+//        int remainedCustomers = GlobalVars.numberOfCustomers - this.numberOfServicedCustomers;
+//        int vehiclesNeeded = (remainedCustomers - this.remainedCapacity) / GlobalVars.depot.capacity;
+//
+//        lowerBoundForVehicleCost = vehiclesNeeded * GlobalVars.depot.fixedCost;
     }
 
     /**
-     * calculates a lower bound for cumulative time needed for all the customersVehicle to serve all customers
+     * first pick depot second minimum edges,
+     * then pick remained customers second minimum edges
      */
-    public void calculateLowerBoundForCumulativeTimeNeededForAllVehicles() {
+    public void calculateLowerBoundForTravelTime() {
+
         double lowerBound = 0;
-        boolean[] markedNodes = new boolean[GlobalVars.numberOfCustomers];
 
         // for each extra needed vehicle peek an edge from depot an mark the end nodes
         int extraVehiclesNeeded = getMinimumNumberOfExtraVehiclesNeeded();
@@ -243,18 +269,26 @@ public class BSNode {
         }
         Collections.sort(depotEdges);
 
-        for (int i = 0; i < Math.min(extraVehiclesNeeded, depotEdges.size()); i++) {
+        for (int i = 1; i < Math.min(extraVehiclesNeeded, depotEdges.size()); i++) {
             lowerBound += depotEdges.get(i).weight;
-            markedNodes[depotEdges.get(i).v.getId()] = true;
         }
 
         // for other nodes peek the minimum edges
         for (Vertex v : GlobalVars.ppGraph.getCustomerVertices()) {
-            if (markedNodes[v.getId()] == false && this.servicedNodes[v.getId()] == false)
-                lowerBound += getMinimumEdgeWeightOfVertex(v);
+            if (this.servicedNodes[v.getId()] == false)
+                lowerBound += getSecondMinimumEdgeWeightOfVertex(v);
         }
 
-        this.lowerBoundForTimeTaken = lowerBound;
+        Vertex u = GlobalVars.depot;
+        for (int i = 0; i < waitingList.size() && vertex.type != VertexType.DEPOT; i++) {
+            Vertex v = GlobalVars.ppGraph.getVertexById(waitingList.get(i));
+            lowerBound += GlobalVars.ppGraph.getDistance(u, v);
+
+            u = v;
+        }
+
+        this.lowerBoundForTravelTime = lowerBound;
+
     }
 
     /**
@@ -264,15 +298,164 @@ public class BSNode {
      * calculates the lower bound for additional penalty taken
      */
     public void calculateLowerBoundForPenaltyTaken() {
-        if (this.vertex.type == VertexType.DEPOT) return;
+//        if (parent == null) {
+//            lowerBoundForPenaltyTaken = 0;
+//            for (Vertex v : GlobalVars.ppGraph.getVertices()) {
+//                double minimumArrivalTime = getMinimumEdgeWeightOfVertex(v) + v.processTime;
+//                lowerBoundForPenaltyTaken += Math.max(0, minimumArrivalTime - v.dueDate) * v.penalty;
+//            }
+//        } else
+//            lowerBoundForPenaltyTaken = parent.lowerBoundForPenaltyTaken;
+//
+//        if (vertex.type == VertexType.CUSTOMER) {
+//            double minimumArrivalTime = getMinimumEdgeWeightOfVertex(vertex) + vertex.processTime;
+//            lowerBoundForPenaltyTaken -= Math.max(0, minimumArrivalTime - vertex.dueDate) * vertex.penalty;
+//        }
+    }
 
-        Vertex depotVertex = GlobalVars.ppGraph.getVertexByName(GlobalVars.depotName);
-        double lowestFinishTime = this.curTimeElapsed + this.getMinimumAdditionalTimeNeededToTheEndThePath();
+    /**
+     * calculateLowerBoundForSimplerProblem
+     */
+    public void calculateLowerBoundForSimplerProblem() {
+        lowerBoundForSimplerProblem = GlobalVars.INF;
 
-        if (lowestFinishTime > depotVertex.dueDate)
-            this.lowerBoundForPenaltyTaken = (lowestFinishTime - depotVertex.dueDate) * depotVertex.penalty;
+        double minimumEdgeWeight = GlobalVars.INF;
+        double minimumPenalty = GlobalVars.INF;
+        double minimumProcessTime = GlobalVars.INF;
+
+        // extract unserved customers
+        List<Vertex> unservedCustomers = new ArrayList<>();
+        for (Vertex v : GlobalVars.ppGraph.getVertices()) {
+            if (v.type != VertexType.CUSTOMER || this.servicedNodes[v.id] == true) continue;
+            unservedCustomers.add(v);
+
+            minimumEdgeWeight = Math.min(minimumEdgeWeight, getMinimumEdgeWeightOfVertex(v));
+            minimumPenalty = Math.min(minimumPenalty, v.penalty);
+            minimumProcessTime = Math.min(minimumProcessTime, v.processTime);
+        }
+
+        if (unservedCustomers.size() == 0) {
+            lowerBoundForSimplerProblem = 0;
+            return;
+        }
+
+        if (this.vertex.type != VertexType.DEPOT) for (Integer vId: waitingList){
+            Vertex v = GlobalVars.ppGraph.getVertexById(vId);
+
+            minimumEdgeWeight = Math.min(minimumEdgeWeight, getMinimumEdgeWeightOfVertex(v));
+            minimumPenalty = Math.min(minimumPenalty, v.penalty);
+            minimumProcessTime = Math.min(minimumProcessTime, v.processTime);
+        }
+
+        // sort them by due dates
+        Collections.sort(unservedCustomers, new Comparator<Vertex>() {
+            @Override
+            public int compare(Vertex o1, Vertex o2) {
+                return Double.compare(o1.dueDate, o2.dueDate);
+            }
+        });
+
+
+        // calculate optimal cost
+        double optimalCost = GlobalVars.INF;
+        for (int vehicleQty = 1; vehicleQty <= GlobalVars.numberOfVehicles - this.vehicleUsed; vehicleQty++) {
+            if (vehicleQty * GlobalVars.depot.fixedCost >= optimalCost) break;
+
+            // initialization
+            List<Vertex>[] vehicleLoads = new ArrayList[vehicleQty];
+            List<Double>[] penalties = new ArrayList[vehicleQty]; // TODO: use for increasing bounds
+            List<Double>[] processTimes = new ArrayList[vehicleQty];
+            PriorityQueue<TimeIdPair> timeIdPQ = new PriorityQueue<>(10);
+            for (int i = 0; i < vehicleQty; i++) {
+                vehicleLoads[i] = new ArrayList<>();
+                penalties[i] = new ArrayList<>(); // TODO: use for increasing bounds
+                processTimes[i] = new ArrayList<>();
+                if (i != 0) timeIdPQ.add(new TimeIdPair(0, i));
+            }
+
+            // addCustomer waiting customers vertexes to vehicle
+            double tempTime = 0;
+            for (int i = 0; i < waitingList.size() && this.vertex.type != VertexType.DEPOT; i++) {
+                Vertex tempVertex = GlobalVars.ppGraph.getVertexById(waitingList.get(i));
+                vehicleLoads[0].add(tempVertex);
+                penalties[0].add(minimumPenalty); // TODO: use for increasing bounds
+                processTimes[0].add(minimumProcessTime);
+
+                tempTime += minimumEdgeWeight + minimumProcessTime;
+            }
+            timeIdPQ.add(new TimeIdPair(tempTime, 0));
+
+
+            // addCustomer unserved customers to customersVehicle
+            boolean isOverLoaded = false;
+            for (int i = 0; i < unservedCustomers.size(); i++) {
+                TimeIdPair timeIdPair = timeIdPQ.poll();
+
+                vehicleLoads[timeIdPair.id].add(unservedCustomers.get(i));
+                penalties[timeIdPair.id].add(minimumPenalty); // TODO: use for increasing bounds
+                processTimes[timeIdPair.id].add(minimumProcessTime);
+
+                if (vehicleLoads[timeIdPair.id].size() > GlobalVars.depot.capacity) {
+                    isOverLoaded = true;
+                    break;
+                }
+
+                timeIdPair.time += minimumEdgeWeight + minimumProcessTime;
+
+                timeIdPQ.add(timeIdPair);
+            }
+            if (isOverLoaded == true) continue; // if overloaded don't updates optimal cost
+
+            // adjust penalties // TODO: use for increasing bounds
+            for (int i = 0; i < vehicleQty; i++) {
+                for (int j = 0; j < vehicleLoads[i].size(); j++) {
+                    if (j == 0) penalties[i].set(j, vehicleLoads[i].get(j).penalty);
+                    if (j != 0) penalties[i].set(j, Math.min(penalties[i].get(j - 1), vehicleLoads[i].get(j).penalty));
+                }
+            }
+
+            // adjust process times
+            double[] sumOfProcessTimes = new double[vehicleQty]; // TODO: use for increasing bounds
+            for (int i = 0; i < vehicleQty; i++) {
+                for (int j = vehicleLoads[i].size() - 1; j >= 0; j--) {
+                    if (j == vehicleLoads[i].size() - 1)
+                        processTimes[i].set(j, vehicleLoads[i].get(j).processTime);
+                    if (j != vehicleLoads[i].size() - 1)
+                        processTimes[i].set(j, Math.min(processTimes[i].get(j + 1), vehicleLoads[i].get(j).processTime));
+
+                    sumOfProcessTimes[i] += processTimes[i].get(j);
+                }
+            }
+
+
+            // calculate cost
+            double vehicleUsageCost = vehicleQty * GlobalVars.depot.fixedCost;
+            double travelTimeCost = 0;
+            double penaltyCost = 0;
+            for (int i = 0; i < vehicleQty; i++) {
+                double timeline = vehicleLoads[i].size() * minimumProcessTime;// sumOfProcessTimes[i]; TODO: use for increasing bounds
+                for (int j = 0; j < vehicleLoads[i].size(); j++) {
+                    timeline += minimumEdgeWeight;
+                    travelTimeCost += minimumEdgeWeight; // TODO: use alternative lowerBound
+
+                    penaltyCost += Math.max(0, (timeline - vehicleLoads[i].get(j).dueDate)) * minimumPenalty ; // * penalties[i].getCustomer(j); TODO: use for increasing bounds
+                }
+
+                travelTimeCost += minimumEdgeWeight; // TODO: use alternative lowerBound
+            }
+
+            if (lowerBoundForTravelTime > travelTimeCost){
+//                System.out.println("lowerBoundForTravelTime > travelTimeCost");
+                travelTimeCost = lowerBoundForTravelTime;
+            }
+
+            double currentCost = vehicleUsageCost + travelTimeCost + penaltyCost;
+            optimalCost = Math.min(optimalCost, currentCost);
+        }
+        if (optimalCost > GlobalVars.INF - 10)
+            lowerBoundForSimplerProblem = 0;
         else
-            this.lowerBoundForPenaltyTaken = 0;
+            lowerBoundForSimplerProblem = optimalCost;
     }
 
 
@@ -290,7 +473,7 @@ public class BSNode {
      */
     public double getLowerBound() {
 //        return 0;
-        return lowerBoundForVehicleCost + lowerBoundForTimeTaken + lowerBoundForPenaltyTaken;
+        return lowerBoundForVehicleCost /*+ lowerBoundForTravelTime*/ + lowerBoundForPenaltyTaken + lowerBoundForSimplerProblem;
     }
 
     // --------------   helper functions ---------------
@@ -299,7 +482,26 @@ public class BSNode {
      * @return minimum number of extra customersVehicle needed to serve the remaining customers
      */
     public int getMinimumNumberOfExtraVehiclesNeeded() {
-        return 0;
+        int remainedCustomers = GlobalVars.numberOfCustomers - this.numberOfServicedCustomers;
+        return (int) (Math.ceil((remainedCustomers - this.remainedCapacity) / (double) GlobalVars.depot.capacity) + 1e-6);
+    }
+
+    /**
+     * @return minimum edge weight of a given vertex
+     */
+    public double getSecondMinimumEdgeWeightOfVertex(Vertex v) {
+        double min = Integer.MAX_VALUE;
+
+        for (Vertex u : v.neighbours.keySet()) {
+            if (u.id == v.id) continue;
+            if (u.type == VertexType.CUSTOMER
+                    && this.servicedNodes[u.id] == true) continue;
+
+            if (min > GlobalVars.ppGraph.getDistance(u, v)) {
+                min = GlobalVars.ppGraph.getDistance(u, v);
+            }
+        }
+        return min;
     }
 
     /**
@@ -307,14 +509,16 @@ public class BSNode {
      */
     public double getMinimumEdgeWeightOfVertex(Vertex v) {
         double min = Integer.MAX_VALUE;
-        for (Vertex u : v.neighbours.keySet()) {
-            if (u.name.equals(v.name)) continue;
-            if (!u.name.equals(this.vertex.name)
-                    && u.type == VertexType.CUSTOMER
-                    && this.servicedNodes[u.id] == true) continue;
 
-            min = Math.min(min, GlobalVars.ppGraph.getDistance(u, v));
+        for (Vertex u : v.neighbours.keySet()) {
+            if (u.id == v.id) continue;
+            if (u.type == VertexType.CUSTOMER && this.servicedNodes[u.id] == true) continue;
+
+            if (min > GlobalVars.ppGraph.getDistance(u, v)) {
+                min = GlobalVars.ppGraph.getDistance(u, v);
+            }
         }
+
         return min;
     }
 
@@ -336,11 +540,13 @@ public class BSNode {
      * go up int the tree and print the path
      */
     public String getStringPath() {
-        if (this.parent == null) {
-            return this.toString(); //System.out.print(this.vertex);
-        } else {
-            return parent.getStringPath() + " -> " + this;
+        StringBuilder sb = new StringBuilder("");
+        for (BSNode node = this; node != null; node = node.parent) {
+            if (node.vertex.type == VertexType.DEPOT && node.parent != null) {
+                sb.append(node.tsp.toString()).append("\n");
+            }
         }
+        return sb.toString();
     }
 
     /**
@@ -365,18 +571,8 @@ public class BSNode {
 
     @Override
     public String toString() {
-        if (vertex.type == VertexType.DEPOT && startTime == -1)
-            return vertex + " (" + String.format("%.2f", arrivalTime) + detailsForToString() + ")";
-
-        else if (vertex.type == VertexType.DEPOT && arrivalTime == -1)
-            return "";
-
-        else if (vertex.type == VertexType.DEPOT)
-            return vertex + " (" + String.format("%.2f", arrivalTime) + detailsForToString() + ")" + "\n";
-
-        return vertex + " (" + String.format("%.2f", arrivalTime) + detailsForToString() + ")";
+        return vertex.toString() + String.format("(%.2f)", getCost());
     }
-
 }
 
 //-------------- Trash -------------
@@ -396,7 +592,7 @@ public class BSNode {
 //
 //        int vehiclesNeeded = getMinimumNumberOfExtraVehiclesNeeded();
 //        if (vehiclesNeeded * 2 > edgeWeightsFromDepotToUnservicedCustomers.size()) {
-//            System.out.println("There Is a Bug in BBNode.getMinimumAdditionalTimeNeededToTheEndThePath()!!!!!!!!!!!!!!!!!!!!!!!!");
+//            System.out.println("There Is a Bug in BSNode.getMinimumAdditionalTimeNeededToTheEndThePath()!!!!!!!!!!!!!!!!!!!!!!!!");
 //            return Integer.MAX_VALUE / 2;
 //        }
 //

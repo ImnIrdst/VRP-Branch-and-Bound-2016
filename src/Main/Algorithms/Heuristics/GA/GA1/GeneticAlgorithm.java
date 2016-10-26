@@ -9,7 +9,7 @@ import Main.Graph.VertexType;
 import java.util.*;
 
 /**
- * An Implementation of GA1 Algorithm used for
+ * An Implementation of GA Algorithm used for
  * calculating an upper bound for our problem (VRPD)
  * Created by iman on 7/27/16.
  */
@@ -81,7 +81,6 @@ public class GeneticAlgorithm {
                 for (int i = 0; i < populationSize; i += 2 * TOURNAMENT_SIZE) {
                     Chromosome c1 = tournament(population, i, i + TOURNAMENT_SIZE);
                     Chromosome c2 = tournament(population, i + TOURNAMENT_SIZE, i + TOURNAMENT_SIZE * 2);
-                    if (c1 == null || c2 == null) continue;
 
                     if (getRandom0to1() < CROSSOVER_PROBABILITY) {
                         newPopulation.add(crossOver(c1, c2));
@@ -162,7 +161,7 @@ public class GeneticAlgorithm {
             int vId = customers.get(customers.size() - 1);
             customers.remove(customers.size() - 1);
 
-            if (vId != depotId && remainedCapacity < 0 && remainedVehicles > 0) {
+            if (vId != depotId && remainedCapacity <= 0 && remainedVehicles > 0) {
                 remainedVehicles--;
                 remainedCapacity = GlobalVars.depot.capacity;
                 newChromosome.add(depotId);
@@ -188,8 +187,6 @@ public class GeneticAlgorithm {
         while (newChromosome.list.size() < size)
             newChromosome.add(depotId);
 
-        if (newChromosome.list.size() > 24)
-            newChromosome = newChromosome;
         return newChromosome;
     }
 
@@ -206,7 +203,7 @@ public class GeneticAlgorithm {
 
     public Chromosome tournament(List<Chromosome> population, int begin, int end) {
         Chromosome bestChromosome = null;
-        double bestValue = GlobalVars.INF;
+        double bestValue = GlobalVars.INF + 1e-9;
         for (int i = begin; i < end; i++)
             if (population.get(i).getCost() < bestValue) bestChromosome = population.get(i);
 

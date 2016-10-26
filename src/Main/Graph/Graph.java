@@ -168,12 +168,16 @@ public class Graph {
         int capacity = Random.getRandomIntInRange(capacityRange);
         double fixCost = Random.getRandomDoubleInRange(fixCostRange);
 
+        while (customerQty > vehicleQty * capacity) {
+            vehicleQty = Random.getRandomIntInRange(vehicleQtyRange);
+            capacity = Random.getRandomIntInRange(capacityRange);
+        }
 
         graph.addVertex(new Vertex("Dp", VertexType.DEPOT, vehicleQty, capacity, fixCost));
 
         // Build the Customer Vertices
         for (int i = 0; i < customerQty; i++) {
-            String name = "" + (char)('A' + i);
+            String name = "" + (char) ('A' + i);
             double processTime = Random.getRandomDoubleInRange(processTimeRange);
             double dueDate = Random.getRandomDoubleInRange(dueDateRange) + processTime + edgeWeightsRange.min;
             double penalty = Random.getRandomDoubleInRange(penaltyRange);
@@ -181,8 +185,8 @@ public class Graph {
         }
 
         // Add The Edges
-        for (Vertex u: graph.getVertices()){
-            for (Vertex v : graph.getVertices()){
+        for (Vertex u : graph.getVertices()) {
+            for (Vertex v : graph.getVertices()) {
                 if (u.name.equals(v.name)) continue;
                 Edge e = new Edge(u, v, Random.getRandomDoubleInRange(edgeWeightsRange));
                 graph.addEdge(e);
@@ -205,7 +209,7 @@ public class Graph {
         // Build the Customer Vertices
         int customerQty = Random.getRandomIntInRange(customerQtyRange);
         for (int i = 0; i < customerQty; i++) {
-            String name = "" + (char)('A' + i);
+            String name = "" + (char) ('A' + i);
             double processTime = Random.getRandomIntInRange(processTimeRange);
             double dueDate = Random.getRandomIntInRange(dueDateRange);
             double penalty = Random.getRandomIntInRange(penaltyRange);
@@ -213,8 +217,8 @@ public class Graph {
         }
 
         // Add The Edges
-        for (Vertex u: graph.getVertices()){
-            for (Vertex v : graph.getVertices()){
+        for (Vertex u : graph.getVertices()) {
+            for (Vertex v : graph.getVertices()) {
                 if (u.name.equals(v.name)) continue;
                 Edge e = new Edge(u, v, Random.getRandomIntInRange(edgeWeightsRange));
                 graph.addEdge(e);

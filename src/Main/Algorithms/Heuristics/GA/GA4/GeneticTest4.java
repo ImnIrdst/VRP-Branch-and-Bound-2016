@@ -37,7 +37,7 @@ public class GeneticTest4 {
         // run the genetic algorithm
 
         int geneticTime = 10000;
-        int maxIterationsNoUpdate = 500;
+        int maxIterationsNoUpdate = 1000;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
         geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);

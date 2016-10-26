@@ -1,7 +1,7 @@
 package Main.Algorithms.Heuristics.PGA;
 
 /**
- * Parallel GA1 Algorithm
+ * Parallel GA Algorithm
  */
 public class PGA {
 

@@ -9,7 +9,7 @@ import Main.Graph.Vertex;
 import java.util.*;
 
 /**
- * An Implementation of GA1 Algorithm used for
+ * An Implementation of GA Algorithm used for
  * calculating an upper bound for our problem (VRPD)
  * Created by iman on 7/27/16.
  */
