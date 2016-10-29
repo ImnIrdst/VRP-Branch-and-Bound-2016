@@ -58,7 +58,7 @@ public class CplexAutoTest {
 
         int testId = 0;
         SCSTestGenerator testGenerator = new SCSTestGenerator();
-        testGenerator.generateSmallTestsV1();
+        testGenerator.addSmallTestsV1();
 
         while (testGenerator.hasNextTestCase()) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
