@@ -28,7 +28,7 @@ public class GlobalVars {
     public static double minimumValue;
 
     // finals
-    public static final double INF = 1e6;
+    public static final double INF = 1e8;
 
     // for reporting
     public static int numberOfBranchAndBoundNodes = 0;

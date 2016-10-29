@@ -23,6 +23,11 @@ public class Random {
             this.min = min;
             this.max = max;
         }
+
+        @Override
+        public String toString() {
+            return String.format("[%d    %d]", min, max);
+        }
     }
 
     public static class DRange {
@@ -31,6 +36,11 @@ public class Random {
         public DRange(double min, double max) {
             this.min = min;
             this.max = max;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[%.1f   %.1f]", min, max);
         }
     }
 }

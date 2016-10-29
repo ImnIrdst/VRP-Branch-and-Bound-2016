@@ -3,6 +3,7 @@ package Main.Graph;
 import Main.Algorithms.Other.Random;
 import Main.Algorithms.Other.Random.IRange;
 import Main.Algorithms.Other.Random.DRange;
+import Main.AutomatedTests.SCSTests.SCSTestCase;
 import Main.GlobalVars;
 
 import java.io.File;
@@ -221,6 +222,39 @@ public class Graph {
             for (Vertex v : graph.getVertices()) {
                 if (u.name.equals(v.name)) continue;
                 Edge e = new Edge(u, v, Random.getRandomIntInRange(edgeWeightsRange));
+                graph.addEdge(e);
+            }
+        }
+
+        return graph;
+    }
+
+    public static Graph buildRandomGraphFromTestCase(SCSTestCase testCase, int seed) {
+        Random.setSeed(seed);
+
+        Graph graph = new Graph();
+        // Add Depot Vertex
+        int capacity = (int) (testCase.customerQty * Random.getRandomDoubleInRange(testCase.capacityRange));
+        graph.addVertex(new Vertex("Dp", VertexType.DEPOT, testCase.vehicleQty, capacity, testCase.fixCost));
+
+        // Build the Customer Vertices
+        double sumOfProcessTimes = 0;
+        for (int i = 0; i < testCase.customerQty; i++) {
+            String name = "" + (char) ('A' + i);
+            double processTime = Random.getRandomDoubleInRange(testCase.processTimeRange);
+            double dueDate = Random.getRandomDoubleInRange(testCase.dueDateRange);
+            double penalty = Random.getRandomDoubleInRange(testCase.penaltyRange);
+            graph.addVertex(new Vertex(name, VertexType.CUSTOMER, processTime, dueDate, penalty));
+
+            sumOfProcessTimes += processTime;
+        }
+
+        // Add The Edges
+        for (Vertex u : graph.getVertices()) {
+            u.dueDate *= sumOfProcessTimes; // (0.4*sumOfProcessTimes - 0.7*sumOfProcessTimes)
+            for (Vertex v : graph.getVertices()) {
+                if (u.name.equals(v.name)) continue;
+                Edge e = new Edge(u, v, Random.getRandomDoubleInRange(testCase.edgeWeightRange));
                 graph.addEdge(e);
             }
         }

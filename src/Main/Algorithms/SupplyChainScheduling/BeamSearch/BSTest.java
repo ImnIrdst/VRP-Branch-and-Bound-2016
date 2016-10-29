@@ -52,7 +52,7 @@ public class BSTest {
         System.out.println(beamSearch.getHierarchy(beamSearch.bestNode));
 
         // export the result
-//         beamSearch.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
+         beamSearch.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
 
         // print stats
         System.out.println();

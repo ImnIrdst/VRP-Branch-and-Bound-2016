@@ -10,6 +10,7 @@ import java.util.Scanner;
 
 public class LoadRandomGraph {
     public static final String filePath = "resources/RandomRanges/ex1-automated-test-ranges-04-03.csv";
+
     public static Graph loadWithDoubleParams(long seed) throws FileNotFoundException {
         Scanner sc = new Scanner(new File(filePath));
 
