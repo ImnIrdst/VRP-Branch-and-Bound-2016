@@ -69,7 +69,8 @@ public class ATC {
 
             double newStartPenalty = Math.max(0, (graph.getDistance(graph.getDepot(), next) - next.dueDate) * next.penalty);
             double currentPenalty = Math.max(0, (arrivalTime + graph.getDistance(u, next) - next.dueDate) * next.penalty);
-            if (currentVehiclePenalties + currentPenalty < vehicleFixedCost + newStartPenalty && remainedCapacity > 0) { // TODO: multiply bestValue by a coefficient
+            if ((currentVehiclePenalties + currentPenalty < vehicleFixedCost + newStartPenalty && remainedCapacity > 0)
+                    || remainedVehicles <= 0) { // TODO: multiply bestValue by a coefficient
                 arrivalTime += graph.getDistance(u, next);
                 result += graph.getDistance(u, next);
                 result += currentPenalty;

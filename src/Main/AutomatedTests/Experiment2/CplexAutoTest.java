@@ -63,7 +63,7 @@ public class CplexAutoTest {
             SCSTestCase testCase = testGenerator.getNextTestCase();
 
             Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
-            if (testId != 71 && testId != 95) continue;
+//            if (testId != 71 && testId != 95) continue;
 
             Graph preprocessedGraph = originalGraph;
             preprocessedGraph.setIds();

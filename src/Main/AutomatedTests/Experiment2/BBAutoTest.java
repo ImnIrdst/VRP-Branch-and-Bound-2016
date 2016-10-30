@@ -33,7 +33,7 @@ public class BBAutoTest {
         for (int testId = 0; testGenerator.hasNextTestCase(); testId++) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
-            if (testId != 71 && testId != 95) continue;
+//            if (testId != 2 && testId != 95) continue;
 
             // fill the global variables
             originalGraph.setIds();
@@ -58,7 +58,7 @@ public class BBAutoTest {
             GlobalVars.startTime = System.currentTimeMillis();
             try {
                 // run the branch and bound algorithm
-                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, atc.getCost() + 1e+9); // geneticAlgorithm.getMinimumCost()
+                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, atc.getCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
                 branchAndBound.run(GlobalVars.depotName);
                 branchAndBound.printTheAnswer();
                 GlobalVars.finishTime = System.currentTimeMillis();
