@@ -56,17 +56,19 @@ public class CplexAutoTest {
         out.println(tableHeader);
         out.flush();
 
-        int testId = 0;
         SCSTestGenerator testGenerator = new SCSTestGenerator();
         testGenerator.addSmallTestsV1();
 
-        while (testGenerator.hasNextTestCase()) {
+        for (int testId = 0; testGenerator.hasNextTestCase(); testId++) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
-            Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId++);
+
+            Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
+            if (testId != 71 && testId != 95) continue;
 
             Graph preprocessedGraph = originalGraph;
             preprocessedGraph.setIds();
             GlobalVars.setTheGlobalVariables(preprocessedGraph);
+            preprocessedGraph.printVertices();
 
             t = preprocessedGraph.getAdjacencyMatrix();
             depotId = GlobalVars.depotId;
@@ -428,7 +430,35 @@ public class CplexAutoTest {
 
                 System.out.println("Status = " + SCS.getStatus());
                 System.out.println("Objective Value = " + String.format("%.2f", SCS.getObjValue()));
+                System.out.println("yk, mdt, zk, dd, T, penalty");
+                for (int k = 0; k < vehiclesQty; k++) {
+                    long yk = Math.round(SCS.getValue(y[k]));
+                    System.out.printf("Y%d(%d, %.1f) ", k, yk, SCS.getValue(S[k]));
+                    if (yk == 0) System.out.println();
+                    if (yk == 0) continue;
+                    for (int i = nodesQty - 1; i >= 0; i--) {
+                        for (int j = nodesQty - 1; j >= 0; j--) {
+//                        long xijk = Math.round(SCS.getValue(x[i][j][k]));
+                            double zjk = (SCS.getValue(D[j]));
+                            double djk = (SCS.getValue(T[j]));
+                            double xijk = (SCS.getValue(x[i][j][k]));
 
+                            if (xijk == 0) continue;
+                            Vertex u = ppGraph.getVertexById(i);
+                            Vertex v = ppGraph.getVertexById(j);
+
+                            System.out.print(" "
+                                    + u
+                                    + " -("
+                                    + String.format("%.2f", ppGraph.getDistance(u, v))
+                                    + String.format(", %.2f", zjk) + String.format(", %.2f", djk * v.penalty)
+                                    + ")-> "
+                                    + v + ","
+                            );
+                        }
+                    }
+                    System.out.println();
+                }
                 status = "" + SCS.getStatus();
 
                 expandedNodes = "" + SCS.getNnodes64();
@@ -450,6 +480,7 @@ public class CplexAutoTest {
         out.flush();
 
         System.out.println(GlobalVars.dashesLine);
+        System.out.println(tableHeader);
         System.out.println(outputRow);
         System.out.println(GlobalVars.equalsLine);
         System.out.println();

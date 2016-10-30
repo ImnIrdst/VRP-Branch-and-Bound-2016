@@ -466,8 +466,8 @@ public class GeneticAlgorithm {
                             vehiclesUsageCost + travelTimeCost + penaltyCost);
             }
 
-            this.isCostCalculated = true;
             this.cost = vehiclesUsageCost + travelTimeCost + penaltyCost;
+            this.isCostCalculated = true;
             return cost;
         }
 

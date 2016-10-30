@@ -1,5 +1,6 @@
 package Main.AutomatedTests;
 
+import Main.AutomatedTests.Experiment2.BBAutoTest;
 import Main.AutomatedTests.Experiment2.CplexAutoTest;
 
 /**
@@ -7,6 +8,8 @@ import Main.AutomatedTests.Experiment2.CplexAutoTest;
  */
 public class AutoTestsMain {
     public static void main(String[] args) throws Exception {
+        BBAutoTest.main(args);
         CplexAutoTest.main(args);
+
     }
 }

@@ -380,8 +380,17 @@ public class Graph {
      * @return distance between to nodes (by name)
      */
     public double getDistance(String uName, String vName) {
-        Vertex u = getVertexByName(uName);
         Vertex v = getVertexByName(vName);
+        Vertex u = getVertexByName(uName);
+        return getDistance(u, v);
+    }
+
+    /**
+     * @return distance between to nodes (by id)
+     */
+    public double getDistance(int uId, int vId){
+        Vertex v = getVertexById(uId);
+        Vertex u = getVertexById(vId);
         return getDistance(u, v);
     }
 

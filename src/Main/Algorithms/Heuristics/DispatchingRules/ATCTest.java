@@ -13,7 +13,7 @@ import java.io.FileNotFoundException;
  */
 public class ATCTest {
     public static void main(String[] args) throws FileNotFoundException {
-        Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(1);
+        Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(26);
 
 //        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
 //                "resources/InputData/ISFNodes-10-Customers.csv",
@@ -37,7 +37,6 @@ public class ATCTest {
         System.out.println("Number of Vehicles: " + GlobalVars.numberOfVehicles + "\n");
         // run the genetic algorithm
 
-        int geneticTime = 10000;
         ATC atc = new ATC(preprocessedGraph);
         atc.run();
 

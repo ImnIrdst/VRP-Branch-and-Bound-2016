@@ -12,7 +12,7 @@ import java.io.FileNotFoundException;
  */
 public class GeneticTest4 {
     public static void main(String[] args) throws FileNotFoundException {
-        Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(1);
+        Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(26);
 
 //        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
 //                "resources/InputData/ISFNodes-10-Customers.csv",

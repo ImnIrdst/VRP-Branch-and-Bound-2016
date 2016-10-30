@@ -1,6 +1,8 @@
 package Main.MathematicalModel;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
+import Main.AutomatedTests.SCSTests.SCSTestCase;
+import Main.AutomatedTests.SCSTests.SCSTestGenerator;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
@@ -40,9 +42,19 @@ public class Model {
 //        WriteData();
     }
 
-    public static void ReadData() throws Exception {
 
-        Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(1);
+    static Graph globalGraph;
+    public static void main2(SCSTestCase testCase, int testId) throws Exception {
+        globalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
+
+        ReadData();
+        Create_Model();
+        Solve_Model();
+    }
+
+    public static void ReadData() throws Exception {
+        Graph originalGraph = globalGraph;
+//        Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(1);
 //        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
 //                "resources/InputData/ISFNodes-06-Customers.csv",
 //                "resources/InputData/ISFRoads.csv"
@@ -396,6 +408,7 @@ public class Model {
     public static void Solve_Model() throws Exception {
 //        SCS.setParam(IloCplex.IntParam.Simplex.Display, 0);
         SCS.setParam(IloCplex.DoubleParam.EpInt, 1e-10);
+        SCS.setOut(null);
         long startTime = System.currentTimeMillis();
         if (SCS.solve()) {
             long finishTime = System.currentTimeMillis();

@@ -1,1 +1,3 @@
 TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,CPUTime,Nodes,Status
+71,5,3,100.0,[0.4   0.7],[1.0   100.0],[0.5   1.0],[1.0   100.0],[1.0   100.0],2954.50,1.49,6399,Optimal
+95,5,5,1.0,[0.4   0.7],[1.0   100.0],[0.5   1.0],[45.0   55.0],[1.0   100.0],11545.15,1.83,10008,Optimal
