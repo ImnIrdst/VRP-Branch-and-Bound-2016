@@ -33,7 +33,7 @@ public class BBAutoTest {
         for (int testId = 0; testGenerator.hasNextTestCase(); testId++) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
-//            if (testId != 2 && testId != 95) continue;
+            if (testId != 485) continue;
 
             // fill the global variables
             originalGraph.setIds();
@@ -50,15 +50,22 @@ public class BBAutoTest {
             atc.run();
             System.out.println(atc);
 
+//            Main.Algorithms.Heuristics.GA.GA4.GeneticAlgorithm geneticAlgorithm =
+//                    new Main.Algorithms.Heuristics.GA.GA4.GeneticAlgorithm(
+//                            originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles,200);
+//            geneticAlgorithm.run(10000,2000);
+//            geneticAlgorithm.printBestChromosome();
+
+
             String expandedNodes = "";
             String elapsedTime = "";
             String optimalValue = "";
-            String upperBound = String.format("%.2f", atc.getCost() + 1e-9);
+            String upperBound = String.format("%.2f", atc.getMinimumCost() + 1e-9);
 
             GlobalVars.startTime = System.currentTimeMillis();
             try {
                 // run the branch and bound algorithm
-                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, atc.getCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
+                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, atc.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
                 branchAndBound.run(GlobalVars.depotName);
                 branchAndBound.printTheAnswer();
                 GlobalVars.finishTime = System.currentTimeMillis();

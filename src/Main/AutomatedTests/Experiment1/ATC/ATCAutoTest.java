@@ -47,8 +47,8 @@ public class ATCAutoTest {
             atc.run();
 
             String time = String.format("%.2f", atc.getElapsedTimeInSeconds());
-            String cost = String.format("%.2f", atc.getCost());
-            if (atc.getCost() > GlobalVars.INF - 1e-9) cost = "NA";
+            String cost = String.format("%.2f", atc.getMinimumCost());
+            if (atc.getMinimumCost() > GlobalVars.INF - 1e-9) cost = "NA";
 
 
             String tableRow = String.format("%d,%d,%d,%d,%s,%s", id, testId,

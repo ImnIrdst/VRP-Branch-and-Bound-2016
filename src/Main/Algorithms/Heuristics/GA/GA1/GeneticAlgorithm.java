@@ -205,8 +205,13 @@ public class GeneticAlgorithm {
         Chromosome bestChromosome = null;
         double bestValue = GlobalVars.INF + 1e-9;
         for (int i = begin; i < end; i++)
-            if (population.get(i).getCost() < bestValue) bestChromosome = population.get(i);
+            if (population.get(i).getCost() < bestValue){
+                bestChromosome = population.get(i);
+                bestValue = population.get(i).getCost();
+            }
 
+        if (bestValue >= GlobalVars.INF + 1e-9)
+            bestChromosome = population.get(begin);
         return bestChromosome;
     }
 

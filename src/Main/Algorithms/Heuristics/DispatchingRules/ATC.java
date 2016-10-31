@@ -155,7 +155,7 @@ public class ATC {
         return (finishTime - startTime) / 1000.0;
     }
 
-    public double getCost() {
+    public double getMinimumCost() {
         return result;
     }
 
