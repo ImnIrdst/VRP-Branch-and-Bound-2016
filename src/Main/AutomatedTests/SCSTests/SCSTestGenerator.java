@@ -16,8 +16,8 @@ public class SCSTestGenerator {
      * Generates Small Test cases
      */
     public void addSmallTestsV1() {
-        int[] customerQtys = new int[]{5, 8, 11};
-        int[] vehicleQtys = new int[]{3, 5};
+        int[] customerQtys = new int[]{4, 6, 10};
+        int[] vehicleQtys = new int[]{3, 4};
         double[] fixedCosts = new double[]{1, 10, 100};
         DRange[] capacityRanges = new DRange[]{new DRange(0.4, 0.7)};
         DRange[] processTimeRanges = new DRange[]{new DRange(1, 100)};
