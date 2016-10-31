@@ -200,8 +200,8 @@ public class GeneticAlgorithm {
         if (getRandom0to1() > MUTATION_PROBABILITY)
             return;
 
-        int i = getRandInt(chromosome.size);
-        int j = getRandInt(chromosome.size);
+        int i = getRandInt(chromosome.customers.size());
+        int j = getRandInt(chromosome.customers.size());
 
         // swap
         int tmp = chromosome.get(i);
@@ -218,8 +218,8 @@ public class GeneticAlgorithm {
         if (getRandom0to1() > MUTATION_PROBABILITY)
             return;
 
-        int i = getRandInt(chromosome.size);
-        int j = getRandInt(chromosome.size);
+        int i = getRandInt(chromosome.customers.size());
+        int j = getRandInt(chromosome.customers.size());
 
         if (i > j) {
             int t = i;
@@ -248,7 +248,7 @@ public class GeneticAlgorithm {
     public Chromosome crossOver(Chromosome chromosome1, Chromosome chromosome2) {
         if (chromosome1.hashCode() == chromosome2.hashCode()) return chromosome1;
 
-        int size = chromosome1.size;
+        int size = chromosome1.customers.size();
         int mid = getRandInt(size);
         Chromosome newChromosome = new Chromosome();
 
@@ -262,7 +262,7 @@ public class GeneticAlgorithm {
             remainedCapacity[chromosome1.get(i)]--;
         }
 
-        for (int i = 0; i < size && newChromosome.size < size; i++) {
+        for (int i = 0; i < size && newChromosome.customers.size() < size; i++) {
             if (remainedCapacity[chromosome2.get(i)] <= 0) continue;
 
             newChromosome.add(chromosome2.get(i));
@@ -329,57 +329,60 @@ public class GeneticAlgorithm {
      * Chromosome class for a setCustomer of ids (for VRPD) problem
      */
     private class Chromosome implements Comparable<Chromosome> {
-        public int size;
-        public List<Integer> list;
+        public List<Integer> customers;
 
         private double cost;
+        private double travelCost;
+        private double penaltyCost;
+        private double vehicleUsageCost;
+
         private boolean isCostCalculated = false;
 
         /**
          * default constructor
          */
         public Chromosome() {
-            list = new ArrayList<>();
+            customers = new ArrayList<>();
         }
 
         /**
          * copy constructor
          */
         public Chromosome(Chromosome chromosome) {
-            this.size = chromosome.size;
-            this.list = new ArrayList<>(chromosome.list);
+            this.customers = new ArrayList<>(chromosome.customers);
         }
 
         /**
          * getCustomer value in idx position
          */
         public int get(int idx) {
-            return list.get(idx);
+            return customers.get(idx);
         }
 
         /**
          * setCustomer value in idx position
          */
         public void set(int idx, int value) {
-            list.set(idx, value);
+            customers.set(idx, value);
         }
 
         /**
          * adds the value to the end of customers
          */
         public void add(int value) {
-            list.add(value);
-            size++;
+            customers.add(value);
         }
 
 //
 
-        List<Integer> orderThem(List<Integer> customers){
+        /**
+         * randomly order them.
+         */
+        List<Integer> orderThem(List<Integer> customers) {
             Collections.shuffle(customers);
 
-            return null;
+            return customers;
         }
-
 
         /**
          * Using DeadLines
@@ -416,34 +419,21 @@ public class GeneticAlgorithm {
             if (isCostCalculated == true)
                 return cost;
 
-            List<Integer>[] batch = new ArrayList[vehicleQty + 1];
-            for (int i=0 ; i<list.size() ; i++){
-                if (batch[list.get(i)] == null)
-                    batch[list.get(i)] = new ArrayList<>();
-                batch[list.get(i)].add(i);
+            List<Integer>[] batch = new ArrayList[vehicleQty];
+            for (int i = 0; i < customers.size(); i++) {
+                if (batch[customers.get(i)] == null)
+                    batch[customers.get(i)] = new ArrayList<>();
+                batch[customers.get(i)].add(i);
             }
 
+            vehicleUsageCost = 0;
+            travelCost = 0;
+            penaltyCost = 0;
 
-            double vehiclesUsageCost = 0;
-            double travelTimeCost = 0;
-            double penaltyCost = 0;
             double cumulativeProcessTime = 0;
-
             Vertex depot = graph.getVertexById(depotId);
 
-            if (IS_DEBUG_MODE) {
-                if (list.toString().equals("[6, 6, 6, 6, 6, 6, 6, 6]")) {
-                    list = list;
-                }
-                if (list.toString().equals("[4, 7, 6, 3, 0, 8, 5, 1, 2]")) {
-                    list = list;
-                }
-
-                System.out.println("-------------");
-                System.out.println(this);
-            }
-
-            for (int i=0 ; i<batch.length; i++){
+            for (int i = 0; i < batch.length; i++) {
                 if (batch[i] == null) continue;
 
                 if (batch[i].size() > depot.capacity) {
@@ -451,11 +441,10 @@ public class GeneticAlgorithm {
                     this.isCostCalculated = true;
                     return cost;
                 }
+                batch[i] = orderThem(batch[i]);
 
-                orderThem(batch[i]);
                 batch[i].add(depotId);
-
-                for (int j=0 ; j<batch[i].size() ; j++){
+                for (int j = 0; j < batch[i].size(); j++) {
                     int vId = batch[i].get(j);
                     Vertex v = graph.getVertexById(vId);
                     cumulativeProcessTime += v.processTime;
@@ -464,23 +453,13 @@ public class GeneticAlgorithm {
                 SimpleTSP tsp = new SimpleTSP(graph, batch[i], cumulativeProcessTime);
                 tsp.run();
 
-                vehiclesUsageCost += depot.fixedCost;
-                travelTimeCost += tsp.travelTime;
+                vehicleUsageCost += depot.fixedCost;
+                travelCost += tsp.travelTime;
                 penaltyCost += tsp.penaltyTaken;
-
-            }
-
-            if (IS_DEBUG_MODE) {
-                System.out.println("Cost: " + (vehiclesUsageCost + travelTimeCost + penaltyCost));
-
-                if (vehiclesUsageCost + travelTimeCost + penaltyCost < 94.5)
-                    System.out.printf("%s ||||| %.2f, %.2f, %.2f, %.2f\n",
-                            this.toString(), vehiclesUsageCost, travelTimeCost, penaltyCost,
-                            vehiclesUsageCost + travelTimeCost + penaltyCost);
             }
 
             this.isCostCalculated = true;
-            this.cost = vehiclesUsageCost + travelTimeCost + penaltyCost;
+            this.cost = vehicleUsageCost + travelCost + penaltyCost;
             return cost;
         }
 
@@ -491,12 +470,12 @@ public class GeneticAlgorithm {
 
         @Override
         public String toString() {
-            return list.toString();
+            return customers.toString();
         }
 
         @Override
         public int hashCode() {
-            return list.hashCode();
+            return customers.hashCode();
         }
     }
 }

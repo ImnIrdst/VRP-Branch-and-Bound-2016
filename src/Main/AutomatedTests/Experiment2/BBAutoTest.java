@@ -33,7 +33,7 @@ public class BBAutoTest {
         for (int testId = 0; testGenerator.hasNextTestCase(); testId++) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
-            if (testId != 485) continue;
+//            if (testId != 485) continue;
 
             // fill the global variables
             originalGraph.setIds();

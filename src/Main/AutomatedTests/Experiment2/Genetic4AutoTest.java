@@ -1,11 +1,10 @@
 package Main.AutomatedTests.Experiment2;
 
-import Main.Algorithms.Heuristics.GA.GA1.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GA4.GeneticAlgorithm;
 import Main.AutomatedTests.SCSTests.SCSTestCase;
 import Main.AutomatedTests.SCSTests.SCSTestGenerator;
 import Main.GlobalVars;
 import Main.Graph.Graph;
-import Main.IOLoader.LoadRandomGraph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,12 +14,12 @@ import java.io.PrintWriter;
 /**
  * for running the algorithm
  */
-public class Genetic1AutoTest {
+public class Genetic4AutoTest {
     static final int testBatch = 10;
 
     public static void main(String[] args) throws FileNotFoundException {
         FileOutputStream fileOutputStream = new FileOutputStream(
-                new File("resources/Experiments/Ex2/ex2-automated-test-results-ga1-tmp.csv"));
+                new File("resources/Experiments/Ex2/ex2-automated-test-results-ga4-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
 
         int id = 0;
