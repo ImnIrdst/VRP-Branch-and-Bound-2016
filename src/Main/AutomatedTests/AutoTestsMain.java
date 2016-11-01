@@ -7,8 +7,10 @@ import Main.AutomatedTests.Experiment2.*;
  */
 public class AutoTestsMain {
     public static void main(String[] args) throws Exception {
-        BBAutoTest.main(args);
         CplexAutoTest.main(args);
+        BBGAAutoTest.main(args);
+        BBATCAutoTest.main(args);
+        BSAutoTest.main(args);
         Genetic1AutoTest.main(args);
         Genetic3AutoTest.main(args);
         Genetic4AutoTest.main(args);

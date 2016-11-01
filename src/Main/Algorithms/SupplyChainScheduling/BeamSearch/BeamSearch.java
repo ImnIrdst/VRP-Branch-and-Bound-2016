@@ -31,8 +31,7 @@ public class BeamSearch {
 
     private int numberOfFinalNodes = 0;
 
-    private double theta = 0.10;              // pruning probability
-    private double delta2 = 0.005;               // step size for theta
+    private double theta;              // pruning probability
     private double updateTime = 1000;
     private double bsCheckPoint = 100;
 
@@ -51,7 +50,7 @@ public class BeamSearch {
         this.theta = theta0;
         this.minimumCost = upperBound;
         this.startTime = System.currentTimeMillis();
-        this.timeLimit = Math.exp(theta * graph.getVertices().size() / 8.) * 1000;
+        this.timeLimit = 1000;
 
         System.out.printf("Time Limit %.1f ", timeLimit / 1000.);
         System.out.println("Theta0: " + theta0);
@@ -77,7 +76,7 @@ public class BeamSearch {
      */
     public void run(String depotName) {
         System.out.println(GlobalVars.equalsLine);
-        System.out.println("\t\t\t\t\t\t\tBranch and bound algorithm");
+        System.out.println("\t\t\t\t\t\t\tBeam Search algorithm");
         System.out.println(GlobalVars.equalsLine);
 
         // add initial node
@@ -133,7 +132,7 @@ public class BeamSearch {
                 break;
             }
 
-            if (numberOfFinalNodes > 1000) break;
+//            if (numberOfFinalNodes > 1000) break;
 
         }
     }
@@ -172,14 +171,12 @@ public class BeamSearch {
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;
 
-            // theta = Math.min(1.0, theta + delta2);
             lastUpdateCheckpoint = System.currentTimeMillis();
             System.out.printf("^^ Time: %.0fs, Theta: %.2f, Minimum Cost: %.2f, PQSize: %d, Nodes: %d\n",
                     (System.currentTimeMillis() - startTime) / 1000.0, theta, minimumCost, pq.size(), GlobalVars.numberOfBranchAndBoundNodes);
 
             return;
         }
-
 
 
         // if this node is a intermediate node add it to the queue.
@@ -194,7 +191,7 @@ public class BeamSearch {
      * @return true of node can be pruned from the tree
      */
     boolean canBePruned(BSNode newNode) {
-        if (!pq.isEmpty() && Random.getRandomDoubleInRange(new Random.DRange(0, 1)) < 0.2)
+        if (!pq.isEmpty() && Random.getRandomDoubleInRange(new Random.DRange(0, 1)) < 1 - theta)
             return true;
 
         if (newNode.vehicleUsed > GlobalVars.numberOfVehicles)

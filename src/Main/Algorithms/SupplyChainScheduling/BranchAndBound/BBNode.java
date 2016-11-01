@@ -16,7 +16,7 @@ import java.util.*;
  */
 public class BBNode {
     public Vertex vertex;          // current vertex of the graph
-    public BBNode parent;          // parent of the node in the BBAutoTest tree
+    public BBNode parent;          // parent of the node in the BSAutoTest tree
 
     public List<Integer> waitingList; // customers that must be served
     public double cumulativeProcessTime; // process time of served customers

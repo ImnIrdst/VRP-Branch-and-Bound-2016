@@ -32,7 +32,7 @@ public class SCSTestGenerator {
                         for (DRange processTimeRange : processTimeRanges) {
                             for (DRange dueDateRange : dueDateRanges) {
                                 for (DRange penaltyRange : penaltyRanges) {
-                                    for (DRange edgeWeightRange : penaltyRanges) {
+                                    for (DRange edgeWeightRange : edgeWeightsRanges) {
                                         testCases.add(new SCSTestCase(customerQty, vehicleQty, fixCost, capacityRange,
                                                 processTimeRange, dueDateRange, penaltyRange, edgeWeightRange));
                                     }
@@ -65,7 +65,7 @@ public class SCSTestGenerator {
                         for (DRange processTimeRange : processTimeRanges) {
                             for (DRange dueDateRange : dueDateRanges) {
                                 for (DRange penaltyRange : penaltyRanges) {
-                                    for (DRange edgeWeightRange : penaltyRanges) {
+                                    for (DRange edgeWeightRange : edgeWeightsRanges) {
                                         testCases.add(new SCSTestCase(customerQty, vehicleQty, fixCost, capacityRange,
                                                 processTimeRange, dueDateRange, penaltyRange, edgeWeightRange));
                                     }
