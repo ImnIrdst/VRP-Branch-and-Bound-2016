@@ -15,6 +15,8 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 
 public class CplexAutoTest {
+    private static final int INSTANCES_PER_TESTCASE = 10;
+    
     static IloCplex SCS;                            // crew rostering problem
     static IloNumVar[][][] x;
     static IloNumVar[] y;
@@ -61,33 +63,35 @@ public class CplexAutoTest {
 
         for (int testId = 0; testGenerator.hasNextTestCase(); testId++) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
+            for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
 
-            Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
+                Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
 //            if (testId != 71 && testId != 95) continue;
 
-            Graph preprocessedGraph = originalGraph;
-            preprocessedGraph.setIds();
-            GlobalVars.setTheGlobalVariables(preprocessedGraph);
-            preprocessedGraph.printVertices();
+                Graph preprocessedGraph = originalGraph;
+                preprocessedGraph.setIds();
+                GlobalVars.setTheGlobalVariables(preprocessedGraph);
+                preprocessedGraph.printVertices();
 
-            t = preprocessedGraph.getAdjacencyMatrix();
-            depotId = GlobalVars.depotId;
-            depot = GlobalVars.depot;
-            ppGraph = preprocessedGraph;
-            vehicleFixCost = GlobalVars.depot.fixedCost;
-            vehicleCapacity = GlobalVars.depot.capacity;
-            nodesQty = GlobalVars.numberOfNodes;
-            customersQty = GlobalVars.numberOfCustomers;
-            vehiclesQty = GlobalVars.numberOfVehicles;
+                t = preprocessedGraph.getAdjacencyMatrix();
+                depotId = GlobalVars.depotId;
+                depot = GlobalVars.depot;
+                ppGraph = preprocessedGraph;
+                vehicleFixCost = GlobalVars.depot.fixedCost;
+                vehicleCapacity = GlobalVars.depot.capacity;
+                nodesQty = GlobalVars.numberOfNodes;
+                customersQty = GlobalVars.numberOfCustomers;
+                vehiclesQty = GlobalVars.numberOfVehicles;
 
-            System.out.println("Number of Customers, Vehicles: " +
-                    GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
+                System.out.println("Number of Customers, Vehicles: " +
+                        GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
-            outputRow = "" + testId + "," + testCase.getCSVRow() + ",";
-            Create_Model();
-            Solve_Model();
+                outputRow = "" + testId + "," + testCase.getCSVRow() + ",";
+                Create_Model();
+                Solve_Model();
+            }
+            out.close();
         }
-        out.close();
     }
 
     public static void Create_Model() throws Exception {

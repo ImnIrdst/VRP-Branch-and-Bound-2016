@@ -15,6 +15,8 @@ import java.io.PrintWriter;
  * for running the algorithm
  */
 public class BBGAAutoTest {
+    private static final int INSTANCES_PER_TESTCASE = 10;
+
     public static void main(String[] args) throws FileNotFoundException {
         FileOutputStream fileOutputStream = new FileOutputStream(
                 new File("resources/Experiments/Ex2/ex2-automated-test-results-bb-ga-tmp.csv"));
@@ -29,64 +31,66 @@ public class BBGAAutoTest {
 
         for (int testId = 0; testGenerator.hasNextTestCase(); testId++) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
-            Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
+            for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
+                Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
 //            if (testId != 485) continue;
 
-            // fill the global variables
-            originalGraph.setIds();
-            GlobalVars.setTheGlobalVariables(originalGraph);
-            originalGraph.printVertices();
+                // fill the global variables
+                originalGraph.setIds();
+                GlobalVars.setTheGlobalVariables(originalGraph);
+                originalGraph.printVertices();
 //            preprocessedGraph.printGraph();
 
-            System.out.println("Number of Customers, Vehicles: " +
-                    GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
+                System.out.println("Number of Customers, Vehicles: " +
+                        GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
 
-            // run the genetic algorithm
-            Main.Algorithms.Heuristics.GA.GA4.GeneticAlgorithm geneticAlgorithm =
-                    new Main.Algorithms.Heuristics.GA.GA4.GeneticAlgorithm(
-                            originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
-            geneticAlgorithm.run(10000, 1000);
-            geneticAlgorithm.printBestChromosome();
+                // run the genetic algorithm
+                Main.Algorithms.Heuristics.GA.GA4.GeneticAlgorithm geneticAlgorithm =
+                        new Main.Algorithms.Heuristics.GA.GA4.GeneticAlgorithm(
+                                originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
+                geneticAlgorithm.run(10000, 1000);
+                geneticAlgorithm.printBestChromosome();
 
 
-            String expandedNodes = "";
-            String elapsedTime = "";
-            String optimalValue = "";
-            String upperBound = String.format("%.2f", geneticAlgorithm.getMinimumCost() + 1e-9);
+                String expandedNodes = "";
+                String elapsedTime = "";
+                String optimalValue = "";
+                String upperBound = String.format("%.2f", geneticAlgorithm.getMinimumCost() + 1e-9);
 
-            GlobalVars.startTime = System.currentTimeMillis();
-            try {
-                // run the branch and bound algorithm
-                BranchAndBound branchAndBound = new BranchAndBound(originalGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
-                branchAndBound.run(GlobalVars.depotName);
-                branchAndBound.printTheAnswer();
-                System.out.println(GlobalVars.dashesLine);
+                GlobalVars.startTime = System.currentTimeMillis();
+                try {
+                    // run the branch and bound algorithm
+                    BranchAndBound branchAndBound = new BranchAndBound(originalGraph, geneticAlgorithm.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
+                    branchAndBound.run(GlobalVars.depotName);
+                    branchAndBound.printTheAnswer();
+                    System.out.println(GlobalVars.dashesLine);
+                    GlobalVars.finishTime = System.currentTimeMillis();
+                    System.out.printf("Optimal Cost: %.2f\n", branchAndBound.bestNode.getCost());
+
+                    optimalValue = String.format("%.2f", branchAndBound.minimumCost);
+                } catch (NullPointerException e) {
+                    optimalValue = "NA";
+                } catch (OutOfMemoryError e) {
+                    optimalValue = "ML";
+                }
                 GlobalVars.finishTime = System.currentTimeMillis();
-                System.out.printf("Optimal Cost: %.2f\n", branchAndBound.bestNode.getCost());
-
-                optimalValue = String.format("%.2f", branchAndBound.minimumCost);
-            } catch (NullPointerException e) {
-                optimalValue = "NA";
-            } catch (OutOfMemoryError e) {
-                optimalValue = "ML";
-            }
-            GlobalVars.finishTime = System.currentTimeMillis();
-            expandedNodes = "" + GlobalVars.numberOfBranchAndBoundNodes;
-            elapsedTime = String.format("%.2f", (geneticAlgorithm.getElapsedTimeInSeconds() * 1000 + GlobalVars.finishTime - GlobalVars.startTime) / 1000.);
-            String tableRow = String.format("%d,%s,%s,%s,%s,%s", testId, testCase.getCSVRow(),
-                    optimalValue, elapsedTime, expandedNodes, upperBound);
+                expandedNodes = "" + GlobalVars.numberOfBranchAndBoundNodes;
+                elapsedTime = String.format("%.2f", (geneticAlgorithm.getElapsedTimeInSeconds() * 1000 + GlobalVars.finishTime - GlobalVars.startTime) / 1000.);
+                String tableRow = String.format("%d,%s,%s,%s,%s,%s", testId, testCase.getCSVRow(),
+                        optimalValue, elapsedTime, expandedNodes, upperBound);
 
 //            System.out.println(testInfo);
-            System.out.println(tableHeader);
-            System.out.println(tableRow);
-            System.out.println("Optimal Value: " + optimalValue);
-            System.out.println("Total Calculation time: " + elapsedTime + "s");
-            System.out.println("Number of Branch and Bound Tree Nodes: " + expandedNodes);
-            System.out.println("-------------------------------------");
+                System.out.println(tableHeader);
+                System.out.println(tableRow);
+                System.out.println("Optimal Value: " + optimalValue);
+                System.out.println("Total Calculation time: " + elapsedTime + "s");
+                System.out.println("Number of Branch and Bound Tree Nodes: " + expandedNodes);
+                System.out.println("-------------------------------------");
 
-            out.println(tableRow);
-            out.flush();
+                out.println(tableRow);
+                out.flush();
+            }
         }
         out.close();
     }
