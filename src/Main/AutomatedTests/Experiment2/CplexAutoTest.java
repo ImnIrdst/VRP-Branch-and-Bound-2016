@@ -90,8 +90,8 @@ public class CplexAutoTest {
                 Create_Model();
                 Solve_Model();
             }
-            out.close();
         }
+        out.close();
     }
 
     public static void Create_Model() throws Exception {

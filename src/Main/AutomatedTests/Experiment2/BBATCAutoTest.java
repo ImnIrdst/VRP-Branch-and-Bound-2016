@@ -30,7 +30,7 @@ public class BBATCAutoTest {
         SCSTestGenerator testGenerator = new SCSTestGenerator();
         testGenerator.addSmallTestsV1();
 
-        for (int testId = 0; testGenerator.hasNextTestCase(); ) {
+        for (int testId = 0; testGenerator.hasNextTestCase(); testId++) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
                 Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
