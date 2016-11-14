@@ -16,7 +16,7 @@ import java.io.PrintWriter;
 
 public class CplexAutoTest {
     private static final int INSTANCES_PER_TESTCASE = 10;
-    
+
     static IloCplex SCS;                            // crew rostering problem
     static IloNumVar[][][] x;
     static IloNumVar[] y;
@@ -50,6 +50,9 @@ public class CplexAutoTest {
     }
 
     public static void ReadData() throws Exception {
+        GlobalVars.log.println(GlobalVars.plusesLine);
+        GlobalVars.log.println("BEGIN CplexAutoTest");
+        GlobalVars.log.println(GlobalVars.plusesLine);
 
         FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/Experiments/Ex2/ex2-automated-test-results-cplex-tmp.csv"));
         out = new PrintWriter(fileOutputStream);
@@ -61,17 +64,17 @@ public class CplexAutoTest {
         SCSTestGenerator testGenerator = new SCSTestGenerator();
         testGenerator.addSmallTestsV1();
 
-        for (int testId = 0; testGenerator.hasNextTestCase(); testId++) {
+        for (int testId = 0; testGenerator.hasNextTestCase();) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
 
                 Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
-//            if (testId != 71 && testId != 95) continue;
+//                if (testId > 5) continue;
 
                 Graph preprocessedGraph = originalGraph;
                 preprocessedGraph.setIds();
                 GlobalVars.setTheGlobalVariables(preprocessedGraph);
-                preprocessedGraph.printVertices();
+                GlobalVars.log.println(originalGraph.getVerticesFormattedString());
 
                 t = preprocessedGraph.getAdjacencyMatrix();
                 depotId = GlobalVars.depotId;
@@ -83,7 +86,7 @@ public class CplexAutoTest {
                 customersQty = GlobalVars.numberOfCustomers;
                 vehiclesQty = GlobalVars.numberOfVehicles;
 
-                System.out.println("Number of Customers, Vehicles: " +
+                GlobalVars.log.println("Number of Customers, Vehicles: " +
                         GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
                 outputRow = "" + testId + "," + testCase.getCSVRow() + ",";
@@ -239,7 +242,7 @@ public class CplexAutoTest {
             expr2.clear();
         }
 
-        System.out.println("Vehicle Capacity: " + vehicleCapacity);
+//        GlobalVars.log.println("Vehicle Capacity: " + vehicleCapacity);
     }
 
     /**
@@ -432,26 +435,26 @@ public class CplexAutoTest {
                 elapsedTime = String.format("%.2f", (finishTime - startTime) / 1000.);
                 optimalValue = String.format("%.2f", SCS.getObjValue());
 
-                System.out.println("Status = " + SCS.getStatus());
-                System.out.println("Objective Value = " + String.format("%.2f", SCS.getObjValue()));
-                System.out.println("yk, mdt, zk, dd, T, penalty");
+                GlobalVars.log.println("Status = " + SCS.getStatus());
+                GlobalVars.log.println("Objective Value = " + String.format("%.2f", SCS.getObjValue()));
+                GlobalVars.log.println("yk, mdt, zk, dd, T, penalty");
                 for (int k = 0; k < vehiclesQty; k++) {
                     long yk = Math.round(SCS.getValue(y[k]));
-                    System.out.printf("Y%d(%d, %.1f) ", k, yk, SCS.getValue(S[k]));
-                    if (yk == 0) System.out.println();
+                    GlobalVars.log.printf("Y%d(%d, %.1f) ", k, yk, SCS.getValue(S[k]));
+                    if (yk == 0) GlobalVars.log.println();
                     if (yk == 0) continue;
                     for (int i = nodesQty - 1; i >= 0; i--) {
                         for (int j = nodesQty - 1; j >= 0; j--) {
-//                        long xijk = Math.round(SCS.getValue(x[i][j][k]));
+                        long xijk = Math.round(SCS.getValue(x[i][j][k]));
                             double zjk = (SCS.getValue(D[j]));
                             double djk = (SCS.getValue(T[j]));
-                            double xijk = (SCS.getValue(x[i][j][k]));
+//                            double xijk = (SCS.getValue(x[i][j][k]));
 
                             if (xijk == 0) continue;
                             Vertex u = ppGraph.getVertexById(i);
                             Vertex v = ppGraph.getVertexById(j);
 
-                            System.out.print(" "
+                            GlobalVars.log.print(" "
                                     + u
                                     + " -("
                                     + String.format("%.2f", ppGraph.getDistance(u, v))
@@ -461,40 +464,44 @@ public class CplexAutoTest {
                             );
                         }
                     }
-                    System.out.println();
+                    GlobalVars.log.println();
                 }
                 status = "" + SCS.getStatus();
 
                 expandedNodes = "" + SCS.getNnodes64();
-                System.out.println("Number of Nodes: " + SCS.getNnodes64());
-                System.out.printf("Processing Time: %.2fs\n", (finishTime - startTime) / 1000.);
+                GlobalVars.log.println("Number of Nodes: " + SCS.getNnodes64());
+                GlobalVars.log.printf("Processing Time: %.2fs\n", (finishTime - startTime) / 1000.);
             } else {
                 long finishTime = System.currentTimeMillis();
                 elapsedTime = String.format("%.2f", (finishTime - startTime) / 1000.);
                 optimalValue = "NA";
-                System.out.println("Can't be solved!!!!");
+                GlobalVars.log.println("Can't be solved!!!!");
             }
-        } catch (Exception e) {
+
+        } catch (Exception | java.lang.OutOfMemoryError e) {
             optimalValue = "ML";
             long finishTime = System.currentTimeMillis();
             elapsedTime = String.format("%.2f", (finishTime - startTime) / 1000.);
         }
-        outputRow += optimalValue + "," + elapsedTime + "," + expandedNodes + "," + status;
-        out.println(outputRow);
-        out.flush();
-
-        System.out.println(GlobalVars.dashesLine);
-        System.out.println(tableHeader);
-        System.out.println(outputRow);
-        System.out.println(GlobalVars.equalsLine);
-        System.out.println();
-
-
         SCS.clearUserCuts();
         SCS.clearCallbacks();
         SCS.clearLazyConstraints();
         SCS.clearCuts();
         SCS.clearModel();
+        SCS.end();
+
+        outputRow += optimalValue + "," + elapsedTime + "," + expandedNodes + "," + status;
+        out.println(outputRow);
+        out.flush();
+        GlobalVars.log.flush();
+
+//        GlobalVars.log.println(GlobalVars.dashesLine);
+//        GlobalVars.log.println(tableHeader);
+        GlobalVars.log.println(outputRow);
+//        GlobalVars.log.println(GlobalVars.equalsLine);
+//        GlobalVars.log.println();
+
+        System.out.println("Cplex: " + outputRow);
     }
 
     public static Vertex vertexi(int i) {

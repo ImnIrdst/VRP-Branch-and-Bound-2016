@@ -1,8 +1,6 @@
 package Main.AutomatedTests.Experiment1.BeamSearch;
 
-import Main.Algorithms.Heuristics.GA.GA1.GeneticAlgorithm;
 import Main.Algorithms.SupplyChainScheduling.BeamSearch.BeamSearch;
-import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.IOLoader.LoadRandomGraph;
@@ -31,7 +29,7 @@ public class BSAutoTest {
             // fill the global variables
             originalGraph.setIds();
             GlobalVars.setTheGlobalVariables(originalGraph);
-            originalGraph.printVertices();
+            originalGraph.getVerticesFormattedString();
 //            preprocessedGraph.printGraph();
 
             System.out.println("Number of Customers, Vehicles: " +

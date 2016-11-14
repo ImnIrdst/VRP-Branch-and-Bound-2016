@@ -1,15 +1,12 @@
 package Main.AutomatedTests.Experiment2;
 
 import Main.Algorithms.Heuristics.DispatchingRules.ATC;
-import Main.Algorithms.Heuristics.GA.GA1.GeneticAlgorithm;
 import Main.Algorithms.Other.Random;
 import Main.Algorithms.SupplyChainScheduling.BeamSearch.BeamSearch;
-import Main.Algorithms.SupplyChainScheduling.BranchAndBound.BranchAndBound;
 import Main.AutomatedTests.SCSTests.SCSTestCase;
 import Main.AutomatedTests.SCSTests.SCSTestGenerator;
 import Main.GlobalVars;
 import Main.Graph.Graph;
-import Main.IOLoader.LoadRandomGraph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,19 +20,24 @@ public class BSAutoTest {
     private static final int INSTANCES_PER_TESTCASE = 10;
 
     public static void main(String[] args) throws FileNotFoundException {
+        GlobalVars.log.println(GlobalVars.plusesLine);
+        GlobalVars.log.println("BEGIN BSAutoTest");
+        GlobalVars.log.println(GlobalVars.plusesLine);
+
         FileOutputStream fileOutputStream = new FileOutputStream(
                 new File("resources/Experiments/Ex2/ex2-automated-test-results-bs-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
 
         String tableHeader = "ID,TestID," + SCSTestCase.getTableHeader() + ",Cost,CPUTime,Nodes,theta0";
         out.println(tableHeader);
-        System.out.println(tableHeader);
+        GlobalVars.log.println(tableHeader);
 
+        double theta0 = 1;
         int id = 0, testBatch = 10;
         SCSTestGenerator testGenerator = new SCSTestGenerator();
         testGenerator.addSmallTestsV1();
         testGenerator.addBigTestsV1();
-        for (int testId = 0; testGenerator.hasNextTestCase(); testId++) {
+        for (int testId = 0; testGenerator.hasNextTestCase(); ) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
                 double sumOfCosts = 0;
@@ -44,15 +46,16 @@ public class BSAutoTest {
                 for (int batch = 0; batch < testBatch; batch++, id++) {
                     Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
                     Random.setSeed(System.currentTimeMillis());
-//            if (testId != 485) continue;
+                    // if (testId != 485) continue;
+//                    if (testId > 5) continue;
 
                     // fill the global variables
                     originalGraph.setIds();
                     GlobalVars.setTheGlobalVariables(originalGraph);
-                    originalGraph.printVertices();
+                    GlobalVars.log.println(originalGraph.getVerticesFormattedString());
 //            preprocessedGraph.printGraph();
 
-                    System.out.println("Number of Customers, Vehicles: " +
+                    GlobalVars.log.println("Number of Customers, Vehicles: " +
                             GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
 
@@ -61,15 +64,19 @@ public class BSAutoTest {
                     String optimalValue = "";
 
                     GlobalVars.startTime = System.currentTimeMillis();
-                    double theta0 = 1 / (Math.log10(GlobalVars.numberOfCustomers + 6));
+                    theta0 = 1 / (Math.log10(GlobalVars.numberOfCustomers + 6));
                     try {
+                        ATC atc = new ATC(originalGraph);
+                        atc.run();
+                        GlobalVars.log.println(atc);
+
                         // run the branch and bound algorithm
-                        BeamSearch beamSearch = new BeamSearch(originalGraph, theta0, GlobalVars.INF); // geneticAlgorithm.getMinimumCost()
+                        BeamSearch beamSearch = new BeamSearch(originalGraph, theta0, atc.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
                         beamSearch.run(GlobalVars.depotName);
                         beamSearch.printTheAnswer();
-                        System.out.println(GlobalVars.dashesLine);
+                        GlobalVars.log.println(GlobalVars.dashesLine);
                         GlobalVars.finishTime = System.currentTimeMillis();
-                        System.out.printf("Optimal Cost: %.2f\n", beamSearch.bestNode.getCost());
+                        GlobalVars.log.printf("Optimal Cost: %.2f\n", beamSearch.bestNode.getCost());
 
                         optimalValue = String.format("%.2f", beamSearch.minimumCost);
 
@@ -88,21 +95,25 @@ public class BSAutoTest {
                     String tableRow = String.format("%d,%d,%s,%s,%s,%s,%.2f", id, testId, testCase.getCSVRow(),
                             optimalValue, elapsedTime, expandedNodes, theta0);
 
-//            System.out.println(testInfo);
-                    System.out.println(tableHeader);
-                    System.out.println(tableRow);
-                    System.out.println("Optimal Value: " + optimalValue);
-                    System.out.println("Total Calculation time: " + elapsedTime + "s");
-                    System.out.println("Number of Branch and Bound Tree Nodes: " + expandedNodes);
-                    System.out.println("-------------------------------------");
+//            GlobalVars.log.println(testInfo);
+                    GlobalVars.log.println(tableHeader);
+                    GlobalVars.log.println(tableRow);
+                    GlobalVars.log.println("Optimal Value: " + optimalValue);
+                    GlobalVars.log.println("Total Calculation time: " + elapsedTime + "s");
+                    GlobalVars.log.println("Number of Branch and Bound Tree Nodes: " + expandedNodes);
+                    GlobalVars.log.println("-------------------------------------");
 
                     out.println(tableRow);
                     out.flush();
+                    GlobalVars.log.flush();
+
+                    System.out.println("BS: " + tableRow);
                 }
-                String tableRow = String.format("avg,%d,%s,%.2f,%.2f,%.0f,%s", testId, testCase.getCSVRow(),
-                        sumOfCosts / testBatch, sumOfTimes / testBatch, sumOfNodes / testBatch, "^");
+                String tableRow = String.format("avg,%d,%s,%.2f,%.2f,%.0f,%.2f", testId, testCase.getCSVRow(),
+                        sumOfCosts / testBatch, sumOfTimes / testBatch, sumOfNodes / testBatch, theta0);
                 out.println(tableRow);
                 out.flush();
+
             }
         }
         out.close();

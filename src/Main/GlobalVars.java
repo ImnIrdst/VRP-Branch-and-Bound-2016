@@ -3,7 +3,10 @@ package Main;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 
 /**
  * global variables used in branch and bound
@@ -40,6 +43,14 @@ public class GlobalVars {
             "--------------------------------------------------------------------------------------------";
     public static String plusesLine =
             "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
+
+    public static PrintWriter log;
+
+    public static void initTheLogFile(String filePath) throws FileNotFoundException {
+        FileOutputStream fileOutputStream = new FileOutputStream(
+                new File(filePath));
+        log = new PrintWriter(fileOutputStream);
+    }
 
     /**
      * initialize the global variables

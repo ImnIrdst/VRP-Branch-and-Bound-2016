@@ -27,7 +27,7 @@ public class BBAutoTest {
             // fill the global variables
             originalGraph.setIds();
             GlobalVars.setTheGlobalVariables(originalGraph);
-            originalGraph.printVertices();
+            originalGraph.getVerticesFormattedString();
 //            preprocessedGraph.printGraph();
 
             System.out.println("Number of Customers, Vehicles: " +

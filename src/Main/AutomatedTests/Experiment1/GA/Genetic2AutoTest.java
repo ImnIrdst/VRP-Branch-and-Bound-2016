@@ -35,7 +35,7 @@ public class Genetic2AutoTest {
             // fill the global variables
             originalGraph.setIds();
             GlobalVars.setTheGlobalVariables(originalGraph);
-            originalGraph.printVertices();
+            originalGraph.getVerticesFormattedString();
 //            preprocessedGraph.printGraph();
 
             System.out.println("Test # " + id);
@@ -49,7 +49,7 @@ public class Genetic2AutoTest {
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                     originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
             geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);
-//            geneticAlgorithm.printBestChromosome();
+//            geneticAlgorithm.bestChromosomeString();
 
 
             String iterations = "" + geneticAlgorithm.iterations;

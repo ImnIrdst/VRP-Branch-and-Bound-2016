@@ -52,8 +52,8 @@ public class BeamSearch {
         this.startTime = System.currentTimeMillis();
         this.timeLimit = 1000;
 
-        System.out.printf("Time Limit %.1f ", timeLimit / 1000.);
-        System.out.println("Theta0: " + theta0);
+        GlobalVars.log.printf("Time Limit %.1f ", timeLimit / 1000.);
+        GlobalVars.log.println("Theta0: " + theta0);
         // fill the Global variables
         GlobalVars.ppGraph = graph;
         GlobalVars.minimumValue = this.minimumCost;
@@ -75,9 +75,9 @@ public class BeamSearch {
      * @param depotName is name of the depot (node that contains customersVehicle)
      */
     public void run(String depotName) {
-        System.out.println(GlobalVars.equalsLine);
-        System.out.println("\t\t\t\t\t\t\tBeam Search algorithm");
-        System.out.println(GlobalVars.equalsLine);
+        GlobalVars.log.println(GlobalVars.equalsLine);
+        GlobalVars.log.println("\t\t\t\t\t\t\tBeam Search algorithm");
+        GlobalVars.log.println(GlobalVars.equalsLine);
 
         // add initial node
         Vertex depotVertex = graph.getVertexByName(depotName);
@@ -92,7 +92,7 @@ public class BeamSearch {
             if (getHierarchy(u).equals("Dp -> A -> H -> C -> G -> D -> Dp -> B -> E -> F"))
                 u = u;
             if (getIdsHierarchy(u).equals("[8, 4, 7, 1, 2, 6, 3, 0, 5, 8]"))
-                System.out.println(u.getPrintCostDetailsString());
+                GlobalVars.log.println(u.getPrintCostDetailsString());
 
             if (canBePruned(u)) continue;
             canBeAddedToPQ = new ArrayList<>();
@@ -127,7 +127,7 @@ public class BeamSearch {
             printProgress();
 
             if (System.currentTimeMillis() - lastUpdateCheckpoint > timeLimit) {
-                System.out.printf("Time Since Last Update: %.1f, Limit: %.1f",
+                GlobalVars.log.printf("Time Since Last Update: %.1f, Limit: %.1f",
                         (System.currentTimeMillis() - lastUpdateCheckpoint) / 1000., timeLimit);
                 break;
             }
@@ -141,9 +141,9 @@ public class BeamSearch {
         if (System.currentTimeMillis() - bsCheckPoint > updateTime) {
 //            theta = Math.min(1.0, theta - delta2);
             bsCheckPoint = System.currentTimeMillis();
-            System.out.printf("Time: %.1fs, Theta: %.2f, Minimum Cost: %.2f, PQSize: %d, Nodes: %d ",
+            GlobalVars.log.printf("Time: %.1fs, Theta: %.2f, Minimum Cost: %.2f, PQSize: %d, Nodes: %d ",
                     (System.currentTimeMillis() - startTime) / 1000.0, theta, minimumCost, pq.size(), GlobalVars.numberOfBranchAndBoundNodes);
-            System.out.printf("Time Since Last Update: %.1f, Limit: %.1f, FinalNodes: %d\n",
+            GlobalVars.log.printf("Time Since Last Update: %.1f, Limit: %.1f, FinalNodes: %d\n",
                     (System.currentTimeMillis() - lastUpdateCheckpoint) / 1000., timeLimit, numberOfFinalNodes);
         }
 
@@ -166,13 +166,13 @@ public class BeamSearch {
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == graph.getCustomersQty()
                 && newNode.getCost() <= minimumCost) {
-            // System.out.println(getIdsHierarchy(newNode));
+            // GlobalVars.log.println(getIdsHierarchy(newNode));
             bestNode = newNode;
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;
 
             lastUpdateCheckpoint = System.currentTimeMillis();
-            System.out.printf("^^ Time: %.0fs, Theta: %.2f, Minimum Cost: %.2f, PQSize: %d, Nodes: %d\n",
+            GlobalVars.log.printf("^^ Time: %.0fs, Theta: %.2f, Minimum Cost: %.2f, PQSize: %d, Nodes: %d\n",
                     (System.currentTimeMillis() - startTime) / 1000.0, theta, minimumCost, pq.size(), GlobalVars.numberOfBranchAndBoundNodes);
 
             return;
@@ -249,10 +249,10 @@ public class BeamSearch {
      * print the answer
      */
     public void printTheAnswer() {
-        System.out.println();
-        System.out.println("Format -> VertexName (arrivalTime, thisVertexPenalty, vertex.dueDate, vertex.demand, vertex.capacity, vertex.hasVehicle)");
-        System.out.println(bestNode.getStringPath() + "\n");
-        System.out.println(bestNode.getPrintCostDetailsString());
+        GlobalVars.log.println();
+        GlobalVars.log.println("Format -> VertexName (arrivalTime, thisVertexPenalty, vertex.dueDate, vertex.demand, vertex.capacity, vertex.hasVehicle)");
+        GlobalVars.log.println(bestNode.getStringPath() + "\n");
+        GlobalVars.log.println(bestNode.getPrintCostDetailsString());
     }
 
     public String getHierarchy(BSNode BSNode) {

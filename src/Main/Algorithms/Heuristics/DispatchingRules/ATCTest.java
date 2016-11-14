@@ -1,7 +1,6 @@
 package Main.Algorithms.Heuristics.DispatchingRules;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.Algorithms.Heuristics.GA.GA1.GeneticAlgorithm;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.IOLoader.LoadRandomGraph;
@@ -30,7 +29,7 @@ public class ATCTest {
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
 
         // print graph
-        preprocessedGraph.printVertices();
+        preprocessedGraph.getVerticesFormattedString();
 //        preprocessedGraph.printGraph();
 
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);

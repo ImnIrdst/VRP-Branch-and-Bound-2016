@@ -29,7 +29,7 @@ public class GeneticTest1 {
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
 
         // print graph
-        preprocessedGraph.printVertices();
+        preprocessedGraph.getVerticesFormattedString();
 //        preprocessedGraph.printGraph();
 
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);

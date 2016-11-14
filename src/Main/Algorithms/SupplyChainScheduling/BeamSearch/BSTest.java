@@ -28,7 +28,7 @@ public class BSTest {
         // fill the global variables
         preprocessedGraph.setIds();
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
-        preprocessedGraph.printVertices();
+        preprocessedGraph.getVerticesFormattedString();
 //        preprocessedGraph.printGraph();
 
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);

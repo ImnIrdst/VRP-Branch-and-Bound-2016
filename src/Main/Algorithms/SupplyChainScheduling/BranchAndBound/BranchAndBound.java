@@ -53,9 +53,9 @@ public class BranchAndBound {
      * @param depotName is name of the depot (node that contains customersVehicle)
      */
     public void run(String depotName) {
-        System.out.println(GlobalVars.equalsLine);
-        System.out.println("\t\t\t\t\t\t\tBranch and bound algorithm");
-        System.out.println(GlobalVars.equalsLine);
+        GlobalVars.log.println(GlobalVars.equalsLine);
+        GlobalVars.log.println("\t\t\t\t\t\t\tBranch and bound algorithm");
+        GlobalVars.log.println(GlobalVars.equalsLine);
 
         // addCustomer initial node
         Vertex depotVertex = graph.getVertexByName(depotName);
@@ -71,7 +71,7 @@ public class BranchAndBound {
             }
 
             if (getIdsHierarchy(u).equals("[8, 4, 7, 1, 2, 6, 3, 0, 5, 8]")) {
-                System.out.println(u.getPrintCostDetailsString());
+                GlobalVars.log.println(u.getPrintCostDetailsString());
             }
 
             if (canBePruned(u)) continue;
@@ -96,10 +96,10 @@ public class BranchAndBound {
 
         if (elapsedTime > GlobalVars.bbPrintTime) {
             GlobalVars.bbPrintTime += GlobalVars.printTimeStepSize;
-            System.out.printf("Time: %5.1fs,\t\t", GlobalVars.bbPrintTime / 1000.);
-            System.out.printf("Minimum value: %5.2f,\t\t", GlobalVars.minimumValue);
-            System.out.printf("Node in PQ: %7d,\t\t", pq.size());
-            System.out.print("Nodes: " + GlobalVars.numberOfBranchAndBoundNodes + "\n");
+            GlobalVars.log.printf("Time: %5.1fs,\t\t", GlobalVars.bbPrintTime / 1000.);
+            GlobalVars.log.printf("Minimum value: %5.2f,\t\t", GlobalVars.minimumValue);
+            GlobalVars.log.printf("Node in PQ: %7d,\t\t", pq.size());
+            GlobalVars.log.print("Nodes: " + GlobalVars.numberOfBranchAndBoundNodes + "\n");
         }
     }
 
@@ -115,7 +115,7 @@ public class BranchAndBound {
         if (newNode.vertex.type == VertexType.DEPOT
                 && newNode.numberOfServicedCustomers == graph.getCustomersQty()
                 && newNode.getCost() <= minimumCost) {
-            // System.out.println(getIdsHierarchy(newNode));
+            // GlobalVars.log.println(getIdsHierarchy(newNode));
             bestNode = newNode;
             minimumCost = newNode.getCost();
             GlobalVars.minimumValue = minimumCost;
@@ -181,11 +181,12 @@ public class BranchAndBound {
     /**
      * print the answer
      */
-    public void printTheAnswer() {
-        System.out.println();
-        System.out.println("Format -> VertexName (arrivalTime, thisVertexPenalty, vertex.dueDate, vertex.demand, vertex.capacity, vertex.hasVehicle)");
-        System.out.println(bestNode.getStringPath() + "\n");
-        System.out.println(bestNode.getPrintCostDetailsString());
+    public String getTheAnswerFormattedString() {
+        StringBuilder sb = new StringBuilder("\n");
+        sb.append("Format -> VertexName (arrivalTime, thisVertexPenalty, vertex.dueDate, vertex.demand, vertex.capacity, vertex.hasVehicle)").append("\n");
+        sb.append(bestNode.getStringPath()).append("\n").append("\n");
+        sb.append(bestNode.getPrintCostDetailsString()).append("\n");
+        return sb.toString();
     }
 
     public String getHierarchy(BBNode bbNode) {

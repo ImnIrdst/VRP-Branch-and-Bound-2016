@@ -28,7 +28,7 @@ public class BBTest {
         // fill the global variables
         preprocessedGraph.setIds();
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
-        preprocessedGraph.printVertices();
+        preprocessedGraph.getVerticesFormattedString();
         preprocessedGraph.printGraph();
 
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);
@@ -47,7 +47,7 @@ public class BBTest {
         BranchAndBound branchAndBound = new BranchAndBound(preprocessedGraph, geneticAlgorithm.getMinimumCost()); // geneticAlgorithm.getMinimumCost()
         branchAndBound.run(GlobalVars.depotName);
         GlobalVars.finishTime = System.currentTimeMillis();
-        branchAndBound.printTheAnswer();
+        branchAndBound.getTheAnswerFormattedString();
         System.out.println(branchAndBound.getHierarchy(branchAndBound.bestNode));
 
         // export the result

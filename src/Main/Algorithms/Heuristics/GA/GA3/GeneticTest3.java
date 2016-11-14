@@ -29,11 +29,11 @@ public class GeneticTest3 {
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
 
         // print graph
-        preprocessedGraph.printVertices();
+        preprocessedGraph.getVerticesFormattedString();
 //        preprocessedGraph.printGraph();
 
-        System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);
-        System.out.println("Number of Vehicles: " + GlobalVars.numberOfVehicles + "\n");
+        GlobalVars.log.println("Number of Customers: " + GlobalVars.numberOfCustomers);
+        GlobalVars.log.println("Number of Vehicles: " + GlobalVars.numberOfVehicles + "\n");
         // run the genetic algorithm
 
         int geneticTime = 10000;

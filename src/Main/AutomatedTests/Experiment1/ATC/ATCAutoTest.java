@@ -35,7 +35,7 @@ public class ATCAutoTest {
             // fill the global variables
             originalGraph.setIds();
             GlobalVars.setTheGlobalVariables(originalGraph);
-            originalGraph.printVertices();
+            originalGraph.getVerticesFormattedString();
 //            preprocessedGraph.printGraph();
 
             System.out.println("Test # " + id);

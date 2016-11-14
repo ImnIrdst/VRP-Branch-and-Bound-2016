@@ -29,7 +29,7 @@ public class GeneticTest4 {
         GlobalVars.setTheGlobalVariables(preprocessedGraph);
 
         // print graph
-        preprocessedGraph.printVertices();
+        preprocessedGraph.getVerticesFormattedString();
 //        preprocessedGraph.printGraph();
 
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);
@@ -41,6 +41,6 @@ public class GeneticTest4 {
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
         geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);
-        geneticAlgorithm.printBestChromosome();
+        geneticAlgorithm.bestChromosomeString();
     }
 }

@@ -2,11 +2,9 @@ package Main.MathematicalModel;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
 import Main.AutomatedTests.SCSTests.SCSTestCase;
-import Main.AutomatedTests.SCSTests.SCSTestGenerator;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
-import Main.IOLoader.LoadRandomGraph;
 import ilog.concert.*;
 
 import ilog.concert.IloException;
@@ -65,7 +63,7 @@ public class Model {
 
         preprocessedGraph.setIds();
         GlobalVars.setTheGlobalVariables(preprocessedGraph); // fill the global variables
-        preprocessedGraph.printVertices();
+        preprocessedGraph.getVerticesFormattedString();
 //        preprocessedGraph.printGraph();
 
         t = preprocessedGraph.getAdjacencyMatrix();

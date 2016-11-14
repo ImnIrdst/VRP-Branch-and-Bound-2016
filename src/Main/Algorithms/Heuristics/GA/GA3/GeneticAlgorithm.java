@@ -66,9 +66,9 @@ public class GeneticAlgorithm {
      */
     public void run(int computeDurationMilliSecond, int maxIterationsNoUpdate) {
         if (IS_VERBOSE) {
-            System.out.println(GlobalVars.equalsLine);
-            System.out.println("\t\t\t\t\t\t\t\t\tGenetic algorithm");
-            System.out.println(GlobalVars.equalsLine);
+            GlobalVars.log.println(GlobalVars.equalsLine);
+            GlobalVars.log.println("\t\t\t\t\t\t\t\t\tGenetic algorithm");
+            GlobalVars.log.println(GlobalVars.equalsLine);
         }
 
         startTime = System.currentTimeMillis();
@@ -113,7 +113,7 @@ public class GeneticAlgorithm {
             // print the progress
             if (IS_VERBOSE && System.currentTimeMillis() > printTime) {
                 printTime += printTimeStepSize;
-                System.out.printf("Iteration #%d,\tTime elapsed: %.2fs,\tChromosomesQty: %d,\tMinimum Cost: %.2f\n",
+                GlobalVars.log.printf("Iteration #%d,\tTime elapsed: %.2fs,\tChromosomesQty: %d,\tMinimum Cost: %.2f\n",
                         iterations, (System.currentTimeMillis() - startTime) / 1000., chromosomesQty, minimumCost);
             }
 
@@ -323,7 +323,7 @@ public class GeneticAlgorithm {
     }
 
     public void printBestChromosome() {
-        System.out.println("Best Chromosome: " + bestChromosome
+        GlobalVars.log.println("Best Chromosome: " + bestChromosome
                 + ", " + String.format("Cost: %.2f", minimumCost)
                 + ", " + String.format("Cost: %d", iterations));
     }
@@ -562,14 +562,14 @@ public class GeneticAlgorithm {
 //        customers = customers;
 //        }
 //
-//        System.out.println("-------------");
-//        System.out.println(this);
+//        GlobalVars.log.println("-------------");
+//        GlobalVars.log.println(this);
 //        }
 //if (IS_DEBUG_MODE) {
-//        System.out.println("Cost: " + (vehiclesUsageCost + travelTimeCost + penaltyCost));
+//        GlobalVars.log.println("Cost: " + (vehiclesUsageCost + travelTimeCost + penaltyCost));
 //
 //        if (vehiclesUsageCost + travelTimeCost + penaltyCost < 94.5)
-//        System.out.printf("%s ||||| %.2f, %.2f, %.2f, %.2f\n",
+//        GlobalVars.log.printf("%s ||||| %.2f, %.2f, %.2f, %.2f\n",
 //        this.toString(), vehiclesUsageCost, travelTimeCost, penaltyCost,
 //        vehiclesUsageCost + travelTimeCost + penaltyCost);
 //        }

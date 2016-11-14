@@ -19,6 +19,10 @@ public class Genetic4AutoTest {
     private static final int INSTANCES_PER_TESTCASE = 10;
 
     public static void main(String[] args) throws FileNotFoundException {
+        GlobalVars.log.println(GlobalVars.plusesLine);
+        GlobalVars.log.println("BEGIN Genetic3AutoTest");
+        GlobalVars.log.println(GlobalVars.plusesLine);
+
         FileOutputStream fileOutputStream = new FileOutputStream(
                 new File("resources/Experiments/Ex2/ex2-automated-test-results-ga4-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
@@ -31,26 +35,27 @@ public class Genetic4AutoTest {
 
         String tableHeader = "ID,TestID," + SCSTestCase.getTableHeader() + ",Cost,Time,Iterations,ChromosomeQty";
         out.println(tableHeader);
-        System.out.println(tableHeader);
+        GlobalVars.log.println(tableHeader);
 
         SCSTestGenerator testGenerator = new SCSTestGenerator();
         testGenerator.addSmallTestsV1();
         testGenerator.addBigTestsV1();
-        for (int testId = 0; testGenerator.hasNextTestCase(); testId++) {
+        for (int testId = 0; testGenerator.hasNextTestCase();) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
                 for (int batch = 0; batch < testBatch; batch++, id++) {
+//                    if (testId > 5) continue;
 
                     Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
 
                     // fill the global variables
                     originalGraph.setIds();
                     GlobalVars.setTheGlobalVariables(originalGraph);
-                    originalGraph.printVertices();
+                    GlobalVars.log.println(originalGraph.getVerticesFormattedString());
 //                preprocessedGraph.printGraph();
 
-                    System.out.println("Test # " + id);
-                    System.out.println("Number of Customers, Vehicles: " +
+                    GlobalVars.log.println("Test # " + id);
+                    GlobalVars.log.println("Number of Customers, Vehicles: " +
                             GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
                     int geneticTime = 100000;
@@ -60,7 +65,7 @@ public class Genetic4AutoTest {
                     GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                             originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
                     geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);
-//            geneticAlgorithm.printBestChromosome();
+//            geneticAlgorithm.bestChromosomeString();
 
 
                     String iterations = "" + geneticAlgorithm.iterations;
@@ -71,16 +76,18 @@ public class Genetic4AutoTest {
                     String tableRow = String.format("%d,%d,%s,%s,%s,%s,%s", id, testId,
                             testCase.getCSVRow(), cost, time, iterations, geneticAlgorithm.chromosomesQty);
 
-//            System.out.println(testInfo);
-                    System.out.println(tableHeader);
-                    System.out.println(tableRow);
-                    System.out.println("Optimal Value: " + cost);
-                    System.out.println("Total Calculation time: " + iterations + "s");
-                    System.out.println("-------------------------------------");
+//            GlobalVars.log.println(testInfo);
+                    GlobalVars.log.println(tableHeader);
+                    GlobalVars.log.println(tableRow);
+                    GlobalVars.log.println("Optimal Value: " + cost);
+                    GlobalVars.log.println("Total Calculation time: " + iterations + "s");
+                    GlobalVars.log.println("-------------------------------------");
 
                     out.println(tableRow);
                     out.flush();
+                    GlobalVars.log.flush();
 
+                    System.out.println("GA4: " + tableRow);
                     sumOfCosts += geneticAlgorithm.getMinimumCost();
                     sumOfTimes += geneticAlgorithm.getElapsedTimeInSeconds();
                     sumOfIterations += geneticAlgorithm.iterations;
@@ -89,7 +96,7 @@ public class Genetic4AutoTest {
                         String averageRow = String.format("avg,%d,%s,%.2f,%.2f,%.0f,%.0f",
                                 testId, testCase.getCSVRow(), sumOfCosts / testBatch,
                                 sumOfTimes / testBatch, sumOfIterations / testBatch, sumOfChromosomeQty / testBatch);
-                        System.out.println(averageRow);
+                        GlobalVars.log.println(averageRow);
 
                         out.println(averageRow);
                         out.flush();

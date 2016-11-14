@@ -16,14 +16,14 @@ public class SCSTestGenerator {
      * Generates Small Test cases
      */
     public void addSmallTestsV1() {
-        int[] customerQtys = new int[]{4, 6, 10};
+        int[] customerQtys = new int[]{4, 6, 8};
         int[] vehicleQtys = new int[]{3, 4};
         double[] fixedCosts = new double[]{1, 10, 100};
         DRange[] capacityRanges = new DRange[]{new DRange(0.4, 0.7)};
-        DRange[] processTimeRanges = new DRange[]{new DRange(1, 10)};
+        DRange[] processTimeRanges = new DRange[]{new DRange(1, 100)};
         DRange[] dueDateRanges = new DRange[]{new DRange(0, 0.5), new DRange(0.5, 1), new DRange(0, 1)};
-        DRange[] penaltyRanges = new DRange[]{new DRange(1, 10), new DRange(5, 15), new DRange(1, 20)};
-        DRange[] edgeWeightsRanges = new DRange[]{new DRange(1, 30), new DRange(15, 35), new DRange(1, 50)};
+        DRange[] penaltyRanges = new DRange[]{new DRange(1, 5), new DRange(5, 10), new DRange(1, 10)};
+        DRange[] edgeWeightsRanges = new DRange[]{new DRange(1, 50), new DRange(50, 100), new DRange(1, 100)};
 
         for (int customerQty : customerQtys) {
             for (int vehicleQty : vehicleQtys) {
@@ -53,10 +53,10 @@ public class SCSTestGenerator {
         int[] vehicleQtys = new int[]{10, 15, 20};
         double[] fixedCosts = new double[]{1, 10, 100};
         DRange[] capacityRanges = new DRange[]{new DRange(0.4, 0.7)};
-        DRange[] processTimeRanges = new DRange[]{new DRange(1, 10)};
+        DRange[] processTimeRanges = new DRange[]{new DRange(1, 100)};
         DRange[] dueDateRanges = new DRange[]{new DRange(0, 0.5), new DRange(0.5, 1), new DRange(0, 1)};
-        DRange[] penaltyRanges = new DRange[]{new DRange(1, 10), new DRange(5, 15), new DRange(1, 20)};
-        DRange[] edgeWeightsRanges = new DRange[]{new DRange(1, 35), new DRange(15, 35), new DRange(1, 50)};
+        DRange[] penaltyRanges = new DRange[]{new DRange(1, 5), new DRange(5, 10), new DRange(1, 10)};
+        DRange[] edgeWeightsRanges = new DRange[]{new DRange(1, 50), new DRange(50, 100), new DRange(1, 100)};
 
         for (int customerQty : customerQtys) {
             for (int vehicleQty : vehicleQtys) {

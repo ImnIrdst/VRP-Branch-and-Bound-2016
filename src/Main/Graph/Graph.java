@@ -321,14 +321,17 @@ public class Graph {
         }
     }
 
-    public void printVertices() {
-        System.out.println(GlobalVars.equalsLine);
-        System.out.println("v.id\tv.name\tv.type\tv.processTime\tv.dueDate\tv.penalty\tv.capacity\tv.fixedCost");
+    public String getVerticesFormattedString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(GlobalVars.equalsLine).append("\n");
+        sb.append("v.id\tv.name\tv.type\tv.processTime\tv.dueDate\tv.penalty\tv.capacity\tv.fixedCost").append("\n");
         for (Vertex v : getVertices()) {
-            System.out.printf("%d\t\t%s\t\t%8s\t%4.1f\t\t\t%4.1f\t\t%4.1f\t\t%4d\t\t%4.1f\n",
-                    v.id, v.name, v.type, v.processTime, v.dueDate, v.penalty, v.capacity, v.fixedCost);
+            sb.append(String.format("%d\t\t%s\t\t%8s\t%4.1f\t\t\t%4.1f\t\t%4.1f\t\t%4d\t\t%4.1f\n",
+                    v.id, v.name, v.type, v.processTime, v.dueDate, v.penalty, v.capacity, v.fixedCost));
         }
-        System.out.println(GlobalVars.equalsLine + "\n");
+        sb.append(GlobalVars.equalsLine).append("\n").append("\n");
+
+        return sb.toString();
     }
 
     /**
