@@ -37,7 +37,6 @@ public class BeamSearch {
 
 
     private double timeLimit;
-    private double globalTimeLimit;
     private long lastUpdateCheckpoint = (long) 1e18;
     private long startTime = 0;
 
@@ -52,7 +51,6 @@ public class BeamSearch {
         this.minimumCost = upperBound;
         this.startTime = System.currentTimeMillis();
         this.timeLimit = 1000;
-        this.globalTimeLimit = 5000;
 
         GlobalVars.log.printf("Time Limit %.1f ", timeLimit / 1000.);
         GlobalVars.log.println("Theta0: " + theta0);
@@ -128,11 +126,15 @@ public class BeamSearch {
 
             printProgress();
 
-            if ((System.currentTimeMillis() - startTime) > globalTimeLimit) {
+            if ((System.currentTimeMillis() - startTime) > timeLimit) {
                 theta = 0;
             }
+            GlobalVars.log.flush();
 
-//            if (numberOfFinalNodes > 1000) break;
+            if (GlobalVars.numberOfBranchAndBoundNodes > (int)1e5) {
+                System.out.println("HSADKJSAKDJASKDJASLDJASLKDJKSLAD");
+                break;
+            }
 
         }
     }
@@ -191,7 +193,8 @@ public class BeamSearch {
      * @return true of node can be pruned from the tree
      */
     boolean canBePruned(BSNode newNode) {
-        if (!pq.isEmpty() && Random.getRandomDoubleInRange(new Random.DRange(0, 1)) < 1 - theta)
+        if (!pq.isEmpty() && !((System.currentTimeMillis() - startTime) > timeLimit)
+                && Random.getRandomDoubleInRange(new Random.DRange(0, 1)) < 1 - theta)
             return true;
 
         if (newNode.vehicleUsed > GlobalVars.numberOfVehicles)

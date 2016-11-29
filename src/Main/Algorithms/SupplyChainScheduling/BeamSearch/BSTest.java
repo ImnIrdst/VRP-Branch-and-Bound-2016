@@ -7,6 +7,7 @@ import Main.Graph.Graph;
 import Main.IOLoader.LoadRandomGraph;
 
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 
 /**
  * for running the algorithm
@@ -34,6 +35,7 @@ public class BSTest {
         System.out.println("Number of Customers: " + GlobalVars.numberOfCustomers);
         System.out.println("Number of Vehicles: " + GlobalVars.numberOfVehicles);
         // run the genetic algorithm
+        GlobalVars.log = new PrintWriter(System.out);
 
         int geneticTime = 0;
         int maxIterationNoUpdate = 0;
@@ -52,7 +54,7 @@ public class BSTest {
         System.out.println(beamSearch.getHierarchy(beamSearch.bestNode));
 
         // export the result
-         beamSearch.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
+//         beamSearch.exportTheResultWTK("/home/iman/Workspace/QGIS/IsfahanVRPResults/", dijkstra);
 
         // print stats
         System.out.println();

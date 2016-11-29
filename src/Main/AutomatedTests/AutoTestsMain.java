@@ -10,7 +10,7 @@ public class AutoTestsMain {
     public static void main(String[] args) throws Exception {
         GlobalVars.initTheLogFile("resources/Experiments/Ex2/log-tmp.txt");
 
-//        BSAutoTest.main(args);
+        BSAutoTest.main(args);
         Genetic1AutoTest.main(args);
 //        BBATCAutoTest.main(args);
         Genetic3AutoTest.main(args);

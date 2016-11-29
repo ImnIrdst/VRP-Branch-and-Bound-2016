@@ -44,6 +44,8 @@ public class Genetic3AutoTest {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
                 for (int batch = 0; batch < testBatch; batch++, id++) {
+//                    if (id % 10000 == 0) System.out.println(id);
+//                    if (id != 100000) continue;
                     Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
 //                    if (id % 1000 == 0) System.out.println(id);
 //                    if (id != 100000) continue;

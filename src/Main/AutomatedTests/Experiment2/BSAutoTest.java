@@ -20,9 +20,11 @@ public class BSAutoTest {
     private static final int INSTANCES_PER_TESTCASE = 10;
 
     public static void main(String[] args) throws FileNotFoundException {
+//        GlobalVars.log = new PrintWriter(System.out);
         GlobalVars.log.println(GlobalVars.plusesLine);
         GlobalVars.log.println("BEGIN BSAutoTest");
         GlobalVars.log.println(GlobalVars.plusesLine);
+        GlobalVars.log.flush();
 
         FileOutputStream fileOutputStream = new FileOutputStream(
                 new File("resources/Experiments/Ex2/ex2-automated-test-results-bs-tmp.csv"));
@@ -44,12 +46,12 @@ public class BSAutoTest {
                 double sumOfTimes = 0;
                 double sumOfNodes = 0;
                 for (int batch = 0; batch < testBatch; batch++, id++) {
+//                    if (id % 10000 == 0) System.out.println(id);
+//                    if (id != 100000) continue;
 
                     Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
                     Random.setSeed(System.currentTimeMillis());
 //                    if (id % 1117 == 0) System.out.println(id);
-                    System.out.println(id);
-                    if (id != 100000) continue;
 
 //                    if (testId > 5) continue;
 
@@ -69,10 +71,11 @@ public class BSAutoTest {
 
                     GlobalVars.startTime = System.currentTimeMillis();
                     theta0 = 1 / (Math.log10(GlobalVars.numberOfCustomers + 6));
+                    ATC atc = new ATC(originalGraph);
+                    atc.run();
+                    GlobalVars.log.println(atc);
+
                     try {
-                        ATC atc = new ATC(originalGraph);
-                        atc.run();
-                        GlobalVars.log.println(atc);
 
                         // run the branch and bound algorithm
                         BeamSearch beamSearch = new BeamSearch(originalGraph, theta0, atc.getMinimumCost() + 1e-9); // geneticAlgorithm.getMinimumCost()
@@ -86,7 +89,7 @@ public class BSAutoTest {
 
                         sumOfCosts += beamSearch.minimumCost;
                     } catch (NullPointerException e) {
-                        optimalValue = "NA";
+                        optimalValue = String.format("%.2f", atc.getMinimumCost());
                     } catch (OutOfMemoryError e) {
                         optimalValue = "ML";
                     }
