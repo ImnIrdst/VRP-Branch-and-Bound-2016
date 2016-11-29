@@ -36,10 +36,9 @@ public class BBTest {
         // run the genetic algorithm
 
         int geneticTime = 100;
-        int maxIterationNoUpdate = 100;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
-        geneticAlgorithm.run(geneticTime, maxIterationNoUpdate);
+        geneticAlgorithm.run(geneticTime, 100, 200);
         geneticAlgorithm.printBestChromosome();
 
         // run the branch and bound algorithm

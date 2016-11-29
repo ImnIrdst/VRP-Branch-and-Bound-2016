@@ -43,17 +43,16 @@ public class Genetic3AutoTest {
                     GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
             int geneticTime = 100000;
-            int maxIterationsNoUpdate = 1000; // round it
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                     originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
-            geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);
+            geneticAlgorithm.run(geneticTime, 1000, 2000);
 //            geneticAlgorithm.bestChromosomeString();
 
 
             String iterations = "" + geneticAlgorithm.iterations;
-            String iterationLimit = "" + maxIterationsNoUpdate;
+            String iterationLimit = "" + 1000 + " | " + 2000;
             String time = String.format("%.2f", geneticAlgorithm.getElapsedTimeInSeconds());
             String cost = String.format("%.2f", geneticAlgorithm.getMinimumCost());
 
@@ -75,9 +74,9 @@ public class Genetic3AutoTest {
             sumOfTimes += geneticAlgorithm.getElapsedTimeInSeconds();
             sumOfIterations += geneticAlgorithm.iterations;
             if ((id + 1) % testBatch == 0) {
-                String averageRow = String.format("avg,%d,%d,%d,%.2f,%.2f,%.0f,%d", testId,
+                String averageRow = String.format("avg,%d,%d,%d,%.2f,%.2f,%.0f,%s", testId,
                         GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, sumOfCosts / testBatch,
-                        sumOfTimes / testBatch, sumOfIterations / testBatch, maxIterationsNoUpdate);
+                        sumOfTimes / testBatch, sumOfIterations / testBatch, "" + 1000 + " | " + 2000);
                 System.out.println(averageRow);
 
                 out.println(averageRow);

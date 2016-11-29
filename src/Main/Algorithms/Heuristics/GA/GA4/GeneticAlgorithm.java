@@ -60,7 +60,7 @@ public class GeneticAlgorithm {
      *
      * @param computeDurationMilliSecond is how much time can be consumed
      */
-    public void run(int computeDurationMilliSecond, int maxIterationsNoUpdate) {
+    public void run(int computeDurationMilliSecond, int maxIterationsNoUpdate, int iterationsLimit) {
         if (IS_VERBOSE) {
             GlobalVars.log.println(GlobalVars.equalsLine);
             GlobalVars.log.println("\t\t\t\t\t\t\t\t\tGenetic algorithm");
@@ -113,9 +113,8 @@ public class GeneticAlgorithm {
                         iterations, (System.currentTimeMillis() - startTime) / 1000., chromosomesQty, minimumCost);
             }
 
-            if (iterationsNoUpdate > maxIterationsNoUpdate)
-                break;
-
+            if (iterationsNoUpdate > maxIterationsNoUpdate) break;
+            if (iterations > iterationsLimit) break;
 
             iterations++;
             iterationsNoUpdate++;

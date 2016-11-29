@@ -59,17 +59,16 @@ public class Genetic4AutoTest {
                             GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
                     int geneticTime = 100000;
-                    int maxIterationsNoUpdate = 1000;
 
                     // run the genetic algorithm
                     GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                             originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
-                    geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);
+                    geneticAlgorithm.run(geneticTime, 1000, 2000);
 //            geneticAlgorithm.bestChromosomeString();
 
 
                     String iterations = "" + geneticAlgorithm.iterations;
-                    String iterationLimit = "" + maxIterationsNoUpdate;
+                    String iterationLimit = "" + 1000 + " | " + 2000;
                     String time = String.format("%.2f", geneticAlgorithm.getElapsedTimeInSeconds());
                     String cost = String.format("%.2f", geneticAlgorithm.getMinimumCost());
 

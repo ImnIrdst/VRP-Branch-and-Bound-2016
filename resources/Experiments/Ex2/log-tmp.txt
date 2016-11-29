@@ -1,0 +1,325 @@
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+BEGIN Genetic3AutoTest
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	28.2			13.6		 1.6		   0		 0.0
+1		A		CUSTOMER	24.8			67.5		 3.2		   0		 0.0
+2		B		CUSTOMER	60.2			35.3		 2.5		   0		 0.0
+3		C		CUSTOMER	98.5			93.1		 4.8		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 0
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+0,0,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1366.41,0.83,1001,320120
+Optimal Value: 1366.41
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	28.2			13.6		 1.6		   0		 0.0
+1		A		CUSTOMER	24.8			67.5		 3.2		   0		 0.0
+2		B		CUSTOMER	60.2			35.3		 2.5		   0		 0.0
+3		C		CUSTOMER	98.5			93.1		 4.8		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 1
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+1,0,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1366.41,0.58,1001,320910
+Optimal Value: 1366.41
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	28.2			13.6		 1.6		   0		 0.0
+1		A		CUSTOMER	24.8			67.5		 3.2		   0		 0.0
+2		B		CUSTOMER	60.2			35.3		 2.5		   0		 0.0
+3		C		CUSTOMER	98.5			93.1		 4.8		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 2
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+2,0,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1366.41,0.49,1001,320774
+Optimal Value: 1366.41
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	28.2			13.6		 1.6		   0		 0.0
+1		A		CUSTOMER	24.8			67.5		 3.2		   0		 0.0
+2		B		CUSTOMER	60.2			35.3		 2.5		   0		 0.0
+3		C		CUSTOMER	98.5			93.1		 4.8		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 3
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+3,0,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1366.41,0.49,1001,320286
+Optimal Value: 1366.41
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	28.2			13.6		 1.6		   0		 0.0
+1		A		CUSTOMER	24.8			67.5		 3.2		   0		 0.0
+2		B		CUSTOMER	60.2			35.3		 2.5		   0		 0.0
+3		C		CUSTOMER	98.5			93.1		 4.8		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 4
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+4,0,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1366.41,0.49,1001,320324
+Optimal Value: 1366.41
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	28.2			13.6		 1.6		   0		 0.0
+1		A		CUSTOMER	24.8			67.5		 3.2		   0		 0.0
+2		B		CUSTOMER	60.2			35.3		 2.5		   0		 0.0
+3		C		CUSTOMER	98.5			93.1		 4.8		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 5
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+5,0,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1366.41,0.49,1001,320748
+Optimal Value: 1366.41
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	28.2			13.6		 1.6		   0		 0.0
+1		A		CUSTOMER	24.8			67.5		 3.2		   0		 0.0
+2		B		CUSTOMER	60.2			35.3		 2.5		   0		 0.0
+3		C		CUSTOMER	98.5			93.1		 4.8		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 6
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+6,0,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1366.41,0.50,1001,321244
+Optimal Value: 1366.41
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	28.2			13.6		 1.6		   0		 0.0
+1		A		CUSTOMER	24.8			67.5		 3.2		   0		 0.0
+2		B		CUSTOMER	60.2			35.3		 2.5		   0		 0.0
+3		C		CUSTOMER	98.5			93.1		 4.8		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 7
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+7,0,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1366.41,0.49,1001,320270
+Optimal Value: 1366.41
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	28.2			13.6		 1.6		   0		 0.0
+1		A		CUSTOMER	24.8			67.5		 3.2		   0		 0.0
+2		B		CUSTOMER	60.2			35.3		 2.5		   0		 0.0
+3		C		CUSTOMER	98.5			93.1		 4.8		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 8
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+8,0,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1366.41,0.50,1001,320756
+Optimal Value: 1366.41
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	28.2			13.6		 1.6		   0		 0.0
+1		A		CUSTOMER	24.8			67.5		 3.2		   0		 0.0
+2		B		CUSTOMER	60.2			35.3		 2.5		   0		 0.0
+3		C		CUSTOMER	98.5			93.1		 4.8		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 9
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+9,0,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1366.41,0.50,1001,320876
+Optimal Value: 1366.41
+Total Calculation time: 1001s
+-------------------------------------
+avg,0,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1366.41,0.54,1001,320631
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	40.3			47.4		 2.2		   0		 0.0
+1		A		CUSTOMER	41.6			28.3		 2.3		   0		 0.0
+2		B		CUSTOMER	96.8			 0.8		 4.9		   0		 0.0
+3		C		CUSTOMER	94.0			129.2		 4.7		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 10
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+10,1,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1945.81,0.50,1001,320164
+Optimal Value: 1945.81
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	40.3			47.4		 2.2		   0		 0.0
+1		A		CUSTOMER	41.6			28.3		 2.3		   0		 0.0
+2		B		CUSTOMER	96.8			 0.8		 4.9		   0		 0.0
+3		C		CUSTOMER	94.0			129.2		 4.7		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 11
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+11,1,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1945.81,0.50,1001,320740
+Optimal Value: 1945.81
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	40.3			47.4		 2.2		   0		 0.0
+1		A		CUSTOMER	41.6			28.3		 2.3		   0		 0.0
+2		B		CUSTOMER	96.8			 0.8		 4.9		   0		 0.0
+3		C		CUSTOMER	94.0			129.2		 4.7		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 12
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+12,1,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1945.81,0.49,1001,320716
+Optimal Value: 1945.81
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	40.3			47.4		 2.2		   0		 0.0
+1		A		CUSTOMER	41.6			28.3		 2.3		   0		 0.0
+2		B		CUSTOMER	96.8			 0.8		 4.9		   0		 0.0
+3		C		CUSTOMER	94.0			129.2		 4.7		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 13
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+13,1,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1945.81,0.50,1001,320204
+Optimal Value: 1945.81
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	40.3			47.4		 2.2		   0		 0.0
+1		A		CUSTOMER	41.6			28.3		 2.3		   0		 0.0
+2		B		CUSTOMER	96.8			 0.8		 4.9		   0		 0.0
+3		C		CUSTOMER	94.0			129.2		 4.7		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 14
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+14,1,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1945.81,0.50,1001,320384
+Optimal Value: 1945.81
+Total Calculation time: 1001s
+-------------------------------------
+============================================================================================
+v.id	v.name	v.type	v.processTime	v.dueDate	v.penalty	v.capacity	v.fixedCost
+0		D		CUSTOMER	40.3			47.4		 2.2		   0		 0.0
+1		A		CUSTOMER	41.6			28.3		 2.3		   0		 0.0
+2		B		CUSTOMER	96.8			 0.8		 4.9		   0		 0.0
+3		C		CUSTOMER	94.0			129.2		 4.7		   0		 0.0
+4		Dp		   DEPOT	 0.0			 0.0		 0.0		   2		 1.0
+============================================================================================
+
+
+Test # 15
+Number of Customers, Vehicles: 4 3
+============================================================================================
+									Genetic algorithm
+============================================================================================
+ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
+15,1,4,3,1.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[1.0   50.0],1945.81,0.51,1001,320814
+Optimal Value: 1945.81
+Total Calculation time: 1001s
+-------------------------------------

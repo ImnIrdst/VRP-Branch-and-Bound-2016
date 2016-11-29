@@ -37,6 +37,7 @@ public class BeamSearch {
 
 
     private double timeLimit;
+    private double globalTimeLimit;
     private long lastUpdateCheckpoint = (long) 1e18;
     private long startTime = 0;
 
@@ -51,6 +52,7 @@ public class BeamSearch {
         this.minimumCost = upperBound;
         this.startTime = System.currentTimeMillis();
         this.timeLimit = 1000;
+        this.globalTimeLimit = 5000;
 
         GlobalVars.log.printf("Time Limit %.1f ", timeLimit / 1000.);
         GlobalVars.log.println("Theta0: " + theta0);
@@ -126,10 +128,8 @@ public class BeamSearch {
 
             printProgress();
 
-            if (System.currentTimeMillis() - lastUpdateCheckpoint > timeLimit) {
-                GlobalVars.log.printf("Time Since Last Update: %.1f, Limit: %.1f",
-                        (System.currentTimeMillis() - lastUpdateCheckpoint) / 1000., timeLimit);
-                break;
+            if ((System.currentTimeMillis() - startTime) > globalTimeLimit) {
+                theta = 0;
             }
 
 //            if (numberOfFinalNodes > 1000) break;

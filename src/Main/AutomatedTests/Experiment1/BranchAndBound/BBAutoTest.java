@@ -34,12 +34,11 @@ public class BBAutoTest {
                     GlobalVars.numberOfCustomers + " " + GlobalVars.numberOfVehicles);
 
             int geneticTime = 10000;
-            int maxIterationsNoUpdate = 500;
 
             // run the genetic algorithm
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                     originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 40);
-            geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);
+            geneticAlgorithm.run(geneticTime, 500, 1000);
             geneticAlgorithm.printBestChromosome();
             geneticTime = (int) geneticAlgorithm.getElapsedTimeInSeconds();
 

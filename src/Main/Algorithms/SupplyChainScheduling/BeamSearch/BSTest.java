@@ -39,7 +39,7 @@ public class BSTest {
         int maxIterationNoUpdate = 0;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
-        geneticAlgorithm.run(geneticTime, maxIterationNoUpdate);
+        geneticAlgorithm.run(geneticTime, 0, 0);
         geneticAlgorithm.printBestChromosome();
 
         // run the branch and bound algorithm

@@ -44,9 +44,13 @@ public class BSAutoTest {
                 double sumOfTimes = 0;
                 double sumOfNodes = 0;
                 for (int batch = 0; batch < testBatch; batch++, id++) {
+
                     Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
                     Random.setSeed(System.currentTimeMillis());
-                    // if (testId != 485) continue;
+//                    if (id % 1117 == 0) System.out.println(id);
+                    System.out.println(id);
+                    if (id != 100000) continue;
+
 //                    if (testId > 5) continue;
 
                     // fill the global variables

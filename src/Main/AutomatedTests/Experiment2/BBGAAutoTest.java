@@ -54,7 +54,7 @@ public class BBGAAutoTest {
                 Main.Algorithms.Heuristics.GA.GA4.GeneticAlgorithm geneticAlgorithm =
                         new Main.Algorithms.Heuristics.GA.GA4.GeneticAlgorithm(
                                 originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
-                geneticAlgorithm.run(10000, 1000);
+                geneticAlgorithm.run(10000, 1000, 2000);
                 GlobalVars.log.println(geneticAlgorithm.bestChromosomeString());
 
 
