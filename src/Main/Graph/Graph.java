@@ -3,7 +3,7 @@ package Main.Graph;
 import Main.Algorithms.Other.Random;
 import Main.Algorithms.Other.Random.IRange;
 import Main.Algorithms.Other.Random.DRange;
-import Main.AutomatedTests.SCSTests.SCSTestCase;
+import Main.AutomatedTests.TestCases.SCSTestCase;
 import Main.GlobalVars;
 
 import java.io.File;

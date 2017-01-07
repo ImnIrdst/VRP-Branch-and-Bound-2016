@@ -1,6 +1,9 @@
 package Main.AutomatedTests;
 
-import Main.AutomatedTests.Experiment2.*;
+import Main.AutomatedTests.AutoTests.BSAutoTest;
+import Main.AutomatedTests.AutoTests.Genetic1AutoTest;
+import Main.AutomatedTests.AutoTests.Genetic3AutoTest;
+import Main.AutomatedTests.AutoTests.Genetic4AutoTest;
 import Main.GlobalVars;
 
 /**

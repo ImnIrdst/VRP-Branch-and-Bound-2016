@@ -1,2 +1,0 @@
-ID,TestID,customerQty,vehicleQty,fixCost,capacityRange,processTimeRange,dueDateRange,penaltyRange,edgeWeightRange,Cost,Time,Iterations,ChromosomeQty
-100000,10000,60,10,10.0,[0.4   0.7],[1.0   100.0],[0.0   0.5],[1.0   5.0],[50.0   100.0],138714.58,11.39,2001,639874
