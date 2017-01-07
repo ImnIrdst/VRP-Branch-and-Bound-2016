@@ -1,9 +1,9 @@
 package Main.Algorithms.Heuristics.DispatchingRules;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
+import Main.AutomatedTests.TestCases.IntegerTestCase.SCSTestGenerator;
 import Main.GlobalVars;
 import Main.Graph.Graph;
-import Main.IOLoader.LoadRandomGraph;
 
 import java.io.FileNotFoundException;
 
@@ -12,7 +12,8 @@ import java.io.FileNotFoundException;
  */
 public class ATCTest {
     public static void main(String[] args) throws FileNotFoundException {
-        Graph originalGraph = LoadRandomGraph.loadWithDoubleParams(26);
+        SCSTestGenerator scsTestGenerator = new SCSTestGenerator();
+        Graph originalGraph = Graph.buildRandomGraphFromIntegerTestCase(scsTestGenerator.getNextTestCase(), 0);
 
 //        Graph originalGraph = Graph.buildAGraphFromAttributeTables(
 //                "resources/InputData/ISFNodes-10-Customers.csv",

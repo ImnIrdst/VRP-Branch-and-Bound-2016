@@ -1,5 +1,6 @@
 package Main.Graph;
 
+import Main.Algorithms.Heuristics.DispatchingRules.RankingIndex;
 import Main.Algorithms.Other.Random;
 import Main.Algorithms.Other.Random.IRange;
 import Main.Algorithms.Other.Random.DRange;
@@ -36,231 +37,40 @@ public class Graph {
         }
     }
 
-//    /**
-//     * builds a Main.Graph from a csv file
-//     *
-//     * @param path: path to the csv file
-//     */
-//    public static Main.Graph buildAGraphFromCSVFile(String path) {
-//        Main.Graph graph = new Main.Graph();
-//        try {
-//            // read file
-//            FileInputStream file = new FileInputStream(new File(path));
-//            Scanner sc = new Scanner(file);
-//            sc.nextLine();
-//            sc.nextLine();
+//    public static Graph buildRandomGraphFromDoubleTestCase(
+//            Main.AutomatedTests.TestCases.DoubleTestCase.SCSTestCase testCase, int seed) {
+//        Random.setSeed(seed);
 //
-//            String[] tokens;
+//        Graph graph = new Graph();
+//        // Add Depot Vertex
+//        int capacity = (int) (testCase.customerQty * Random.getRandomDoubleInRange(testCase.capacityRange));
+//        graph.addVertex(new Vertex("Dp", VertexType.DEPOT, testCase.vehicleQty, capacity, testCase.fixCost));
 //
-//            // read depot Info
-//            tokens = sc.nextLine().split(",");
-//            graph.addVertex(new Vertex("Depot", VertexType.DEPOT,
-//                    Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1])));
+//        // Build the Customer Vertices
+//        double sumOfProcessTimes = 0;
+//        for (int i = 0; i < testCase.customerQty; i++) {
+//            String name = "" + (char) ('A' + i);
+//            double processTime = Random.getRandomDoubleInRange(testCase.processTimeRange);
+//            double dueDate = Random.getRandomDoubleInRange(testCase.dueDateRange);
+//            double deadline = Random.getRandomDoubleInRange(testCase.)
+//            double penalty = Random.getRandomDoubleInRange(testCase.penaltyRange);
+//            graph.addVertex(new Vertex(name, VertexType.CUSTOMER, processTime, dueDate, deadline, penalty));
 //
-//
-//            // read customers info
-//            int numberOfCustomers = Integer.parseInt(sc.nextLine().split(",")[1]);
-//            sc.nextLine(); // skip the line
-//
-//            for (int i = 0; i < numberOfCustomers; i++) {
-//                tokens = sc.nextLine().split(",");
-//                Vertex newVertex = new Vertex(tokens[0],
-//                        VertexType.CUSTOMER,
-//                        Integer.parseInt(tokens[1]),
-//                        Double.parseDouble(tokens[2]),
-//                        Integer.parseInt(tokens[3]),
-//                        Integer.parseInt(tokens[4]),
-//                        Integer.parseInt(tokens[5]),
-//                        Double.parseDouble(tokens[6]));
-//                graph.addVertex(newVertex);
-//            }
-//
-//            // read ordinary vertices
-//            int numberOfOrdinaryVertices = Integer.parseInt(sc.nextLine().split(",")[1]);
-//            sc.nextLine(); // skip the line
-//
-//            for (int i = 0; i < numberOfOrdinaryVertices; i++) {
-//                graph.addVertex(new Vertex(sc.nextLine(), VertexType.ORDINARY));
-//            }
-//
-//            // read edges
-//            int numberOfEdges = Integer.parseInt(sc.nextLine().split(",")[1]);
-//            sc.nextLine(); // skip the line
-//
-//            for (int i = 0; i < numberOfEdges; i++) {
-//                tokens = sc.nextLine().split(",");
-//                graph.addEdge(new Edge(tokens[0], tokens[1], Integer.parseInt(tokens[2])));
-//            }
-//
-//            return graph;
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//            return null;
+//            sumOfProcessTimes += processTime;
 //        }
+//
+//        // Add The Edges
+//        for (Vertex u : graph.getVertices()) {
+//            u.dueDate *= sumOfProcessTimes; // (0.4*sumOfProcessTimes - 0.7*sumOfProcessTimes)
+//            for (Vertex v : graph.getVertices()) {
+//                if (u.name.equals(v.name)) continue;
+//                Edge e = new Edge(u, v, Random.getRandomDoubleInRange(testCase.edgeWeightRange));
+//                graph.addEdge(e);
+//            }
+//        }
+//
+//        return graph;
 //    }
-
-    public void setIds() {
-        int id = 0;
-        Vertex depotVertex = null;
-        for (Vertex v : getVertices()) {
-            if (v.type == VertexType.CUSTOMER) v.id = id++;
-            if (v.type == VertexType.DEPOT) depotVertex = v;
-        }
-        depotVertex.id = id;
-    }
-
-    /**
-     * build a Main.Graph from an attribute table
-     *
-     * @param nodesFilePath: path to the attribute table (csv) that contains nodes
-     * @param roadsFilePath: path to the attribute table (csv) that contains roads
-     */
-    public static Graph buildAGraphFromAttributeTables(String nodesFilePath, String roadsFilePath) {
-        Graph graph = new Graph();
-        HashMap<String, Vertex> coordsToVertexMap = new HashMap<>();
-
-        // read Nodes
-        try {
-            FileInputStream file = new FileInputStream(new File(nodesFilePath));
-            Scanner sc = new Scanner(file);
-            sc.nextLine();
-
-            while (sc.hasNextLine()) {
-                Vertex newVertex = Vertex.buildAVertexFromAttributeTableRow(sc.nextLine());
-                graph.addVertex(newVertex);
-
-                coordsToVertexMap.put(newVertex.coords, newVertex);
-            }
-
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
-        // read roads
-        try {
-            FileInputStream file = new FileInputStream(new File(roadsFilePath));
-            Scanner sc = new Scanner(file);
-            sc.nextLine();
-
-            while (sc.hasNextLine()) {
-                Edge edge = Edge.buildEdgeFromAttributeTableRow(sc.nextLine(), coordsToVertexMap);
-                if (edge != null) graph.addEdge(edge);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return graph;
-    }
-
-    public static Graph buildRandomGraphDouble(
-            IRange customerQtyRange, IRange vehicleQtyRange, IRange capacityRange, DRange fixCostRange,
-            DRange processTimeRange, DRange dueDateRange, DRange penaltyRange, DRange edgeWeightsRange) {
-        Graph graph = new Graph();
-        // Add Depot Vertex
-        int customerQty = Random.getRandomIntInRange(customerQtyRange);
-        vehicleQtyRange.max = Math.min(vehicleQtyRange.max, customerQty);
-        vehicleQtyRange.min = Math.min(vehicleQtyRange.min, vehicleQtyRange.max);
-        int vehicleQty = Random.getRandomIntInRange(vehicleQtyRange);
-        int capacity = Random.getRandomIntInRange(capacityRange);
-        double fixCost = Random.getRandomDoubleInRange(fixCostRange);
-
-        while (customerQty > vehicleQty * capacity) {
-            vehicleQty = Random.getRandomIntInRange(vehicleQtyRange);
-            capacity = Random.getRandomIntInRange(capacityRange);
-        }
-
-        graph.addVertex(new Vertex("Dp", VertexType.DEPOT, vehicleQty, capacity, fixCost));
-
-        // Build the Customer Vertices
-        for (int i = 0; i < customerQty; i++) {
-            String name = "" + (char) ('A' + i);
-            double processTime = Random.getRandomDoubleInRange(processTimeRange);
-            double dueDate = Random.getRandomDoubleInRange(dueDateRange) + processTime + edgeWeightsRange.min;
-            double penalty = Random.getRandomDoubleInRange(penaltyRange);
-            graph.addVertex(new Vertex(name, VertexType.CUSTOMER, processTime, dueDate, penalty));
-        }
-
-        // Add The Edges
-        for (Vertex u : graph.getVertices()) {
-            for (Vertex v : graph.getVertices()) {
-                if (u.name.equals(v.name)) continue;
-                Edge e = new Edge(u, v, Random.getRandomDoubleInRange(edgeWeightsRange));
-                graph.addEdge(e);
-            }
-        }
-
-        return graph;
-    }
-
-    public static Graph buildRandomGraphInt(
-            IRange customerQtyRange, IRange vehicleQtyRange, IRange capacityRange, IRange fixCostRange,
-            IRange processTimeRange, IRange dueDateRange, IRange penaltyRange, IRange edgeWeightsRange) {
-        Graph graph = new Graph();
-        // Add Depot Vertex
-        int vehicleQty = Random.getRandomIntInRange(vehicleQtyRange);
-        int capacity = Random.getRandomIntInRange(capacityRange);
-        double fixCost = Random.getRandomIntInRange(fixCostRange);
-        graph.addVertex(new Vertex("Dp", VertexType.DEPOT, vehicleQty, capacity, fixCost));
-
-        // Build the Customer Vertices
-        int customerQty = Random.getRandomIntInRange(customerQtyRange);
-        for (int i = 0; i < customerQty; i++) {
-            String name = "" + (char) ('A' + i);
-            double processTime = Random.getRandomIntInRange(processTimeRange);
-            double dueDate = Random.getRandomIntInRange(dueDateRange);
-            double penalty = Random.getRandomIntInRange(penaltyRange);
-            graph.addVertex(new Vertex(name, VertexType.CUSTOMER, processTime, dueDate, penalty));
-        }
-
-        // Add The Edges
-        for (Vertex u : graph.getVertices()) {
-            for (Vertex v : graph.getVertices()) {
-                if (u.name.equals(v.name)) continue;
-                Edge e = new Edge(u, v, Random.getRandomIntInRange(edgeWeightsRange));
-                graph.addEdge(e);
-            }
-        }
-
-        return graph;
-    }
-
-    public static Graph buildRandomGraphFromDoubleTestCase(
-            Main.AutomatedTests.TestCases.DoubleTestCase.SCSTestCase testCase, int seed) {
-        Random.setSeed(seed);
-
-        Graph graph = new Graph();
-        // Add Depot Vertex
-        int capacity = (int) (testCase.customerQty * Random.getRandomDoubleInRange(testCase.capacityRange));
-        graph.addVertex(new Vertex("Dp", VertexType.DEPOT, testCase.vehicleQty, capacity, testCase.fixCost));
-
-        // Build the Customer Vertices
-        double sumOfProcessTimes = 0;
-        for (int i = 0; i < testCase.customerQty; i++) {
-            String name = "" + (char) ('A' + i);
-            double processTime = Random.getRandomDoubleInRange(testCase.processTimeRange);
-            double dueDate = Random.getRandomDoubleInRange(testCase.dueDateRange);
-            double penalty = Random.getRandomDoubleInRange(testCase.penaltyRange);
-            graph.addVertex(new Vertex(name, VertexType.CUSTOMER, processTime, dueDate, penalty));
-
-            sumOfProcessTimes += processTime;
-        }
-
-        // Add The Edges
-        for (Vertex u : graph.getVertices()) {
-            u.dueDate *= sumOfProcessTimes; // (0.4*sumOfProcessTimes - 0.7*sumOfProcessTimes)
-            for (Vertex v : graph.getVertices()) {
-                if (u.name.equals(v.name)) continue;
-                Edge e = new Edge(u, v, Random.getRandomDoubleInRange(testCase.edgeWeightRange));
-                graph.addEdge(e);
-            }
-        }
-
-        return graph;
-    }
 
     public static Graph buildRandomGraphFromIntegerTestCase(
             Main.AutomatedTests.TestCases.IntegerTestCase.SCSTestCase testCase, int seed) {
@@ -277,8 +87,11 @@ public class Graph {
             String name = "" + (char) ('A' + i);
             int processTime = Random.getRandomIntInRange(testCase.processTimeRange);
             double dueDate = Random.getRandomDoubleInRange(testCase.dueDateRange);
+            double deadLine = dueDate + Random.getRandomDoubleInRange(testCase.deadLineRange);
             int penalty = Random.getRandomIntInRange(testCase.penaltyRange);
-            graph.addVertex(new Vertex(name, VertexType.CUSTOMER, processTime, dueDate, penalty));
+            int maxGain = Random.getRandomIntInRange(testCase.maxGainRange);
+            graph.addVertex(new Vertex(name, VertexType.CUSTOMER, processTime, dueDate, deadLine, penalty, maxGain));
+
 
             sumOfProcessTimes += processTime;
         }
@@ -294,6 +107,19 @@ public class Graph {
         }
 
         return graph;
+    }
+
+    /**
+     * Sets the ids of vertexes in a graph, depot is n and customers are (0 ... n)
+     */
+    public void setIds() {
+        int id = 0;
+        Vertex depotVertex = null;
+        for (Vertex v : getVertices()) {
+            if (v.type == VertexType.CUSTOMER) v.id = id++;
+            if (v.type == VertexType.DEPOT) depotVertex = v;
+        }
+        depotVertex.id = id;
     }
 
     /**
@@ -358,10 +184,10 @@ public class Graph {
     public String getVerticesFormattedString() {
         StringBuilder sb = new StringBuilder();
         sb.append(GlobalVars.equalsLine).append("\n");
-        sb.append("v.id\tv.name\tv.type\tv.processTime\tv.dueDate\tv.penalty\tv.capacity\tv.fixedCost").append("\n");
+        sb.append("v.id\tv.name\tv.type\tv.processTime\tv.dueDate\tv.deadline\tv.penalty\tv.capacity\tv.fixedCost\tv.maxGain").append("\n");
         for (Vertex v : getVertices()) {
-            sb.append(String.format("%d\t\t%s\t\t%8s\t%4.1f\t\t\t%4.1f\t\t%4.1f\t\t%4d\t\t%4.1f\n",
-                    v.id, v.name, v.type, v.processTime, v.dueDate, v.penalty, v.capacity, v.fixedCost));
+            sb.append(String.format("%d\t\t%s\t\t%8s\t%4.1f\t\t\t%4.1f\t\t%4.1f\t\t%4.1f\t\t%4d\t\t%4.1f\t\t%4.1f\n",
+                    v.id, v.name, v.type, v.processTime, v.dueDate, v.deadline, v.penalty, v.capacity, v.fixedCost, v.maximumGain));
         }
         sb.append(GlobalVars.equalsLine).append("\n").append("\n");
 
@@ -450,15 +276,5 @@ public class Graph {
             }
         }
         return newGraph;
-    }
-
-    /**
-     * @return a wtk string for the edge between to nodes in the graph
-     */
-    public String getEdgeWTK(String uName, String vName) {
-        Vertex u = getVertexByName(uName);
-        Vertex v = getVertexByName(vName);
-
-        return "LINESTRING(" + u.getSpacedCoords() + ", " + v.getSpacedCoords() + ")";
     }
 }

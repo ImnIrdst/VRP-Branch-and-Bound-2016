@@ -16,7 +16,9 @@ public class Vertex {
     public int id;          // id of the customer for using in branch and bound (filling servicedNodes boolean array)
     public double penalty;
     public double dueDate;
+    public double deadline;
     public double processTime;
+    public double maximumGain;
 
     // if node is depot
     public int vehicleQty;          // number of customersVehicle
@@ -37,14 +39,16 @@ public class Vertex {
     }
 
     /**
-     * constructor for depot
+     * constructor for customers
      */
-    public Vertex(String name, VertexType type, double processTime, double dueDate, double penalty) {
+    public Vertex(String name, VertexType type, double processTime, double dueDate, double deadline, double penalty, double maximumGain) {
         this.name = name;
         this.type = type;
         this.dueDate = dueDate;
+        this.deadline = deadline;
         this.penalty = penalty;
         this.processTime = processTime;
+        this.maximumGain = maximumGain;
     }
 
     /**

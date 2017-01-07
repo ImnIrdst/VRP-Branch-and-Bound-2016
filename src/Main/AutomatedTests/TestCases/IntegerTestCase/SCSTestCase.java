@@ -13,12 +13,14 @@ public class SCSTestCase {
     public DRange capacityRange;
     public IRange processTimeRange;
     public DRange dueDateRange;
+    public DRange deadLineRange;
     public IRange penaltyRange;
     public IRange edgeWeightRange;
+    public IRange maxGainRange;
 
     public SCSTestCase(int customerQty, int vehicleQty, double fixCost,
-                       DRange capacityRange, IRange processTimeRange, DRange dueDateRange,
-                       IRange penaltyRange, IRange edgeWeightRange) {
+                       DRange capacityRange, IRange processTimeRange, DRange dueDateRange, DRange deadLineRange,
+                       IRange penaltyRange, IRange edgeWeightRange, IRange maxGainRange) {
 
         this.customerQty = customerQty;
         this.vehicleQty = vehicleQty;
@@ -26,8 +28,10 @@ public class SCSTestCase {
         this.capacityRange = capacityRange;
         this.processTimeRange = processTimeRange;
         this.dueDateRange = dueDateRange;
+        this.deadLineRange = deadLineRange;
         this.penaltyRange = penaltyRange;
         this.edgeWeightRange = edgeWeightRange;
+        this.maxGainRange = maxGainRange;
     }
 
     public static String getTableHeader(){

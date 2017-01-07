@@ -18,6 +18,7 @@ public class CplexAutoTest {
     private static final int INSTANCES_PER_TESTCASE = 10;
 
     static IloCplex SCS;                            // crew rostering problem
+    static IloNumVar[] Z;
     static IloNumVar[][][] x;
     static IloNumVar[] y;
     static IloNumVar[][] A;

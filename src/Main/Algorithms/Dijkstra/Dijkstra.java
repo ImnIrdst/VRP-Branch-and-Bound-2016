@@ -89,30 +89,12 @@ public class Dijkstra {
     }
 
     /**
-     * used for wtk exporting
-     */
-    public String getTheShortestPathEdgesWTKStringBetweenSourceAndTheNode(String endNodeName) {
-        String[] nodeNames = graph.getVertexByName(endNodeName).getPrintPathString().split(" -> ");
-
-        StringBuilder result = new StringBuilder("");
-        for (int i = 0; i < nodeNames.length-1; i++) {
-            result.append(graph.getEdgeWTK(nodeNames[i].split(" ")[0], nodeNames[i + 1].split(" ")[0])).append("\n");
-        }
-        return result.toString();
-    }
-
-    /**
      * Prints the path from the source to every vertex (output order is not guaranteed)
      */
     public void printAllPaths() {
         for (Vertex v : graph.getVertices()) {
             printPath(v.name);
         }
-    }
-
-    public String getTheShortestPathEdgesWTKStringBetweenTwoNodes(String u, String v) {
-        this.run(u.split("\\p{Ps}")[0]);
-        return getTheShortestPathEdgesWTKStringBetweenSourceAndTheNode(v.split("\\p{Ps}")[0]);
     }
 
     /**
