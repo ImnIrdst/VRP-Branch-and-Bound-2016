@@ -1,8 +1,8 @@
 package Main.AutomatedTests.AutoTests;
 
 import Main.Algorithms.Heuristics.GA.GA1.GeneticAlgorithm;
-import Main.AutomatedTests.TestCases.SCSTestCase;
-import Main.AutomatedTests.TestCases.SCSTestGenerator;
+import Main.AutomatedTests.TestCases.DoubleTestCase.SCSTestCase;
+import Main.AutomatedTests.TestCases.DoubleTestCase.SCSTestGenerator;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 
@@ -44,7 +44,7 @@ public class Genetic1AutoTest {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
                 for (int batch = 0; batch < testBatch; batch++, id++) {
-                    Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
+                    Graph originalGraph = Graph.buildRandomGraphFromDoubleTestCase(testCase, testId);
 //                    if (testId != 100000) continue;
 
                     // fill the global variables

@@ -1,4 +1,4 @@
-package Main.AutomatedTests.TestCases;
+package Main.AutomatedTests.TestCases.DoubleTestCase;
 
 import Main.Algorithms.Other.Random.*;
 

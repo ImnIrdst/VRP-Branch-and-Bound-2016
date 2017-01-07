@@ -1,6 +1,6 @@
 package Main.AutomatedTests;
 
-import Main.AutomatedTests.AutoTests.BSAutoTest;
+import Main.AutomatedTests.AutoTests.CplexAutoTest;
 import Main.AutomatedTests.AutoTests.Genetic1AutoTest;
 import Main.AutomatedTests.AutoTests.Genetic3AutoTest;
 import Main.AutomatedTests.AutoTests.Genetic4AutoTest;
@@ -13,13 +13,10 @@ public class AutoTestsMain {
     public static void main(String[] args) throws Exception {
         GlobalVars.initTheLogFile("resources/Experiments/Ex2/log-tmp.txt");
 
-        BSAutoTest.main(args);
-        Genetic1AutoTest.main(args);
-//        BBATCAutoTest.main(args);
-        Genetic3AutoTest.main(args);
-        Genetic4AutoTest.main(args);
-//        CplexAutoTest.main(args);
-//        BBGAAutoTest.main(args);
+        CplexAutoTest.main(args);
+//        Genetic1AutoTest.main(args);
+//        Genetic3AutoTest.main(args);
+//        Genetic4AutoTest.main(args);
 
         GlobalVars.log.close();
     }

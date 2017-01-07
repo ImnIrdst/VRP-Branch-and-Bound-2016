@@ -1,7 +1,7 @@
 package Main.Algorithms.MathematicalModel;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
-import Main.AutomatedTests.TestCases.SCSTestCase;
+import Main.AutomatedTests.TestCases.DoubleTestCase.SCSTestCase;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
@@ -43,7 +43,7 @@ public class Model {
 
     static Graph globalGraph;
     public static void main2(SCSTestCase testCase, int testId) throws Exception {
-        globalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
+        globalGraph = Graph.buildRandomGraphFromDoubleTestCase(testCase, testId);
 
         ReadData();
         Create_Model();

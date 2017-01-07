@@ -1,8 +1,8 @@
 package Main.AutomatedTests.AutoTests;
 
 import Main.Algorithms.Heuristics.GA.GA4.GeneticAlgorithm;
-import Main.AutomatedTests.TestCases.SCSTestCase;
-import Main.AutomatedTests.TestCases.SCSTestGenerator;
+import Main.AutomatedTests.TestCases.DoubleTestCase.SCSTestCase;
+import Main.AutomatedTests.TestCases.DoubleTestCase.SCSTestGenerator;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 
@@ -46,7 +46,7 @@ public class Genetic4AutoTest {
                 for (int batch = 0; batch < testBatch; batch++, id++) {
 //                    if (testId > 5) continue;
 
-                    Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
+                    Graph originalGraph = Graph.buildRandomGraphFromDoubleTestCase(testCase, testId);
 
                     // fill the global variables
                     originalGraph.setIds();

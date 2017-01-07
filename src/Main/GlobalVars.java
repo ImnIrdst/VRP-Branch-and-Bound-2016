@@ -44,12 +44,13 @@ public class GlobalVars {
     public static String plusesLine =
             "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
 
-    public static PrintWriter log;
+    public static PrintWriter log = new PrintWriter(System.out);
 
     public static void initTheLogFile(String filePath) throws FileNotFoundException {
         FileOutputStream fileOutputStream = new FileOutputStream(
                 new File(filePath));
-        log = new PrintWriter(fileOutputStream);
+        // log = new PrintWriter(fileOutputStream); // log to a file
+        log = new PrintWriter(System.out); // log to the stdout
     }
 
     /**

@@ -1,7 +1,7 @@
 package Main.AutomatedTests.AutoTests;
 
-import Main.AutomatedTests.TestCases.SCSTestCase;
-import Main.AutomatedTests.TestCases.SCSTestGenerator;
+import Main.AutomatedTests.TestCases.IntegerTestCase.SCSTestCase;
+import Main.AutomatedTests.TestCases.IntegerTestCase.SCSTestGenerator;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
@@ -54,7 +54,7 @@ public class CplexAutoTest {
         GlobalVars.log.println("BEGIN CplexAutoTest");
         GlobalVars.log.println(GlobalVars.plusesLine);
 
-        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/Experiments/Ex2/ex2-automated-test-results-cplex-tmp.csv"));
+        FileOutputStream fileOutputStream = new FileOutputStream(new File("resources/AutoTestResults/cplex-tmp.csv"));
         out = new PrintWriter(fileOutputStream);
 
         tableHeader = "TestID," + SCSTestCase.getTableHeader() + ",Cost,CPUTime,Nodes,Status";
@@ -68,8 +68,8 @@ public class CplexAutoTest {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
 
-                Graph originalGraph = Graph.buildRandomGraphFromTestCase(testCase, testId);
-//                if (testId > 5) continue;
+                Graph originalGraph = Graph.buildRandomGraphFromIntegerTestCase(testCase, testId);
+                if (testId > 0) break;
 
                 Graph preprocessedGraph = originalGraph;
                 preprocessedGraph.setIds();
