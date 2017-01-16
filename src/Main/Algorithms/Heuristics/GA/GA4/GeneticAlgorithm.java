@@ -1,5 +1,8 @@
 package Main.Algorithms.Heuristics.GA.GA4;
 
+import Main.Algorithms.Other.Random;
+import Main.Algorithms.Other.Random.IRange;
+import Main.Algorithms.Other.Random.DRange;
 import Main.Algorithms.TSP.SimpleTSP.SimpleTSP;
 import Main.GlobalVars;
 import Main.Graph.Graph;
@@ -161,6 +164,10 @@ public class GeneticAlgorithm {
             newChromosome.customersOrder.add(i);
         Collections.shuffle(newChromosome.customersOrder);
 
+        for (int i = 0; i < customerQty; i++) {
+            newChromosome.orderAcceptance.add(Random.getRandomIntInRange(new IRange(0, 1)));
+        }
+
         return newChromosome;
     }
 
@@ -168,7 +175,7 @@ public class GeneticAlgorithm {
         Chromosome bestChromosome = null;
         double bestValue = GlobalVars.INF + 1e-9;
         for (int i = begin; i < end; i++)
-            if (population.get(i).getCost() < bestValue){
+            if (population.get(i).getCost() < bestValue) {
                 bestChromosome = population.get(i);
                 bestValue = population.get(i).getCost();
             }
@@ -338,8 +345,7 @@ public class GeneticAlgorithm {
      * @return a random number less than given bound
      */
     public int getRandInt(int bound) {
-        Random random = new Random();
-        return random.nextInt(bound);
+        return Random.getRandomIntInRange(new IRange(0, bound));
     }
 
     /**
@@ -355,6 +361,7 @@ public class GeneticAlgorithm {
     private class Chromosome implements Comparable<Chromosome> {
         public List<Integer> customersOrder;
         public List<Integer> customersVehicle;
+        public List<Integer> orderAcceptance;
 
         private double cost;
         private double travelCost;
@@ -369,6 +376,7 @@ public class GeneticAlgorithm {
         public Chromosome() {
             customersOrder = new ArrayList<>();
             customersVehicle = new ArrayList<>();
+            orderAcceptance = new ArrayList<>();
         }
 
         /**
@@ -377,6 +385,7 @@ public class GeneticAlgorithm {
         public Chromosome(Chromosome chromosome) {
             this.customersOrder = new ArrayList<>(chromosome.customersOrder);
             this.customersVehicle = new ArrayList<>(chromosome.customersVehicle);
+            this.orderAcceptance = new ArrayList<>(chromosome.orderAcceptance);
         }
 
         /**
@@ -390,7 +399,8 @@ public class GeneticAlgorithm {
             for (int i = 0; i < customersVehicle.size(); i++) {
                 if (batch[customersVehicle.get(i)] == null)
                     batch[customersVehicle.get(i)] = new ArrayList<>();
-                batch[customersVehicle.get(i)].add(customersOrder.get(i));
+                if (orderAcceptance.get(i) == 1)
+                    batch[customersVehicle.get(i)].add(customersOrder.get(i));
             }
 
             if (this.toString().equals("[1, 1, 1, 1, 1, 1, 1, 1] [1, 1, 1, 1, 1, 1, 1, 1]"))
@@ -439,7 +449,9 @@ public class GeneticAlgorithm {
 
         @Override
         public String toString() {
-            return customersOrder.toString() + " " + customersVehicle.toString();
+            return customersOrder.toString() + " " +
+                    customersVehicle.toString() + " " +
+                    orderAcceptance.toString();
         }
 
         @Override
