@@ -261,7 +261,7 @@ public class GeneticAlgorithm {
         }
 
         newChromosome.orderAcceptance = new ArrayList<>(chromosome1.orderAcceptance);
-        List<Integer> subList = chromosome2.orderAcceptance.subList(p1, p2);
+        List<Integer> subList = chromosome2.orderAcceptance.subList(p1, p2+1);
         for(int i=0 ; i<subList.size() ; i++)
             newChromosome.orderAcceptance.set(i+p1, subList.get(i));
 
@@ -316,6 +316,20 @@ public class GeneticAlgorithm {
         for (int k = p1; k <= p2; k++) {
             chromosome.customersVehicle.set(k, temp.get(k - p1));
         }
+
+        // mutate the orderAcceptance
+        p1 = getRandInt(customerQty);
+        p2 = getRandInt(customerQty);
+
+        // swap
+        if (p1 > p2) {
+            int tmp = p1;
+            p1 = p2;
+            p2 = tmp;
+        }
+
+        List<Integer> subList = chromosome.orderAcceptance.subList(p1, p2+1);
+        Collections.shuffle(subList);
 
         chromosome.isCostCalculated = false;
     }
