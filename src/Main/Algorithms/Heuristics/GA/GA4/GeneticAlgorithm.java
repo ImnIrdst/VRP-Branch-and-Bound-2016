@@ -249,6 +249,23 @@ public class GeneticAlgorithm {
             j++;
         }
 
+        // cross over the orderAcceptance
+        p1 = getRandInt(customerQty);
+        p2 = getRandInt(customerQty);
+
+        // swap
+        if (p1 > p2) {
+            int tmp = p1;
+            p1 = p2;
+            p2 = tmp;
+        }
+
+        newChromosome.orderAcceptance = new ArrayList<>(chromosome1.orderAcceptance);
+        List<Integer> subList = chromosome2.orderAcceptance.subList(p1, p2);
+        for(int i=0 ; i<subList.size() ; i++)
+            newChromosome.orderAcceptance.set(i+p1, subList.get(i));
+
+
         return newChromosome;
     }
 
@@ -300,6 +317,7 @@ public class GeneticAlgorithm {
             chromosome.customersVehicle.set(k, temp.get(k - p1));
         }
 
+        chromosome.isCostCalculated = false;
     }
 
 
@@ -345,7 +363,7 @@ public class GeneticAlgorithm {
      * @return a random number less than given bound
      */
     public int getRandInt(int bound) {
-        return Random.getRandomIntInRange(new IRange(0, bound));
+        return Random.getRandomIntInRange(new IRange(0, bound-1));
     }
 
     /**
