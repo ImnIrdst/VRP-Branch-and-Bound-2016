@@ -168,6 +168,7 @@ public class GeneticAlgorithm {
             newChromosome.orderAcceptance.add(Random.getRandomIntInRange(new IRange(0, 1)));
         }
 
+        // System.out.printf("%s, %.1f\n", newChromosome, newChromosome.cost);
         return newChromosome;
     }
 
@@ -261,11 +262,12 @@ public class GeneticAlgorithm {
         }
 
         newChromosome.orderAcceptance = new ArrayList<>(chromosome1.orderAcceptance);
-        List<Integer> subList = chromosome2.orderAcceptance.subList(p1, p2+1);
-        for(int i=0 ; i<subList.size() ; i++)
-            newChromosome.orderAcceptance.set(i+p1, subList.get(i));
+        List<Integer> subList = chromosome2.orderAcceptance.subList(p1, p2 + 1);
+        for (int i = 0; i < subList.size(); i++)
+            newChromosome.orderAcceptance.set(i + p1, subList.get(i));
 
 
+        // System.out.printf("%s, %.1f\n", newChromosome, newChromosome.cost);
         return newChromosome;
     }
 
@@ -328,7 +330,7 @@ public class GeneticAlgorithm {
             p2 = tmp;
         }
 
-        List<Integer> subList = chromosome.orderAcceptance.subList(p1, p2+1);
+        List<Integer> subList = chromosome.orderAcceptance.subList(p1, p2 + 1);
         Collections.shuffle(subList);
 
         chromosome.isCostCalculated = false;
@@ -382,7 +384,7 @@ public class GeneticAlgorithm {
      * @return a random number less than given bound
      */
     public int getRandInt(int bound) {
-        return Random.getRandomIntInRange(new IRange(0, bound-1));
+        return Random.getRandomIntInRange(new IRange(0, bound - 1));
     }
 
     /**
@@ -438,21 +440,23 @@ public class GeneticAlgorithm {
             maxGainCost = 0;
             vehicleUsageCost = 0;
 
+            if (this.orderAcceptance.toString().equals("[0, 1, 1, 0]")) {
+                customersVehicle = customersVehicle;
+            }
+
             List<Integer>[] batch = new ArrayList[vehicleQty];
             for (int i = 0; i < customersVehicle.size(); i++) {
-                if (batch[customersVehicle.get(i)] == null) {
-                    batch[customersVehicle.get(i)] = new ArrayList<>();
-                }
-                if (orderAcceptance.get(i) == 1) {
-                    batch[customersVehicle.get(i)].add(customersOrder.get(i));
+                if (orderAcceptance.get(customersOrder.get(i)) == 1) {
                     Vertex v = graph.getVertexById(customersOrder.get(i));
                     maxGainCost += v.maximumGain;
+
+                    if (batch[customersVehicle.get(v.getId())] == null) {
+                        batch[customersVehicle.get(v.getId())] = new ArrayList<>();
+                    }
+                    batch[customersVehicle.get(v.getId())].add(v.getId());
                 }
             }
 
-            if (this.toString().equals("[1, 1, 1, 1, 1, 1, 1, 1] [1, 1, 1, 1, 1, 1, 1, 1]")) {
-                customersVehicle = customersVehicle;
-            }
 
             double cumulativeProcessTime = 0;
             Vertex depot = graph.getVertexById(depotId);

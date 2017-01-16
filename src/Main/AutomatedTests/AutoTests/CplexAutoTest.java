@@ -70,7 +70,7 @@ public class CplexAutoTest {
             for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
 
                 Graph originalGraph = Graph.buildRandomGraphFromIntegerTestCase(testCase, testId);
-                if (testId > 0) break;
+//                if (testId > ) break;
 
                 Graph preprocessedGraph = originalGraph;
                 preprocessedGraph.setIds();
@@ -115,11 +115,11 @@ public class CplexAutoTest {
         addConstraint7();
         addConstraint8();
         addConstraint9();
-        addConstraint10();
+//        addConstraint10();
         addConstraint11();
-        addConstraint12_2();
-        addConstraint12_3();
-        addConstraint16_18();
+        addConstraint12();
+        addConstraint13();
+        addConstraint14_16();
     }
 
     public static void createDecisionVariables() throws IloException {
@@ -202,7 +202,7 @@ public class CplexAutoTest {
     }
 
     /**
-     * 2: each node is visited exactly once (Except Depot)
+     * 2:
      */
     public static void addConstraint2() throws IloException {
         for (int i = 0; i < nodesQty; i++) {
@@ -220,48 +220,49 @@ public class CplexAutoTest {
     }
 
     /**
-     * 3: when vehicle k is not used (Y_k=0),
-     * it does not drive between any pair of customers
+     * 3:
      */
     public static void addConstraint3() throws IloException {
         //3: If not using vehicle k...
         for (int k = 0; k < vehiclesQty; k++) {
-            IloLinearNumExpr expr2 = SCS.linearNumExpr();
+            IloLinearNumExpr expr1 = SCS.linearNumExpr();
             for (int i = 0; i < nodesQty; i++) {
                 for (int j = 0; j < nodesQty; j++) {
-                    expr2.addTerm(1.0, x[i][j][k]);
+                    expr1.addTerm(1.0, x[i][j][k]);
                 }
             }
-            SCS.add(SCS.ifThen(SCS.eq(y[k], 0), SCS.le(expr2, 0.0)));
+            IloLinearNumExpr expr2 = SCS.linearNumExpr();
+            expr2.addTerm(vehicleCapacity + 1, y[k]);
+            SCS.addLe(expr1, expr2);
+
+            expr1.clear();
             expr2.clear();
         }
     }
 
     /**
-     * 4: Guarantee that no vehicle is
-     * loaded with more than its capacity
+     *
      */
     public static void addConstraint4() throws IloException {
-        for (int k = 0; k < vehiclesQty; k++) {
-            IloLinearNumExpr expr2 = SCS.linearNumExpr();
-            for (int i = 0; i < nodesQty; i++) {
-                for (int j = 0; j < nodesQty; j++) {
-//                    if (j == depotId) continue;
-                    expr2.addTerm(1.0, x[i][j][k]);
-                }
-            }
-            SCS.addLe(expr2, vehicleCapacity + 1);
-            expr2.clear();
+        for (int i = 0; i < customersQty; i++) {
+            SCS.addGe(T[i], SCS.diff(D[i], vertexi(i).dueDate));
         }
+    }
 
-//        GlobalVars.log.println("Vehicle Capacity: " + vehicleCapacity);
+    public static void addConstraint5() throws IloException {
+        for (int i = 0; i < customersQty; i++) {
+            IloLinearNumExpr expr = SCS.linearNumExpr();
+            expr.addTerm(vertexi(i).deadline, Z[i]);
+            SCS.addLe(D[i], expr);
+            expr.clear();
+        }
     }
 
     /**
-     * 5: Ensures that if any vehicle is used,
+     * 6: Ensures that if any vehicle is used,
      * it certainly leaves the origin, and vice versa. at customer
      */
-    public static void addConstraint5() throws IloException {
+    public static void addConstraint6() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
             IloLinearNumExpr expr7 = SCS.linearNumExpr();
             for (int j = 0; j < nodesQty; j++) {
@@ -273,51 +274,54 @@ public class CplexAutoTest {
     }
 
     /**
-     * 6: if a vehicle arrives to a point, either any
+     * 7: if a vehicle arrives to a point, either any
      * customer or the origin, the vehicle must also leave that point
      */
-    public static void addConstraint6() throws IloException {
+    public static void addConstraint7() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
-            for (int h = 0; h < nodesQty; h++) {
+            for (int h = 0; h < customersQty; h++) {
                 IloLinearNumExpr expr5 = SCS.linearNumExpr();
                 IloLinearNumExpr expr6 = SCS.linearNumExpr();
-                if (h != depotId) {
-                    for (int i = 0; i < nodesQty; i++) {
-                        expr5.addTerm(1.0, x[i][h][k]);
-                    }
-                    for (int j = 0; j < nodesQty; j++) {
-                        expr6.addTerm(1.0, x[h][j][k]);
-                    }
-                }
+
+                for (int i = 0; i < nodesQty; i++) expr5.addTerm(1.0, x[i][h][k]);
+                for (int j = 0; j < nodesQty; j++) expr6.addTerm(1.0, x[h][j][k]);
                 SCS.addEq(expr5, expr6);
+
                 expr5.clear();
                 expr6.clear();
             }
         }
     }
 
+    public static void addConstraint8() throws IloException {
+        for (int i=0 ; i<customersQty ; i++) {
+            IloLinearNumExpr expr = SCS.linearNumExpr();
+            for (int j=0 ; j<customersQty ; j++) {
+                if (i == j) continue;
+                expr.addTerm(1.0, A[i][j]);
+            }
+            SCS.add(SCS.ifThen(SCS.eq(Z[i], 0.0), SCS.le(expr, 0.0)));
+        }
+    }
+
     /**
-     * 8:Constraints (7) and (8) are related to the processing
-     * sequence of the jobs, which is required to compute the completion
-     * time of each job. The completion time of a job is the process time
-     * of that job, in addition to sum of the process times of the jobs produced
-     * before that job
+     * 9
      */
-    public static void addConstraint7() throws IloException {
+    public static void addConstraint9() throws IloException {
         for (int i = 0; i < customersQty; i++) {
             for (int j = 0; j < customersQty; j++) {
                 if (i == j) continue;
-                IloLinearNumExpr expr = SCS.linearNumExpr();
-                expr.addTerm(1.0, A[i][j]);
-                expr.addTerm(1.0, A[j][i]);
+                IloLinearNumExpr expr1 = SCS.linearNumExpr();
+                expr1.addTerm(1.0, A[i][j]);
+                expr1.addTerm(1.0, A[j][i]);
 
                 IloLinearNumExpr expr2 = SCS.linearNumExpr();
                 expr2.addTerm(1.0, Z[i]);
                 expr2.addTerm(1.0, Z[j]);
 
-                SCS.add(SCS.ifThen(SCS.le(expr2, 1.0), SCS.le(expr, 1.0)));
+                SCS.add(SCS.ifThen(SCS.ge(expr2, 1.0), SCS.eq(expr1, 1.0)));
 
-                expr.clear();
+                expr1.clear();
                 expr2.clear();
             }
         }
@@ -330,7 +334,7 @@ public class CplexAutoTest {
      * of that job, in addition to sum of the process times of the jobs produced
      * before that job
      */
-    public static void addConstraint8() throws IloException {
+    public static void addConstraint10() throws IloException {
         for (int i = 0; i < customersQty; i++) {
             for (int j = 0; j < customersQty; j++) {
                 for (int r = 0; r < customersQty; r++) {
@@ -351,7 +355,7 @@ public class CplexAutoTest {
      * is carried by vehicle k, then the start time of vehicle k
      * must be greater than the completion time of that job.
      */
-    public static void addConstraint9() throws IloException {
+    public static void addConstraint11() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
             for (int j = 0; j < nodesQty; j++) {
                 IloLinearNumExpr expr1 = SCS.linearNumExpr();
@@ -383,13 +387,11 @@ public class CplexAutoTest {
      * than the delivery time of the previous customer, plus the
      * travel time between the two customers
      */
-    public static void addConstraint10() throws IloException {
+    public static void addConstraint12() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
-            for (int j = 0; j < nodesQty; j++) {
-                int i = depotId;
-                if (i == j) continue;
-                SCS.add(SCS.ifThen(SCS.eq(x[i][j][k], 1),
-                        SCS.ge(SCS.diff(D[j], S[k]), t[i][j])));
+            for (int j = 0; j < customersQty; j++) {
+                SCS.add(SCS.ifThen(SCS.eq(x[depotId][j][k], 1),
+                        SCS.ge(SCS.diff(D[j], S[k]), t[depotId][j])));
             }
         }
     }
@@ -405,7 +407,7 @@ public class CplexAutoTest {
      * than the delivery time of the previous customer, plus the
      * travel time between the two customers
      */
-    public static void addConstraint11() throws IloException {
+    public static void addConstraint13() throws IloException {
         for (int i = 0; i < nodesQty; i++) {
             for (int j = 0; j < nodesQty; j++) {
                 if (i == j) continue;
@@ -416,28 +418,14 @@ public class CplexAutoTest {
                     expr.addTerm(x[i][j][k], 1.0);
                 }
                 SCS.add(SCS.ifThen(SCS.eq(expr, 1),
-                        SCS.ge(SCS.diff(D[j], D[i]), (t[i][j]))));
+                        SCS.ge(SCS.diff(D[j], D[i]), t[i][j])));
                 expr.clear();
             }
         }
     }
 
-    private static void addConstraint12_2() throws IloException {
-        for (int i = 0; i < customersQty; i++) {
-            IloLinearNumExpr expr = SCS.linearNumExpr();
-            expr.addTerm(vertexi(i).deadline, Z[i]);
-            SCS.addLe(D[i], expr);
-            expr.clear();
-        }
-    }
 
-    private static void addConstraint12_3() throws IloException {
-        for (int i = 0; i < customersQty; i++) {
-            SCS.addLe(T[i], SCS.diff(D[i], vertexi(i).dueDate));
-        }
-    }
-
-    public static void addConstraint16_18() throws IloException {
+    public static void addConstraint14_16() throws IloException {
         for (int i = 0; i < nodesQty; i++) {
             SCS.addGe(D[i], 0);
             SCS.addGe(T[i], 0);
@@ -467,35 +455,47 @@ public class CplexAutoTest {
 
                 GlobalVars.log.println("Status = " + SCS.getStatus());
                 GlobalVars.log.println("Objective Value = " + String.format("%.2f", SCS.getObjValue()));
-                GlobalVars.log.println("yk, mdt, zk, dd, T, penalty");
-                for (int k = 0; k < vehiclesQty; k++) {
-                    long yk = Math.round(SCS.getValue(y[k]));
-                    GlobalVars.log.printf("Y%d(%d, %.1f) ", k, yk, SCS.getValue(S[k]));
-                    if (yk == 0) GlobalVars.log.println();
-                    if (yk == 0) continue;
-                    for (int i = nodesQty - 1; i >= 0; i--) {
-                        for (int j = nodesQty - 1; j >= 0; j--) {
-                            long xijk = Math.round(SCS.getValue(x[i][j][k]));
-                            double zjk = (SCS.getValue(D[j]));
-                            double djk = (SCS.getValue(T[j]));
-//                            double xijk = (SCS.getValue(x[i][j][k]));
 
-                            if (xijk == 0) continue;
-                            Vertex u = ppGraph.getVertexById(i);
-                            Vertex v = ppGraph.getVertexById(j);
+                GlobalVars.log.println(getCostDetailsString());
 
-                            GlobalVars.log.print(" "
-                                    + u
-                                    + " -("
-                                    + String.format("%.2f", ppGraph.getDistance(u, v))
-                                    + String.format(", %.2f", zjk) + String.format(", %.2f", djk * v.penalty)
-                                    + ")-> "
-                                    + v + ","
-                            );
-                        }
-                    }
-                    GlobalVars.log.println();
-                }
+                GlobalVars.log.print("Z[i]: ");
+                for (int i=0 ; i<nodesQty ; i++) GlobalVars.log.printf("%.0f ", SCS.getValue(Z[i]));
+                GlobalVars.log.println();
+                GlobalVars.log.flush();
+
+                double sumZ = 0;
+                for (int i=0 ; i<nodesQty ; i++) sumZ += SCS.getValue(Z[i]);
+//                if (sumZ < 1.5)
+//                    sumZ = sumZ;
+
+//                GlobalVars.log.println("yk, mdt, zk, dd, T, penalty");
+//                for (int k = 0; k < vehiclesQty; k++) {
+//                    long yk = Math.round(SCS.getValue(y[k]));
+//                    GlobalVars.log.printf("Y%d(%d, %.1f) ", k, yk, SCS.getValue(S[k]));
+//                    if (yk == 0) GlobalVars.log.println();
+//                    if (yk == 0) continue;
+//                    for (int i = nodesQty - 1; i >= 0; i--) {
+//                        for (int j = nodesQty - 1; j >= 0; j--) {
+//                            long xijk = Math.round(SCS.getValue(x[i][j][k]));
+//                            double zjk = (SCS.getValue(D[j]));
+//                            double djk = (SCS.getValue(T[j]));
+//
+//                            if (xijk == 0) continue;
+//                            Vertex u = ppGraph.getVertexById(i);
+//                            Vertex v = ppGraph.getVertexById(j);
+//
+//                            GlobalVars.log.print(" "
+//                                    + u
+//                                    + " -("
+//                                    + String.format("%.2f", ppGraph.getDistance(u, v))
+//                                    + String.format(", %.2f", zjk) + String.format(", %.2f", djk * v.penalty)
+//                                    + ")-> "
+//                                    + v + ","
+//                            );
+//                        }
+//                    }
+//                    GlobalVars.log.println();
+//                }
                 status = "" + SCS.getStatus();
 
                 expandedNodes = "" + SCS.getNnodes64();
@@ -532,6 +532,33 @@ public class CplexAutoTest {
 //        GlobalVars.log.println();
 
         System.out.println("Cplex: " + outputRow);
+    }
+
+    public static String getCostDetailsString() throws IloException {
+        double maxGainCost = 0;
+        double penaltyCost = 0;
+        double travelCost = 0;
+        double vehicleUsageCost = 0;
+
+        for (int i = 0; i < nodesQty; i++) {
+            maxGainCost += vertexi(i).maximumGain * SCS.getValue(Z[i]);
+            penaltyCost += -vertexi(i).penalty * SCS.getValue(T[i]);
+        }
+
+        for (int i = 0; i < nodesQty; i++) {
+            for (int j = 0; j < nodesQty; j++) {
+                for (int k = 0; k < vehiclesQty; k++) {
+                   travelCost += -t[i][j] * SCS.getValue(x[i][j][k]);
+                }
+            }
+        }
+
+        for (int k = 0; k < vehiclesQty; k++) {
+            vehicleUsageCost += -vehicleFixCost * SCS.getValue(y[k]);
+        }
+
+        return String.format("travelCost = %.1f; penaltyCost = %.1f; maxGainCost = %.1f; vehicleUsageCost = %.1f;",
+                travelCost, penaltyCost, maxGainCost, vehicleUsageCost);
     }
 
     public static Vertex vertexi(int i) {
