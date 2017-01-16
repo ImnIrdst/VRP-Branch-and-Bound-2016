@@ -1,5 +1,7 @@
 package Main.Graph;
 
+import Main.GlobalVars;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,6 +62,8 @@ public class Vertex {
         this.vehicleQty = vehicleQty;
         this.capacity = capacity;
         this.fixedCost = fixedCost;
+        this.deadline = GlobalVars.INF;
+        this.dueDate = GlobalVars.INF;
     }
 
     /**

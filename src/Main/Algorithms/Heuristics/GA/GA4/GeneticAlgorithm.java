@@ -372,6 +372,11 @@ public class GeneticAlgorithm {
                 + ", " + String.format("iterations: %d", iterations));
     }
 
+    public String bestChromosomeCostDetailsString() {
+        return String.format("travelCost = %.1f; penaltyCost = %.1f; maxGainCost = %.1f; vehicleUsageCost = %.1f;",
+                bestChromosome.travelCost, bestChromosome.penaltyCost, bestChromosome.maxGainCost, bestChromosome.vehicleUsageCost);
+    }
+
 
     /**
      * @return a random number less than given bound

@@ -26,7 +26,7 @@ public class SCSTestGenerator {
         DRange[] deadLineRanges = new DRange[]{new DRange(0, 0.5), new DRange(0.5, 1), new DRange(0, 1)};
         IRange[] penaltyRanges = new IRange[]{new IRange(1, 5), new IRange(5, 10), new IRange(1, 10)};
         IRange[] edgeWeightsRanges = new IRange[]{new IRange(1, 50), new IRange(50, 100), new IRange(1, 100)};
-        IRange[] maxGainRanges = new IRange[]{new IRange(1, 10)};
+        IRange[] maxGainRanges = new IRange[]{new IRange(50, 100)};
         for (int customerQty : customerQtys) {
             for (int vehicleQty : vehicleQtys) {
                 for (double fixCost : fixedCosts) {

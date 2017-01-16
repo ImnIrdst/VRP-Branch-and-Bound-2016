@@ -98,7 +98,8 @@ public class Graph {
 
         // Add The Edges
         for (Vertex u : graph.getVertices()) {
-            u.dueDate = (int) (u.dueDate * sumOfProcessTimes); // (0.4*sumOfProcessTimes - 0.7*sumOfProcessTimes)
+            u.dueDate = (int) (u.dueDate * sumOfProcessTimes*2); // (0.4*sumOfProcessTimes - 0.7*sumOfProcessTimes)
+            u.deadline = (int) (u.deadline * sumOfProcessTimes*2); // (0.4*sumOfProcessTimes - 0.7*sumOfProcessTimes)
             for (Vertex v : graph.getVertices()) {
                 if (u.name.equals(v.name)) continue;
                 Edge e = new Edge(u, v, Random.getRandomIntInRange(testCase.edgeWeightRange));

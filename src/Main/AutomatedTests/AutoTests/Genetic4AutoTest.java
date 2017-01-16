@@ -58,6 +58,7 @@ public class Genetic4AutoTest {
                             originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
                     geneticAlgorithm.run(geneticTime, 1000, 2000);
                     GlobalVars.log.println(geneticAlgorithm.bestChromosomeString());
+                    GlobalVars.log.println(geneticAlgorithm.bestChromosomeCostDetailsString());
                     GlobalVars.log.println(GlobalVars.equalsLine);
 
                     String iterations = "" + geneticAlgorithm.iterations;
