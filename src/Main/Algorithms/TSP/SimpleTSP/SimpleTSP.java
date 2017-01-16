@@ -22,7 +22,6 @@ public class SimpleTSP {
     }
 
     public void run() {
-
         this.arrivalTime = this.startTime;
         for (int i = 0; i < waitingList.size(); i++) {
             Vertex current = graph.getVertexById(waitingList.get(i));
@@ -30,7 +29,10 @@ public class SimpleTSP {
             if (i != 0) previous = graph.getVertexById(waitingList.get(i - 1));
 
             this.arrivalTime += graph.getDistance(previous, current);
-            this.penaltyTaken += Math.max(this.arrivalTime - current.dueDate, 0) * current.penalty;
+            if (this.arrivalTime <= current.deadline)
+                this.penaltyTaken += Math.max(this.arrivalTime - current.dueDate, 0) * current.penalty;
+            else
+                this.penaltyTaken += GlobalVars.INF;
         }
 
         this.travelTime = this.arrivalTime - this.startTime;

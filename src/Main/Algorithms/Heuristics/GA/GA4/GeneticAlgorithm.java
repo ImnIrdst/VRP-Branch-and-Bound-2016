@@ -173,14 +173,14 @@ public class GeneticAlgorithm {
 
     public Chromosome tournament(List<Chromosome> population, int begin, int end) {
         Chromosome bestChromosome = null;
-        double bestValue = GlobalVars.INF + 1e-9;
+        double bestValue = -GlobalVars.INF - 1e-9;
         for (int i = begin; i < end; i++)
-            if (population.get(i).getCost() < bestValue) {
+            if (population.get(i).getCost() > bestValue) {
                 bestChromosome = population.get(i);
                 bestValue = population.get(i).getCost();
             }
 
-        if (bestValue >= GlobalVars.INF + 1e-9) bestChromosome = population.get(begin);
+        if (bestValue <= -GlobalVars.INF - 1e-9) bestChromosome = population.get(begin);
         return bestChromosome;
     }
 
@@ -369,7 +369,7 @@ public class GeneticAlgorithm {
     public String bestChromosomeString() {
         return ("Best Chromosome: " + bestChromosome
                 + ", " + String.format("Cost: %.2f", minimumCost)
-                + ", " + String.format("Cost: %d", iterations));
+                + ", " + String.format("iterations: %d", iterations));
     }
 
 
@@ -399,6 +399,7 @@ public class GeneticAlgorithm {
         private double travelCost;
         private double penaltyCost;
         private double vehicleUsageCost;
+        private double maxGainCost;
 
         private boolean isCostCalculated = false;
 
@@ -427,26 +428,33 @@ public class GeneticAlgorithm {
             if (isCostCalculated == true)
                 return cost;
 
-            List<Integer>[] batch = new ArrayList[vehicleQty];
-            for (int i = 0; i < customersVehicle.size(); i++) {
-                if (batch[customersVehicle.get(i)] == null)
-                    batch[customersVehicle.get(i)] = new ArrayList<>();
-                if (orderAcceptance.get(i) == 1)
-                    batch[customersVehicle.get(i)].add(customersOrder.get(i));
-            }
-
-            if (this.toString().equals("[1, 1, 1, 1, 1, 1, 1, 1] [1, 1, 1, 1, 1, 1, 1, 1]"))
-                customersVehicle = customersVehicle;
-
-            vehicleUsageCost = 0;
             travelCost = 0;
             penaltyCost = 0;
+            maxGainCost = 0;
+            vehicleUsageCost = 0;
+
+            List<Integer>[] batch = new ArrayList[vehicleQty];
+            for (int i = 0; i < customersVehicle.size(); i++) {
+                if (batch[customersVehicle.get(i)] == null) {
+                    batch[customersVehicle.get(i)] = new ArrayList<>();
+                }
+                if (orderAcceptance.get(i) == 1) {
+                    batch[customersVehicle.get(i)].add(customersOrder.get(i));
+                    Vertex v = graph.getVertexById(customersOrder.get(i));
+                    maxGainCost += v.maximumGain;
+                }
+            }
+
+            if (this.toString().equals("[1, 1, 1, 1, 1, 1, 1, 1] [1, 1, 1, 1, 1, 1, 1, 1]")) {
+                customersVehicle = customersVehicle;
+            }
 
             double cumulativeProcessTime = 0;
             Vertex depot = graph.getVertexById(depotId);
 
             for (int i = 0; i < batch.length; i++) {
                 if (batch[i] == null) continue;
+                if (batch[i].size() == 0) continue;
 
                 if (batch[i].size() > depot.capacity) {
                     this.cost = GlobalVars.INF;
@@ -464,19 +472,19 @@ public class GeneticAlgorithm {
                 SimpleTSP tsp = new SimpleTSP(graph, batch[i], cumulativeProcessTime);
                 tsp.run();
 
-                vehicleUsageCost += depot.fixedCost;
-                travelCost += tsp.travelTime;
-                penaltyCost += tsp.penaltyTaken;
+                vehicleUsageCost -= depot.fixedCost;
+                travelCost -= tsp.travelTime;
+                penaltyCost -= tsp.penaltyTaken;
             }
 
             this.isCostCalculated = true;
-            this.cost = vehicleUsageCost + travelCost + penaltyCost;
+            this.cost = maxGainCost + penaltyCost + vehicleUsageCost + travelCost;
             return cost;
         }
 
         @Override
         public int compareTo(Chromosome o) {
-            return Double.compare(this.getCost(), o.getCost());
+            return Double.compare(o.getCost(), this.getCost());
         }
 
         @Override
