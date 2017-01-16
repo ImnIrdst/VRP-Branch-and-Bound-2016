@@ -65,7 +65,7 @@ public class CplexAutoTest {
         SCSTestGenerator testGenerator = new SCSTestGenerator();
         testGenerator.addSmallTestsV1();
 
-        for (int testId = 0; testGenerator.hasNextTestCase();) {
+        for (int testId = 0; testGenerator.hasNextTestCase(); ) {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
 
@@ -76,6 +76,8 @@ public class CplexAutoTest {
                 preprocessedGraph.setIds();
                 GlobalVars.setTheGlobalVariables(preprocessedGraph);
                 GlobalVars.log.println(originalGraph.getVerticesFormattedString());
+                GlobalVars.log.println(originalGraph.getAdjacencyMatrixFormattedString());
+                GlobalVars.log.flush();
 
                 t = preprocessedGraph.getAdjacencyMatrix();
                 depotId = GlobalVars.depotId;
@@ -104,7 +106,7 @@ public class CplexAutoTest {
         createDecisionVariables();
         createObjectiveFunctions();
 
-        addConstraint1();
+        addConstraint0();
         addConstraint2();
         addConstraint3();
         addConstraint4();
@@ -115,7 +117,8 @@ public class CplexAutoTest {
         addConstraint9();
         addConstraint10();
         addConstraint11();
-        addConstraint12();
+        addConstraint12_2();
+        addConstraint12_3();
         addConstraint16_18();
     }
 
@@ -134,6 +137,12 @@ public class CplexAutoTest {
         for (int k = 0; k < vehiclesQty; k++) {
             y[k] = SCS.boolVar();
         }
+
+        Z = new IloNumVar[nodesQty];
+        for (int i = 0; i < nodesQty; i++) {
+            Z[i] = SCS.boolVar();
+        }
+
 
         A = new IloNumVar[nodesQty][nodesQty];
         for (int i = 0; i < nodesQty; i++) {
@@ -161,28 +170,30 @@ public class CplexAutoTest {
     public static void createObjectiveFunctions() throws IloException {
         //-------------Objective Function-------------------
         IloLinearNumExpr obj = SCS.linearNumExpr();
+
+        for (int i = 0; i < nodesQty; i++) {
+            obj.addTerm(vertexi(i).maximumGain, Z[i]);
+            obj.addTerm(-vertexi(i).penalty, T[i]);
+        }
+
         for (int i = 0; i < nodesQty; i++) {
             for (int j = 0; j < nodesQty; j++) {
                 for (int k = 0; k < vehiclesQty; k++) {
-                    obj.addTerm(t[i][j], x[i][j][k]);
+                    obj.addTerm(-t[i][j], x[i][j][k]);
                 }
             }
         }
 
         for (int k = 0; k < vehiclesQty; k++) {
-            obj.addTerm(vehicleFixCost, y[k]);
+            obj.addTerm(-vehicleFixCost, y[k]);
         }
 
-        for (int i = 0; i < nodesQty; i++) {
-            obj.addTerm(vertexi(i).penalty, T[i]);
-        }
-
-        SCS.addMinimize(obj);
+        SCS.addMaximize(obj);
 
         obj.clear();
     }
 
-    public static void addConstraint1() throws IloException {
+    public static void addConstraint0() throws IloException {
         for (int k = 0; k < vehiclesQty; k++) {
             for (int i = 0; i < nodesQty; i++) {
                 SCS.addEq(x[i][i][k], 0.0);
@@ -203,7 +214,7 @@ public class CplexAutoTest {
                     expr1.addTerm(1.0, x[j][i][k]);
                 }
             }
-            SCS.addEq(expr1, 1.0);
+            SCS.addEq(expr1, Z[i]);
             expr1.clear();
         }
     }
@@ -299,8 +310,15 @@ public class CplexAutoTest {
                 IloLinearNumExpr expr = SCS.linearNumExpr();
                 expr.addTerm(1.0, A[i][j]);
                 expr.addTerm(1.0, A[j][i]);
-                SCS.addEq(expr, 1.0);
+
+                IloLinearNumExpr expr2 = SCS.linearNumExpr();
+                expr2.addTerm(1.0, Z[i]);
+                expr2.addTerm(1.0, Z[j]);
+
+                SCS.add(SCS.ifThen(SCS.le(expr2, 1.0), SCS.le(expr, 1.0)));
+
                 expr.clear();
+                expr2.clear();
             }
         }
     }
@@ -404,9 +422,18 @@ public class CplexAutoTest {
         }
     }
 
-    public static void addConstraint12() throws IloException {
+    private static void addConstraint12_2() throws IloException {
         for (int i = 0; i < customersQty; i++) {
-            SCS.addGe(T[i], SCS.diff(D[i], vertexi(i).dueDate));
+            IloLinearNumExpr expr = SCS.linearNumExpr();
+            expr.addTerm(vertexi(i).deadline, Z[i]);
+            SCS.addLe(D[i], expr);
+            expr.clear();
+        }
+    }
+
+    private static void addConstraint12_3() throws IloException {
+        for (int i = 0; i < customersQty; i++) {
+            SCS.addLe(T[i], SCS.diff(D[i], vertexi(i).dueDate));
         }
     }
 
@@ -414,6 +441,8 @@ public class CplexAutoTest {
         for (int i = 0; i < nodesQty; i++) {
             SCS.addGe(D[i], 0);
             SCS.addGe(T[i], 0);
+            SCS.addGe(Z[i], 0);
+
         }
         for (int k = 0; k < vehiclesQty; k++) {
             SCS.addGe(S[k], 0);
@@ -446,7 +475,7 @@ public class CplexAutoTest {
                     if (yk == 0) continue;
                     for (int i = nodesQty - 1; i >= 0; i--) {
                         for (int j = nodesQty - 1; j >= 0; j--) {
-                        long xijk = Math.round(SCS.getValue(x[i][j][k]));
+                            long xijk = Math.round(SCS.getValue(x[i][j][k]));
                             double zjk = (SCS.getValue(D[j]));
                             double djk = (SCS.getValue(T[j]));
 //                            double xijk = (SCS.getValue(x[i][j][k]));
@@ -479,7 +508,7 @@ public class CplexAutoTest {
                 GlobalVars.log.println("Can't be solved!!!!");
             }
 
-        } catch (Exception | java.lang.OutOfMemoryError e) {
+        } catch (java.lang.OutOfMemoryError e) {
             optimalValue = "ML";
             long finishTime = System.currentTimeMillis();
             elapsedTime = String.format("%.2f", (finishTime - startTime) / 1000.);

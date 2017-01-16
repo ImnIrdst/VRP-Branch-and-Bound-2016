@@ -98,7 +98,7 @@ public class Graph {
 
         // Add The Edges
         for (Vertex u : graph.getVertices()) {
-            u.dueDate = (int)(u.dueDate * sumOfProcessTimes); // (0.4*sumOfProcessTimes - 0.7*sumOfProcessTimes)
+            u.dueDate = (int) (u.dueDate * sumOfProcessTimes); // (0.4*sumOfProcessTimes - 0.7*sumOfProcessTimes)
             for (Vertex v : graph.getVertices()) {
                 if (u.name.equals(v.name)) continue;
                 Edge e = new Edge(u, v, Random.getRandomIntInRange(testCase.edgeWeightRange));
@@ -194,6 +194,33 @@ public class Graph {
         return sb.toString();
     }
 
+    public String getAdjacencyMatrixFormattedString() {
+        double[][] t = getAdjacencyMatrix();
+        int n = adjacencyList.size();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Adjacency Matrix\n");
+        sb.append(GlobalVars.equalsLine).append("\n");
+
+        sb.append(String.format("%6s", "/"));
+        for (int i = 0; i < n; i++)
+            sb.append(String.format("%6s", getVertexById(i).name));
+        sb.append("\n");
+        for (int i = 0; i < n; i++) {
+            sb.append(String.format("%6s", getVertexById(i).name));
+            for (int j = 0; j < n; j++) {
+                if (t[i][j] > GlobalVars.INF-10)
+                    sb.append(String.format("%6.1f", 0.0));
+                else
+                    sb.append(String.format("%6.1f", t[i][j]));
+            }
+            sb.append("\n");
+        }
+
+        sb.append(GlobalVars.equalsLine).append("\n");
+        return sb.toString();
+    }
+
     /**
      * @return the vertex with given name
      */
@@ -251,7 +278,7 @@ public class Graph {
     /**
      * @return distance between to nodes (by id)
      */
-    public double getDistance(int uId, int vId){
+    public double getDistance(int uId, int vId) {
         Vertex v = getVertexById(uId);
         Vertex u = getVertexById(vId);
         return getDistance(u, v);

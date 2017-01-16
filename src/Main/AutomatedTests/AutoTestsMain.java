@@ -11,12 +11,12 @@ import Main.GlobalVars;
  */
 public class AutoTestsMain {
     public static void main(String[] args) throws Exception {
-        GlobalVars.initTheLogFile("resources/Experiments/Ex2/log-tmp.txt");
+        GlobalVars.initTheLogFile("resources/log-tmp.txt");
 
-        CplexAutoTest.main(args);
+//        CplexAutoTest.main(args);
 //        Genetic1AutoTest.main(args);
 //        Genetic3AutoTest.main(args);
-//        Genetic4AutoTest.main(args);
+        Genetic4AutoTest.main(args);
 
         GlobalVars.log.close();
     }
