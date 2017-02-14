@@ -1,6 +1,6 @@
 package Main.AutomatedTests.AutoTests;
 
-import Main.Algorithms.Heuristics.GA.GA4.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
 import Main.AutomatedTests.TestCases.IntegerTestCase.SCSTestCase;
 import Main.AutomatedTests.TestCases.IntegerTestCase.SCSTestGenerator;
 import Main.GlobalVars;
@@ -14,7 +14,7 @@ import java.io.PrintWriter;
 /**
  * for running the algorithm
  */
-public class Genetic4AutoTest {
+public class GeneticAutoTest {
     static final int testBatch = 10;
     private static final int INSTANCES_PER_TESTCASE = 10;
 

@@ -1,9 +1,7 @@
 package Main.AutomatedTests;
 
 import Main.AutomatedTests.AutoTests.CplexAutoTest;
-import Main.AutomatedTests.AutoTests.Genetic1AutoTest;
-import Main.AutomatedTests.AutoTests.Genetic3AutoTest;
-import Main.AutomatedTests.AutoTests.Genetic4AutoTest;
+import Main.AutomatedTests.AutoTests.GeneticAutoTest;
 import Main.GlobalVars;
 
 /**
@@ -16,7 +14,7 @@ public class AutoTestsMain {
 //        CplexAutoTest.main(args);
 //        Genetic1AutoTest.main(args);
 //        Genetic3AutoTest.main(args);
-        Genetic4AutoTest.main(args);
+        GeneticAutoTest.main(args);
 
         GlobalVars.log.close();
     }

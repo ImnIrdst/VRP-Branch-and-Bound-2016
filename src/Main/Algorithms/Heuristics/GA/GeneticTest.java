@@ -1,4 +1,4 @@
-package Main.Algorithms.Heuristics.GA.GA2;
+package Main.Algorithms.Heuristics.GA;
 
 import Main.Algorithms.Dijkstra.Dijkstra;
 import Main.AutomatedTests.TestCases.IntegerTestCase.SCSTestGenerator;
@@ -10,7 +10,7 @@ import java.io.FileNotFoundException;
 /**
  * Created by IMN on 10/8/2016.
  */
-public class GeneticTest2 {
+public class GeneticTest {
     public static void main(String[] args) throws FileNotFoundException {
         SCSTestGenerator scsTestGenerator = new SCSTestGenerator();
         Graph originalGraph = Graph.buildRandomGraphFromIntegerTestCase(scsTestGenerator.getNextTestCase(), 0);
@@ -38,10 +38,9 @@ public class GeneticTest2 {
         // run the genetic algorithm
 
         int geneticTime = 10000;
-        int maxIterationsNoUpdate = 1000;
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
                 preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
-        geneticAlgorithm.run(geneticTime, maxIterationsNoUpdate);
-        geneticAlgorithm.printBestChromosome();
+        geneticAlgorithm.run(geneticTime, 1000 , 2000);
+        geneticAlgorithm.bestChromosomeString();
     }
 }
