@@ -26,9 +26,9 @@ public class GeneticAlgorithm {
     private Chromosome bestChromosome;
     private List<Chromosome> population;
 
-    private final double MUTATION_PROBABILITY = 0.10;
-    private final double CROSSOVER_PROBABILITY = 0.80;
-    private final int TOURNAMENT_SIZE = 4;
+    private final double MUTATION_PROBABILITY = GeneticParams.MUTATION_PROBABILITY;
+    private final double CROSSOVER_PROBABILITY = GeneticParams.CROSSOVER_PROBABILITY;
+    private final int TOURNAMENT_SIZE = GeneticParams.TOURNAMENT_SIZE;
 
     private final boolean IS_VERBOSE = true;
     private final boolean IS_DEBUG_MODE = false;
@@ -122,6 +122,17 @@ public class GeneticAlgorithm {
         }
 
         finishTime = System.currentTimeMillis();
+    }
+
+    /**
+     * Runs the genetic algorithm with Genetic Params Class attributes
+     */
+    public void run() {
+        this.run(
+                GeneticParams.COMPUTE_DURATION_MILLISECONDS,
+                GeneticParams.MAX_ITERATIONS_NO_UPDATE,
+                GeneticParams.ITERATIONS_LIMIT
+        );
     }
 
     /**
