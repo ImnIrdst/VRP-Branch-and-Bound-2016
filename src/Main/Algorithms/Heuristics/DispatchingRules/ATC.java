@@ -15,13 +15,6 @@ public class ATC {
     private double result = 0;
     private List<Integer> path;
 
-    List<Integer> S, T, N, Np, U;
-    int v;
-    double A;
-
-    double arrivalTime;
-    Integer prevVertexId;
-
     private long startTime;
     private long finishTime;
 

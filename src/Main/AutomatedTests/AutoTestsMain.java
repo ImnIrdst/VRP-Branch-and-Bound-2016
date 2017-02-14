@@ -1,6 +1,6 @@
 package Main.AutomatedTests;
 
-import Main.AutomatedTests.AutoTests.CplexAutoTest;
+//import Main.AutomatedTests.AutoTests.CplexAutoTest;
 import Main.AutomatedTests.AutoTests.GeneticAutoTest;
 import Main.GlobalVars;
 
