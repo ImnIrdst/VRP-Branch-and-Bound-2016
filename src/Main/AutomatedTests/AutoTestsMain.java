@@ -9,7 +9,7 @@ import Main.GlobalVars;
  */
 public class AutoTestsMain {
     public static void main(String[] args) throws Exception {
-//        GlobalVars.initTheLogFile("resources/log-tmp.txt");
+        GlobalVars.initTheLogFile("resources/log-tmp.txt");
 
 //        CplexAutoTest.main(args);
 //        Genetic1AutoTest.main(args);

@@ -18,6 +18,8 @@ public class Graph {
     public Map<String, Vertex> adjacencyList; // adjacency customers: mapping of vertex names to Vertex objects, built from a setCustomer of Edge
     public Map<Integer, Vertex> idToVertexMap; // maps vertex Id to Vertex
 
+    double overallAverageDistance = -1;
+
     /**
      * Constructor: Default
      */
@@ -37,39 +39,6 @@ public class Graph {
         }
     }
 
-//    public static Graph buildRandomGraphFromDoubleTestCase(
-//            Main.AutomatedTests.TestCases.DoubleTestCase.SCSTestCase testCase, int seed) {
-//        Random.setSeed(seed);
-//
-//        Graph graph = new Graph();
-//        // Add Depot Vertex
-//        int capacity = (int) (testCase.customerQty * Random.getRandomDoubleInRange(testCase.capacityRange));
-//        graph.addVertex(new Vertex("Dp", VertexType.DEPOT, testCase.vehicleQty, capacity, testCase.fixCost));
-//
-//        // Build the Customer Vertices
-//        double sumOfProcessTimes = 0;
-//        for (int i = 0; i < testCase.customerQty; i++) {
-//            String name = "" + (char) ('A' + i);
-//            double processTime = Random.getRandomDoubleInRange(testCase.processTimeRange);
-//            double dueDate = Random.getRandomDoubleInRange(testCase.dueDateRange);
-//            double deadline = Random.getRandomDoubleInRange(testCase.)
-//            double penalty = Random.getRandomDoubleInRange(testCase.penaltyRange);
-//            graph.addVertex(new Vertex(name, VertexType.CUSTOMER, processTime, dueDate, deadline, penalty));
-//
-//            sumOfProcessTimes += processTime;
-//        }
-//
-//        // Add The Edges
-//        for (Vertex u : graph.getVertices()) {
-//            u.dueDate *= sumOfProcessTimes; // (0.4*sumOfProcessTimes - 0.7*sumOfProcessTimes)
-//            for (Vertex v : graph.getVertices()) {
-//                if (u.name.equals(v.name)) continue;
-//                Edge e = new Edge(u, v, Random.getRandomDoubleInRange(testCase.edgeWeightRange));
-//                graph.addEdge(e);
-//            }
-//        }
-//
-//        return graph;
 //    }
 
     public static Graph buildRandomGraphFromIntegerTestCase(
@@ -247,13 +216,13 @@ public class Graph {
         return adjacencyList.values();
     }
 
+
     /**
      * @return customers of customers (customers of neighbors of depot)
      */
     public Collection<Vertex> getCustomerVertices() {
         return getVertexById(getDepotId()).neighbours.keySet();
     }
-
 
     public int getDepotId() {
         return getCustomersQty();
@@ -304,5 +273,21 @@ public class Graph {
             }
         }
         return newGraph;
+    }
+    public double getOverallAverageDistance() {
+        if (overallAverageDistance < 0) {
+            double sum = 0, count = 0;
+            for (Vertex u: getVertices()){
+                for (Vertex v: getVertices()) {
+                    if (u.name.equals(v.name)) continue;
+
+                    count++;
+                    sum += getDistance(u, v);
+                }
+            }
+            overallAverageDistance = sum / count;
+            return overallAverageDistance;
+        }
+        return overallAverageDistance;
     }
 }

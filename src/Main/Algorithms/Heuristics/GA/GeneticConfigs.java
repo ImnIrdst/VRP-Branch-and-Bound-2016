@@ -3,7 +3,7 @@ package Main.Algorithms.Heuristics.GA;
 /**
  * Created by iman on 2/14/17.
  */
-public class GeneticParams {
+public class GeneticConfigs {
     public static final double MUTATION_PROBABILITY = 0.10;
     public static final double CROSSOVER_PROBABILITY = 0.80;
     public static final int TOURNAMENT_SIZE = 4;

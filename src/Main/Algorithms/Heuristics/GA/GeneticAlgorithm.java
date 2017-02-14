@@ -2,13 +2,12 @@ package Main.Algorithms.Heuristics.GA;
 
 import Main.Algorithms.Other.Random;
 import Main.Algorithms.Other.Random.IRange;
-import Main.Algorithms.Other.Random.DRange;
+import Main.Algorithms.Other.RollingWheel;
 import Main.Algorithms.TSP.SimpleTSP.SimpleTSP;
 import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
 
-import java.io.PrintStream;
 import java.util.*;
 
 /**
@@ -26,9 +25,9 @@ public class GeneticAlgorithm {
     private Chromosome bestChromosome;
     private List<Chromosome> population;
 
-    private final double MUTATION_PROBABILITY = GeneticParams.MUTATION_PROBABILITY;
-    private final double CROSSOVER_PROBABILITY = GeneticParams.CROSSOVER_PROBABILITY;
-    private final int TOURNAMENT_SIZE = GeneticParams.TOURNAMENT_SIZE;
+    private final double MUTATION_PROBABILITY = GeneticConfigs.MUTATION_PROBABILITY;
+    private final double CROSSOVER_PROBABILITY = GeneticConfigs.CROSSOVER_PROBABILITY;
+    private final int TOURNAMENT_SIZE = GeneticConfigs.TOURNAMENT_SIZE;
 
     private final boolean IS_VERBOSE = true;
     private final boolean IS_DEBUG_MODE = false;
@@ -127,11 +126,11 @@ public class GeneticAlgorithm {
     /**
      * Runs the genetic algorithm with Genetic Params Class attributes
      */
-    public void run() {
+    public void runUsingConfigFile() {
         this.run(
-                GeneticParams.COMPUTE_DURATION_MILLISECONDS,
-                GeneticParams.MAX_ITERATIONS_NO_UPDATE,
-                GeneticParams.ITERATIONS_LIMIT
+                GeneticConfigs.COMPUTE_DURATION_MILLISECONDS,
+                GeneticConfigs.MAX_ITERATIONS_NO_UPDATE,
+                GeneticConfigs.ITERATIONS_LIMIT
         );
     }
 
@@ -158,17 +157,26 @@ public class GeneticAlgorithm {
         Arrays.fill(remainedCapacity, GlobalVars.depot.capacity);
 
         for (int i = 0; i < customerQty && vehicles.size() > 0; i++) {
-            Collections.shuffle(vehicles);
+            double[] vehicleProbabilities = new double[vehicleQty];
+            for (int vId = 0; vId < vehicleQty; vId++) {
+                if (remainedCapacity[vId] <= 0) vehicleProbabilities[vId] = 0;
+                else {
+                    double sumOfDistance = 0, count = 0;
+                    for (int j = 0; j < newChromosome.customersVehicle.size(); j++) {
+                        if (newChromosome.customersVehicle.get(j) != vId) continue;
 
-            int vId;
-            while (true) { // peek the vehicle that is not reached its capacity
-                vId = vehicles.get(vehicles.size() - 1);
-                remainedCapacity[vId]--;
-                if (remainedCapacity[vId] >= 0) break;
-                else vehicles.remove(vehicles.size() - 1);
+                        count += 1;
+                        sumOfDistance += graph.getDistance(i, j);
+                    }
+
+                    if (count == 0) vehicleProbabilities[vId] = graph.getOverallAverageDistance();
+                    if (count != 0) vehicleProbabilities[vId] = sumOfDistance / count; // average distance
+                }
             }
+            int selectedVId = RollingWheel.run(vehicleProbabilities);
 
-            newChromosome.customersVehicle.add(vId);
+            remainedCapacity[selectedVId]--;
+            newChromosome.customersVehicle.add(selectedVId);
         }
 
         for (int i = 0; i < customerQty; i++)
