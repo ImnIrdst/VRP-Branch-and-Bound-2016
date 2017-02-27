@@ -1,6 +1,7 @@
 package Main.AutomatedTests.AutoTests;
 
-import Main.Algorithms.Heuristics.GA.GeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.HeuristicGeneticAlgorithm;
+import Main.Algorithms.Heuristics.GA.SimpleGeneticAlgorithm;
 import Main.AutomatedTests.TestCases.IntegerTestCase.SCSTestCase;
 import Main.AutomatedTests.TestCases.IntegerTestCase.SCSTestGenerator;
 import Main.GlobalVars;
@@ -14,7 +15,7 @@ import java.io.PrintWriter;
 /**
  * for running the algorithm
  */
-public class GeneticAutoTest {
+public class HeuristicGeneticAlgorithmTest {
     static final int testBatch = 10;
     private static final int INSTANCES_PER_TESTCASE = 10;
 
@@ -41,7 +42,7 @@ public class GeneticAutoTest {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
                 for (int batch = 0; batch < testBatch; batch++, id++) {
-                    if (id > 100) break;
+                    if (id > 20) break;
 
                     Graph originalGraph = Graph.buildRandomGraphFromIntegerTestCase(testCase, testId);
 
@@ -54,9 +55,9 @@ public class GeneticAutoTest {
                     int geneticTime = 100000;
 
                     // run the genetic algorithm
-                    GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                            originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
-                    geneticAlgorithm.run(geneticTime, 1000, 2000);
+                    HeuristicGeneticAlgorithm geneticAlgorithm = new HeuristicGeneticAlgorithm(
+                            originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles);
+                    geneticAlgorithm.runUsingConfigFile();
                     GlobalVars.log.println(geneticAlgorithm.bestChromosomeString());
                     GlobalVars.log.println(geneticAlgorithm.bestChromosomeCostDetailsString());
                     GlobalVars.log.println(GlobalVars.equalsLine);
@@ -80,7 +81,7 @@ public class GeneticAutoTest {
                     out.flush();
                     GlobalVars.log.flush();
 
-                    System.out.println("GA4: " + tableRow);
+                    System.out.println("HeuristicGA: " + tableRow);
                 }
             }
         }

@@ -38,9 +38,9 @@ public class GeneticTest {
         // run the genetic algorithm
 
         int geneticTime = 10000;
-        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(
-                preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles, 200);
-        geneticAlgorithm.run(geneticTime, 1000 , 2000);
+        SimpleGeneticAlgorithm geneticAlgorithm = new SimpleGeneticAlgorithm(
+                preprocessedGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles);
+        geneticAlgorithm.runUsingConfigFile();
         geneticAlgorithm.bestChromosomeString();
     }
 }

@@ -1,7 +1,8 @@
 package Main.AutomatedTests;
 
 //import Main.AutomatedTests.AutoTests.CplexAutoTest;
-import Main.AutomatedTests.AutoTests.GeneticAutoTest;
+import Main.AutomatedTests.AutoTests.HeuristicGeneticAlgorithmTest;
+import Main.AutomatedTests.AutoTests.SimpleGeneticAlgorithmTest;
 import Main.GlobalVars;
 
 /**
@@ -12,9 +13,8 @@ public class AutoTestsMain {
         GlobalVars.initTheLogFile("resources/log-tmp.txt");
 
 //        CplexAutoTest.main(args);
-//        Genetic1AutoTest.main(args);
-//        Genetic3AutoTest.main(args);
-        GeneticAutoTest.main(args);
+        SimpleGeneticAlgorithmTest.main(args);
+        HeuristicGeneticAlgorithmTest.main(args);
 
         GlobalVars.log.close();
     }

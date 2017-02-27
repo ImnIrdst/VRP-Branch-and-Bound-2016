@@ -8,14 +8,17 @@ import Main.GlobalVars;
 import Main.Graph.Graph;
 import Main.Graph.Vertex;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An Implementation of GA Algorithm used for
  * calculating an upper bound for our problem (VRPD)
  * Created by iman on 7/27/16.
  */
-public class GeneticAlgorithm {
+public class HeuristicGeneticAlgorithm {
 
     private Graph graph;
     private int vehicleQty;
@@ -45,16 +48,16 @@ public class GeneticAlgorithm {
     /**
      * Constructor Creates a population with given qty
      */
-    public GeneticAlgorithm(Graph graph, int customerQty, int vehicleQty, int populationSize) {
+    public HeuristicGeneticAlgorithm(Graph graph, int customerQty, int vehicleQty) {
         this.graph = graph;
         this.vehicleQty = vehicleQty;
         this.customerQty = customerQty;
-        this.populationSize = populationSize;
         this.minimumCost = GlobalVars.INF;
         this.population = new ArrayList<>();
 
         this.depotId = graph.getDepotId();
         this.printTimeStepSize = GlobalVars.printTimeStepSize;
+
     }
 
     /**
@@ -62,10 +65,12 @@ public class GeneticAlgorithm {
      *
      * @param computeDurationMilliSecond is how much time can be consumed
      */
-    public void run(int computeDurationMilliSecond, int maxIterationsNoUpdate, int iterationsLimit) {
+    public void run(int computeDurationMilliSecond, int maxIterationsNoUpdate, int iterationsLimit, int populationSize) {
         GlobalVars.log.println(GlobalVars.equalsLine);
         GlobalVars.log.println("\t\t\t\t\t\t\t\t\tGenetic algorithm");
         GlobalVars.log.println(GlobalVars.equalsLine);
+
+        this.populationSize = populationSize;
 
         startTime = System.currentTimeMillis();
         long printTime = startTime + printTimeStepSize;
@@ -130,7 +135,8 @@ public class GeneticAlgorithm {
         this.run(
                 GeneticConfigs.COMPUTE_DURATION_MILLISECONDS,
                 GeneticConfigs.MAX_ITERATIONS_NO_UPDATE,
-                GeneticConfigs.ITERATIONS_LIMIT
+                GeneticConfigs.ITERATIONS_LIMIT,
+                GeneticConfigs.POPULATION_SIZE
         );
     }
 
