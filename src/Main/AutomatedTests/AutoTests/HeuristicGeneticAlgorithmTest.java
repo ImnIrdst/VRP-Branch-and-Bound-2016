@@ -1,7 +1,6 @@
 package Main.AutomatedTests.AutoTests;
 
 import Main.Algorithms.Heuristics.GA.HeuristicGeneticAlgorithm;
-import Main.Algorithms.Heuristics.GA.SimpleGeneticAlgorithm;
 import Main.AutomatedTests.TestCases.IntegerTestCase.SCSTestCase;
 import Main.AutomatedTests.TestCases.IntegerTestCase.SCSTestGenerator;
 import Main.GlobalVars;
@@ -21,11 +20,11 @@ public class HeuristicGeneticAlgorithmTest {
 
     public static void main(String[] args) throws FileNotFoundException {
         GlobalVars.log.println(GlobalVars.plusesLine);
-        GlobalVars.log.println("BEGIN Genetic3AutoTest");
-        GlobalVars.log.println(GlobalVars.plusesLine);
+        GlobalVars.log.println("BEGIN Heuristic Genetic Algorithm");
+        GlobalVars.log.println(GlobalVars.plusesLine + "\n");
 
         FileOutputStream fileOutputStream = new FileOutputStream(
-                new File("resources/AutoTestResults/ga4-tmp.csv"));
+                new File("resources/AutoTestResults/heuristic-ga-tmp.csv"));
         PrintWriter out = new PrintWriter(fileOutputStream);
 
 
@@ -42,7 +41,9 @@ public class HeuristicGeneticAlgorithmTest {
             SCSTestCase testCase = testGenerator.getNextTestCase();
             for (int i = 0; i < INSTANCES_PER_TESTCASE; i++, testId++) {
                 for (int batch = 0; batch < testBatch; batch++, id++) {
-                    if (id > 20) break;
+
+                    if (AutoTestsConfig.stopCriteria(testId))
+                        break;
 
                     Graph originalGraph = Graph.buildRandomGraphFromIntegerTestCase(testCase, testId);
 
@@ -58,14 +59,14 @@ public class HeuristicGeneticAlgorithmTest {
                     HeuristicGeneticAlgorithm geneticAlgorithm = new HeuristicGeneticAlgorithm(
                             originalGraph, GlobalVars.numberOfCustomers, GlobalVars.numberOfVehicles);
                     geneticAlgorithm.runUsingConfigFile();
-                    GlobalVars.log.println(geneticAlgorithm.bestChromosomeString());
-                    GlobalVars.log.println(geneticAlgorithm.bestChromosomeCostDetailsString());
+                    GlobalVars.log.println(geneticAlgorithm.bestChromosome);
+                    GlobalVars.log.println(geneticAlgorithm.bestChromosome.detailedCostString());
                     GlobalVars.log.println(GlobalVars.equalsLine);
 
                     String iterations = "" + geneticAlgorithm.iterations;
                     String iterationLimit = "" + 1000 + " | " + 2000;
                     String time = String.format("%.2f", geneticAlgorithm.getElapsedTimeInSeconds());
-                    String cost = String.format("%.2f", geneticAlgorithm.getMinimumCost());
+                    String cost = String.format("%.2f", geneticAlgorithm.getMaximumCost());
 
                     String tableRow = String.format("%d,%d,%s,%s,%s,%s,%s", id, testId,
                             testCase.getCSVRow(), cost, time, iterations, geneticAlgorithm.chromosomesQty);

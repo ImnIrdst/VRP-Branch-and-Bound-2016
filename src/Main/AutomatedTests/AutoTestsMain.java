@@ -1,8 +1,10 @@
 package Main.AutomatedTests;
 
 //import Main.AutomatedTests.AutoTests.CplexAutoTest;
+import Main.Algorithms.Heuristics.TabuSearch.TabuSearch;
 import Main.AutomatedTests.AutoTests.HeuristicGeneticAlgorithmTest;
 import Main.AutomatedTests.AutoTests.SimpleGeneticAlgorithmTest;
+import Main.AutomatedTests.AutoTests.TabuSearchTest;
 import Main.GlobalVars;
 
 /**
@@ -13,6 +15,7 @@ public class AutoTestsMain {
         GlobalVars.initTheLogFile("resources/log-tmp.txt");
 
 //        CplexAutoTest.main(args);
+        TabuSearchTest.main(args);
         SimpleGeneticAlgorithmTest.main(args);
         HeuristicGeneticAlgorithmTest.main(args);
 

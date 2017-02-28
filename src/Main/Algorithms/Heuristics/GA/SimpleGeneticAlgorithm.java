@@ -2,7 +2,6 @@ package Main.Algorithms.Heuristics.GA;
 
 import Main.Algorithms.Other.Random;
 import Main.Algorithms.Other.Random.IRange;
-import Main.Algorithms.Other.RollingWheel;
 import Main.Algorithms.TSP.SimpleTSP.SimpleTSP;
 import Main.GlobalVars;
 import Main.Graph.Graph;
@@ -21,9 +20,10 @@ public class SimpleGeneticAlgorithm {
     private int vehicleQty;
     private int customerQty;
     private int populationSize;
-    private double minimumCost;
-    private Chromosome bestChromosome;
     private List<Chromosome> population;
+
+    public double maximumCost;
+    public Chromosome bestChromosome;
 
     private final double MUTATION_PROBABILITY = GeneticConfigs.MUTATION_PROBABILITY;
     private final double CROSSOVER_PROBABILITY = GeneticConfigs.CROSSOVER_PROBABILITY;
@@ -49,7 +49,7 @@ public class SimpleGeneticAlgorithm {
         this.graph = graph;
         this.vehicleQty = vehicleQty;
         this.customerQty = customerQty;
-        this.minimumCost = GlobalVars.INF;
+        this.maximumCost = -GlobalVars.INF;
         this.population = new ArrayList<>();
 
         this.depotId = graph.getDepotId();
@@ -101,8 +101,8 @@ public class SimpleGeneticAlgorithm {
             population = selection(newPopulation);
 
             // update best answer
-            if (population.get(0).getCost() < minimumCost) {
-                minimumCost = population.get(0).getCost();
+            if (population.get(0).getCost() > maximumCost) {
+                maximumCost = population.get(0).getCost();
                 bestChromosome = population.get(0);
                 iterationsNoUpdate = 0;
             }
@@ -111,7 +111,7 @@ public class SimpleGeneticAlgorithm {
             if (IS_VERBOSE && System.currentTimeMillis() > printTime) {
                 printTime += printTimeStepSize;
                 GlobalVars.log.printf("Iteration #%d,\tTime elapsed: %.2fs,\tChromosomesQty: %d,\tMinimum Cost: %.2f\n",
-                        iterations, (System.currentTimeMillis() - startTime) / 1000., chromosomesQty, minimumCost);
+                        iterations, (System.currentTimeMillis() - startTime) / 1000., chromosomesQty, maximumCost);
             }
 
             if (iterationsNoUpdate > maxIterationsNoUpdate) break;
@@ -372,8 +372,8 @@ public class SimpleGeneticAlgorithm {
     /**
      * @return minimum cost so far
      */
-    public double getMinimumCost() {
-        return minimumCost;
+    public double getMaximumCost() {
+        return maximumCost;
     }
 
     public double getElapsedTimeInSeconds() {
@@ -382,15 +382,9 @@ public class SimpleGeneticAlgorithm {
 
     public String bestChromosomeString() {
         return ("Best Chromosome: " + bestChromosome
-                + ", " + String.format("Cost: %.2f", minimumCost)
+                + ", " + String.format("Cost: %.2f", maximumCost)
                 + ", " + String.format("iterations: %d", iterations));
     }
-
-    public String bestChromosomeCostDetailsString() {
-        return String.format("travelCost = %.1f; penaltyCost = %.1f; maxGainCost = %.1f; vehicleUsageCost = %.1f;",
-                bestChromosome.travelCost, bestChromosome.penaltyCost, bestChromosome.maxGainCost, bestChromosome.vehicleUsageCost);
-    }
-
 
     /**
      * @return a random number less than given bound
@@ -409,7 +403,7 @@ public class SimpleGeneticAlgorithm {
     /**
      * Chromosome class for a setCustomer of ids (for VRPD) problem
      */
-    private class Chromosome implements Comparable<Chromosome> {
+    public class Chromosome implements Comparable<Chromosome> {
         public List<Integer> customersOrder;
         public List<Integer> customersVehicle;
         public List<Integer> orderAcceptance;
@@ -478,7 +472,7 @@ public class SimpleGeneticAlgorithm {
                 if (batch[i].size() == 0) continue;
 
                 if (batch[i].size() > depot.capacity) {
-                    this.cost = GlobalVars.INF;
+                    this.cost = -GlobalVars.INF;
                     this.isCostCalculated = true;
                     return cost;
                 }
@@ -500,7 +494,14 @@ public class SimpleGeneticAlgorithm {
 
             this.isCostCalculated = true;
             this.cost = maxGainCost + penaltyCost + vehicleUsageCost + travelCost;
+
+//            System.out.println(this + " ||||| " + this.detailedCostString());
             return cost;
+        }
+
+        public String detailedCostString() {
+            return String.format("travelCost = %.1f; penaltyCost = %.1f; maxGainCost = %.1f; vehicleUsageCost = %.1f;",
+                    travelCost, penaltyCost, maxGainCost, vehicleUsageCost);
         }
 
         @Override

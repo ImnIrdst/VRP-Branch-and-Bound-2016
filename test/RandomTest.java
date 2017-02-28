@@ -5,7 +5,7 @@ public class RandomTest {
     public static void main(String[] args){
         Random.setSeed(1);
         for (int i=0 ; i<30 ; i++){
-            System.out.print(Random.getRandomIntInRange(new Random.IRange(2,2)) + " ");
+            System.out.print(Random.getRandomIntInRange(new Random.IRange(2,3)) + " ");
         }
         System.out.println();
 

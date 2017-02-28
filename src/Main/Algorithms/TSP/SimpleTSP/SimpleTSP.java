@@ -32,7 +32,7 @@ public class SimpleTSP {
             if (this.arrivalTime <= current.deadline)
                 this.penaltyTaken += Math.max(this.arrivalTime - current.dueDate, 0) * current.penalty;
             else
-                this.penaltyTaken += GlobalVars.INF;
+                this.penaltyTaken += GlobalVars.INF/10;
         }
 
         this.travelTime = this.arrivalTime - this.startTime;
