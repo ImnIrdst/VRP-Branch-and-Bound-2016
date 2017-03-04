@@ -67,14 +67,15 @@ public class SimpleGeneticAlgorithm {
         GlobalVars.log.println(GlobalVars.equalsLine);
 
         this.populationSize = populationSize;
+        this.startTime = System.currentTimeMillis();
 
-        startTime = System.currentTimeMillis();
         long printTime = startTime + printTimeStepSize;
         long iterationsNoUpdate = 0;
 
         initializePopulation();
         while (System.currentTimeMillis() < startTime + computeDurationMilliSecond) {
             List<Chromosome> newPopulation = new ArrayList<>();
+            Set<Chromosome> newPopulationSet = new HashSet<>();
 
             // cross over
             while (newPopulation.size() < 2 * populationSize) {
@@ -84,12 +85,29 @@ public class SimpleGeneticAlgorithm {
                     Chromosome c2 = tournament(population, i + TOURNAMENT_SIZE, i + TOURNAMENT_SIZE * 2);
 
                     if (getRandom0to1() < CROSSOVER_PROBABILITY) {
-                        newPopulation.add(crossOver(c1, c2));
-                        newPopulation.add(crossOver(c2, c1));
+                        Chromosome nc1 = crossOver(c1, c2);
+                        Chromosome nc2 = crossOver(c2, c1);
+
+                        if (!newPopulationSet.contains(nc1)) {
+                            newPopulation.add(nc1);
+                            newPopulationSet.add(nc1);
+                        }
+
+                        if (!newPopulationSet.contains(nc2)) {
+                            newPopulation.add(nc2);
+                            newPopulationSet.add(nc2);
+                        }
                         chromosomesQty += 2;
                     } else {
-                        newPopulation.add(c1);
-                        newPopulation.add(c2);
+                        if (!newPopulationSet.contains(c1)) {
+                            newPopulation.add(c1);
+                            newPopulationSet.add(c1);
+                        }
+
+                        if (!newPopulationSet.contains(c2)) {
+                            newPopulation.add(c2);
+                            newPopulationSet.add(c2);
+                        }
                     }
                 }
             }
@@ -99,6 +117,10 @@ public class SimpleGeneticAlgorithm {
 
             // selection
             population = selection(newPopulation);
+
+//            for (Chromosome c : population) {
+//                System.out.println(c);
+//            }
 
             // update best answer
             if (population.get(0).getCost() > maximumCost) {
@@ -125,7 +147,7 @@ public class SimpleGeneticAlgorithm {
     }
 
     /**
-     * Runs the genetic algorithm with Genetic Params Class attributes
+     * Runs the genetic algorithm with Genetic Configs Class attributes
      */
     public void runUsingConfigFile() {
         this.run(
@@ -525,11 +547,11 @@ public class SimpleGeneticAlgorithm {
 
 // ----------------- Debuging ------------------
 //if (IS_DEBUG_MODE) {
-//        if (customers.toString().equals("[6, 6, 6, 6, 6, 6, 6, 6]")) {
-//        customers = customers;
+//        if (customersVehicle.toString().equals("[6, 6, 6, 6, 6, 6, 6, 6]")) {
+//        customersVehicle = customersVehicle;
 //        }
-//        if (customers.toString().equals("[4, 7, 6, 3, 0, 8, 5, 1, 2]")) {
-//        customers = customers;
+//        if (customersVehicle.toString().equals("[4, 7, 6, 3, 0, 8, 5, 1, 2]")) {
+//        customersVehicle = customersVehicle;
 //        }
 //
 //        GlobalVars.log.println("-------------");

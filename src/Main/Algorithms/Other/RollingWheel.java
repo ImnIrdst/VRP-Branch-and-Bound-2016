@@ -17,7 +17,8 @@ public class RollingWheel {
         double sum = probabilities[0];
         double rand = Random.getRandomDoubleInRange(new Random.DRange(0, sumOfAll));
 
-        for (int i = 0; i < probabilities.length; i++, sum += probabilities[i]) {
+        for (int i = 0; i < probabilities.length; i++) {
+            sum += probabilities[i];
             if (rand < sum) return i;
         }
 

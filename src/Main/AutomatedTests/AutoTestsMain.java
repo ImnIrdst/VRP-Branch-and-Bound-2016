@@ -15,9 +15,9 @@ public class AutoTestsMain {
         GlobalVars.initTheLogFile("resources/log-tmp.txt");
 
 //        CplexAutoTest.main(args);
+        HeuristicGeneticAlgorithmTest.main(args);
         TabuSearchTest.main(args);
         SimpleGeneticAlgorithmTest.main(args);
-        HeuristicGeneticAlgorithmTest.main(args);
 
         GlobalVars.log.close();
     }

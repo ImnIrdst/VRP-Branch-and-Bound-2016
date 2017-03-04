@@ -7,73 +7,30 @@ import Main.Graph.VertexType;
  * Created by IMN on 10/23/2016.
  */
 public class RankingIndex {
-    public static final int NUMBER_OF_RULES = 4;
+    public static final int NUMBER_OF_RULES = 5;
 
-    public static double getIndexValue1(
-            Vertex u, Vertex v, double distanceUV, double previousArrivalTime, double sumOfProcessTimes) {
-
-        double pk = v.processTime;
-        double dk = v.dueDate;
-        double wk = v.penalty;
-
-        if (v.type == VertexType.DEPOT) pk = 1;
-
-        double t = previousArrivalTime;
-        double c = distanceUV;
-        double A = sumOfProcessTimes;
-
-        double Ik = -(wk * dk);
-        return Ik;
+    public static double getIndexValue1(Vertex v) {
+        if (v.dueDate == 0) return v.dueDate;
+        return v.penalty / v.dueDate;
     }
 
-    public static double getIndexValue2(
-            Vertex u, Vertex v, double distanceUV, double previousArrivalTime, double sumOfProcessTimes) {
-
-        double pk = v.processTime;
-        double dk = v.dueDate;
-        double wk = v.penalty;
-
-        if (v.type == VertexType.DEPOT) pk = 1;
-
-        double t = previousArrivalTime;
-        double c = distanceUV;
-        double A = sumOfProcessTimes;
-
-        double Ik = (wk / pk) - ((dk - pk - t - c) / A) - t;
-        return Ik;
+    public static double getIndexValue2(Vertex v) {
+        return v.maximumGain;
     }
 
-    public static double getIndexValue3(
-            Vertex u, Vertex v, double distanceUV, double previousArrivalTime, double sumOfProcessTimes) {
-
-        double pk = v.processTime;
-        double dk = v.dueDate;
-        double wk = v.penalty;
-
-        if (v.type == VertexType.DEPOT) pk = 1;
-
-        double t = previousArrivalTime;
-        double c = distanceUV;
-        double A = sumOfProcessTimes;
-
-        double Ik = (wk / pk) * Math.exp(-Math.max(dk - pk - t - c, 0) / A);
-        return Ik;
+    public static double getIndexValue3(Vertex v) {
+        if (v.maximumGain == 0) return 0;
+        return (v.deadline - v.dueDate) / v.maximumGain;
     }
 
-    public static double getIndexValue4(
-            Vertex u, Vertex v, double distanceUV, double previousArrivalTime, double sumOfProcessTimes) {
+    public static double getIndexValue4(Vertex v) {
+        if (v.dueDate == 0) return v.dueDate;
+        return (v.maximumGain * v.penalty) / v.dueDate;
+    }
 
-        double pk = v.processTime;
-        double dk = v.dueDate;
-        double wk = v.penalty;
-
-        if (v.type == VertexType.DEPOT) pk = 1;
-
-        double t = previousArrivalTime;
-        double c = distanceUV;
-        double A = sumOfProcessTimes;
-
-        double Ik = -(pk);
-        return Ik;
+    public static double getIndexValue5(Vertex v) {
+        if (v.dueDate == 0) return v.dueDate;
+        if (v.maximumGain == 0) return 0;
+        return ((v.maximumGain * v.penalty) / v.dueDate) * Math.exp((v.deadline - v.dueDate) / v.maximumGain);
     }
 }

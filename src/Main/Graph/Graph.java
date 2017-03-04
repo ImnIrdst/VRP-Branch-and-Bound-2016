@@ -12,10 +12,10 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
- * Simple graph stored in a HashMap adjacency customers
+ * Simple graph stored in a HashMap adjacency customersVehicle
  */
 public class Graph {
-    public Map<String, Vertex> adjacencyList; // adjacency customers: mapping of vertex names to Vertex objects, built from a setCustomer of Edge
+    public Map<String, Vertex> adjacencyList; // adjacency customersVehicle: mapping of vertex names to Vertex objects, built from a setCustomer of Edge
     public Map<Integer, Vertex> idToVertexMap; // maps vertex Id to Vertex
 
     double overallAverageDistance = -1;
@@ -80,7 +80,7 @@ public class Graph {
     }
 
     /**
-     * Sets the ids of vertexes in a graph, depot is n and customers are (0 ... n)
+     * Sets the ids of vertexes in a graph, depot is n and customersVehicle are (0 ... n)
      */
     public void setIds() {
         int id = 0;
@@ -93,14 +93,14 @@ public class Graph {
     }
 
     /**
-     * adds a vertex to the adjacency customers
+     * adds a vertex to the adjacency customersVehicle
      */
     public void addVertex(Vertex u) {
         if (!adjacencyList.containsKey(u.name)) adjacencyList.put(u.name, u);
     }
 
     /**
-     * adds an edge to the adjacency customers
+     * adds an edge to the adjacency customersVehicle
      */
     public void addEdge(Edge e) {
         if (!adjacencyList.containsKey(e.uName)) adjacencyList.put(e.uName, new Vertex(e.uName));
@@ -210,7 +210,7 @@ public class Graph {
     }
 
     /**
-     * @return customers of vertices in the graph
+     * @return customersVehicle of vertices in the graph
      */
     public Collection<Vertex> getVertices() {
         return adjacencyList.values();
@@ -218,7 +218,7 @@ public class Graph {
 
 
     /**
-     * @return customers of customers (customers of neighbors of depot)
+     * @return customersVehicle of customersVehicle (customersVehicle of neighbors of depot)
      */
     public Collection<Vertex> getCustomerVertices() {
         return getVertexById(getDepotId()).neighbours.keySet();

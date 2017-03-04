@@ -41,7 +41,7 @@ public class Vertex {
     }
 
     /**
-     * constructor for customers
+     * constructor for customersVehicle
      */
     public Vertex(String name, VertexType type, double processTime, double dueDate, double deadline, double penalty, double maximumGain) {
         this.name = name;
@@ -140,7 +140,7 @@ public class Vertex {
     /**
      * getCustomer Id of the node
      * if n is number of nodes then
-     * 1,2,...,n-1 -> for customers
+     * 1,2,...,n-1 -> for customersVehicle
      * n -> depot
      * only must be used for Branch and Bound and after graph has been created.
      */

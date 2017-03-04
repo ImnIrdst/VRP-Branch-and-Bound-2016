@@ -51,8 +51,7 @@ public class ATC {
             for (Vertex v : graph.getCustomerVertices()) {
                 if (isServed[v.id] == true) continue;
 
-                double atcValue = RankingIndex.getIndexValue3(
-                        u, v, graph.getDistance(u, v), arrivalTime, sumOfProcessTimes);
+                double atcValue = RankingIndex.getIndexValue3(v);
                 if (atcValue > bestValue) {
                     bestValue = atcValue;
                     next = v;
